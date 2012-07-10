@@ -3,7 +3,7 @@ Section: comm
 Priority: optional
 Maintainer: Iñaki Baz Castillo <ibc@aliax.net>
 Homepage: http://www.oversip.net
-Build-Depends: debhelper (>= 5)
+Build-Depends: debhelper (>= 7)
 Standards-Version: 3.9.3
 
 Package: oversip
