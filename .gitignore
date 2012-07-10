@@ -12,3 +12,6 @@ tmp
 .yardoc
 _yardoc
 doc/
+
+create_gem_and_deb.sh
+
