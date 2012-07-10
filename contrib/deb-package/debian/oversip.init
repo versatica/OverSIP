@@ -15,7 +15,6 @@ NAME=oversip
 DESC=OverSIP
 HOMEDIR=/var/run/$NAME
 PIDFILE_NAME=$NAME.pid
-CONF_DIR=/etc/$NAME
 RUN=no
 RUBY_GEM=$NAME
 RUBY_EXE=ruby1.9.1
