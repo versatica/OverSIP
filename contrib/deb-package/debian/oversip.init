@@ -1,0 +1,204 @@
+#! /bin/bash
+
+### BEGIN INIT INFO
+# Provides:          oversip
+# Required-Start:    $syslog $network $remote_fs $time
+# Required-Stop:     $syslog $network $remote_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start/stop OverSIP
+# Description:       Start/stop OverSIP
+### END INIT INFO
+
+PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin:/var/lib/gems/1.9.1/bin
+NAME=oversip
+DESC=OverSIP
+HOMEDIR=/var/run/$NAME
+PIDFILE_NAME=$NAME.pid
+CONF_DIR=/etc/$NAME
+RUN=no
+RUBY_GEM=$NAME
+RUBY_EXE=ruby1.9.1
+
+
+. /lib/lsb/init-functions
+
+# Debian LSB functions don't add \n in function log_begin_msg().
+# In Ubuntu such function is overriden in /etc/lsb-base-logging.sh.
+UBUNTU_LOGGING=0
+[ -r /etc/lsb-base-logging.sh ] && UBUNTU_LOGGING=1
+
+[ -r /etc/default/$NAME ] && . /etc/default/$NAME
+
+# Ensure Ruby executable is installed.
+which $RUBY_EXE >/dev/null
+if [ $? -ne 0 ] ; then
+  log_failure_msg "ruby1.9.1 is not installed, exiting."
+  log_end_msg 5
+  exit 5
+fi
+
+# Check whether OverSIP Ruby Gem is installed and get the executable location.
+DAEMON=$(which $NAME)
+if [ $? -ne 0 ] ; then
+  log_failure_msg "$DESC ($NAME): Ruby Gem '$RUBY_GEM' is not installed, exiting."
+
+  case "$1" in
+  status)
+    # LSB - 4: program or service status is unknown.
+    log_end_msg 4
+    exit 4
+    ;;
+  *)
+    # LSB - 5: program is not installed.
+    log_end_msg 5
+    exit 5
+    ;;
+  esac
+fi
+
+if [ ! -x $DAEMON ]; then
+  log_failure_msg "$DESC ($NAME): executable '$DAEMON' does not exist or has not execution access. It should be provided by Ruby Gem '$RUBY_GEM'."
+
+  case "$1" in
+  status)
+    # LSB - 4: program or service status is unknown.
+    log_end_msg 4
+    exit 4
+    ;;
+  *)
+    # LSB - 5: program is not installed.
+    log_end_msg 5
+    exit 5
+    ;;
+  esac
+fi
+
+if [ "$RUN" != "yes" ] ; then
+  log_failure_msg "$DESC ($NAME) not yet configured. Set RUN=yes in /etc/default/$NAME."
+  exit 0
+fi
+
+PIDFILE="${HOMEDIR}/${PIDFILE_NAME}"
+OPTIONS="-P ${PIDFILE}"
+if [ -n "$USER" ] ; then
+ OPTIONS="${OPTIONS} -u ${USER}"
+fi
+if [ -n "$GROUP" ] ; then
+ OPTIONS="${OPTIONS} -g ${GROUP}"
+fi
+
+
+check_homedir ()
+{
+  # Create HOMEDIR directory in case it doesn't exist.
+  # Useful in Ubuntu as /var/run/ content is deleted in shutdown.
+  if [ ! -d $HOMEDIR ] ; then mkdir $HOMEDIR ; fi
+
+  # Set the appropiate owner and group
+  if [ -n "$USER" ] ; then chown ${USER} $HOMEDIR ; fi
+  if [ -n "$GROUP" ] ; then chgrp ${GROUP} $HOMEDIR ; fi
+}
+
+
+start() {
+  start-stop-daemon --start --quiet --pidfile $PIDFILE --quiet \
+    --exec $DAEMON -- $OPTIONS
+  res=$?
+
+  if [ $res -eq 0 ] ; then
+    log_end_msg 0
+    exit 0
+  else
+    if [ ! -r "$PIDFILE" ]; then
+      log_failure_msg "error, failed to start."
+      log_end_msg 1
+      exit 1
+    elif read pid < "$PIDFILE" && ps -p "$pid" > /dev/null 2>&1; then
+      log_warning_msg "already running."
+      exit 0
+    else
+      log_failure_msg "error, failed to start (and PID file '$PIDFILE' exists)."
+      log_end_msg 1
+      exit 1
+    fi
+  fi
+}
+
+
+set -e
+
+case "$1" in
+
+  start)
+    check_homedir
+    log_daemon_msg "Starting $DESC ($NAME)"
+    echo
+    set +e
+
+    start
+    ;;
+
+  stop)
+    log_daemon_msg "Stopping $DESC ($NAME)"
+    echo
+    set +e
+
+    start-stop-daemon --oknodo --stop --pidfile $PIDFILE --quiet \
+      --name $NAME
+    res=$?
+
+    # Posix MQueue for syslogging is created with owner root (to ensure
+    # rlimits and so) so it cannot be deleted by $USER when stopping the
+    # server. This command removes the mqueue when performing the "stop"
+    # action.
+    $DAEMON --remove-mqueue "/${NAME}_syslogger"
+
+    if [ $res -eq 0 ] ; then
+      log_end_msg 0
+      exit 0
+    else
+      log_failure_msg "error, failed to stop."
+      log_end_msg 1
+      exit 1
+    fi
+    ;;
+
+  restart|force-reload)
+    log_daemon_msg "Restarting $DESC ($NAME)"
+    echo
+    set +e
+
+    start-stop-daemon --oknodo --stop --pidfile $PIDFILE --retry=5 --quiet \
+      --name $NAME
+
+    if [ $? -ne 0 ] ; then
+      log_failure_msg "error, failed to stop."
+      log_end_msg 1
+      exit 1
+    fi
+
+    check_homedir
+    start
+    ;;
+
+  status)
+    if [ ! -r "$PIDFILE" ]; then
+      log_warning_msg "$DESC ($NAME) is not running."
+      exit 3
+    fi
+    if read pid < "$PIDFILE" && ps -p "$pid" > /dev/null 2>&1; then
+      log_begin_msg "$DESC ($NAME) is running."
+      [ $UBUNTU_LOGGING -eq 0 ] && echo
+      exit 0
+    else
+      log_warning_msg "$DESC ($NAME) is not running but PID file '$PIDFILE' exists."
+      exit 1
+    fi
+    ;;
+
+  *)
+    log_failure_msg "Usage: /etc/init.d/$NAME {start|stop|restart|force-reload|status}."
+    exit 1
+    ;;
+esac

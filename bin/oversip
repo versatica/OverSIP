@@ -1,0 +1,182 @@
+#!/usr/bin/ruby1.9
+# -*- encoding: binary -*-
+
+unless RUBY_VERSION >= "1.9.2"
+  raise LoadError, "OverSIP requires Ruby version >= 1.9.2 (current version is #{RUBY_VERSION})"
+end
+
+
+# First of all, trap some signals in order to ignore them if they arrive while
+# loading server libraries.
+[:HUP, :INT, :USR1, :USR2].each {|signal| trap(signal) {} }
+
+
+require "optparse"
+require "etc"
+require "oversip"
+
+
+module OverSIP
+
+  class Executable
+
+    @log_id = "executable"
+
+    def self.run
+      ::OverSIP::Logger.load_methods
+      extend ::OverSIP::Logger
+
+      # Options by default.
+      options = {
+        :colorize  => true
+      }
+
+      OptionParser.new("", 24, "  ") do |opts|
+        opts.banner = "#{::OverSIP::DESCRIPTION}" \
+                      "\n\nUsage: #{File.basename(__FILE__)} " \
+                      "[#{::OverSIP::PROGRAM_NAME} options] [Ruby options]"
+
+        opts.separator "\n#{::OverSIP::PROGRAM_NAME} options:"
+
+        opts.on("-P", "--pid FILE", "Create a PID file (required)") do |value|
+          options[:pid_file] = value
+        end
+
+        opts.on("-p", "--process_name NAME", "Change the running process name, also affects to syslogger process and Posix Message Queue name (default 'oversip')") do |value|
+          options[:process_name] = value
+        end
+
+        opts.on("-c", "--dir_config DIR", "Absolute path to the directory with user configuration files (default '/etc/oversip/')") do |value|
+          options[:dir_config] = value
+        end
+
+        opts.on("-u", "--user USER", "System user to run with") do |value|
+          options[:user] = value
+        end
+
+        opts.on("-g", "--group GROUP", "System group to run with") do |value|
+          options[:group] = value
+        end
+
+        opts.on("--no-color", "Don't colorize text printed in stdout") do |value|
+          options[:colorize] = false
+        end
+
+        opts.on("--remove-mqueue MQUEUE", "Destroy the Posix Message Queue with the given name and exit") do |value|
+          require "posix_mq"
+
+          begin
+            POSIX_MQ.unlink value
+          rescue ::Errno::ENOENT
+          rescue ::Errno::EACCES => e
+            fatal "cannot remove '#{value}' posix message queue due file permissions"
+            exit 1
+          rescue ::Errno::EINVAL => e
+            fatal "cannot remove '#{value}' posix message queue, invalid name"
+            exit 1
+          ensure
+            exit
+          end
+        end
+
+        opts.separator "\nRuby options:"
+
+        opts.on("-d", "--debug", "Set debugging flags ($DEBUG = true)") do
+          $DEBUG = true
+        end
+
+        opts.on("-w", "--warn", "Turn warnings on ($-w = true)") do
+          $-w = true
+        end
+
+        opts.on("-I", "--include PATH", "Add PATH to $LOAD_PATH (may be used more than once)") do |path|
+          $LOAD_PATH.unshift(*path.split(/:/))
+        end
+
+        opts.on("-r", "--require LIBRARY", "Load LIBRARY before running the programm (may be used more than once)") do |library|
+          require library
+        end
+
+        opts.separator "\nCommon options:"
+
+        opts.on_tail("-h", "--help", "Show this message") do
+          puts opts.to_s
+          exit
+        end
+
+        opts.on_tail("-v", "--version", "Show version") do
+          puts ::OverSIP::DESCRIPTION
+          exit
+        end
+
+        begin
+          opts.parse! ARGV
+        rescue ::OptionParser::InvalidOption => e
+          log_system_error e.message
+          puts
+          puts opts.to_s
+          exit! 1
+        rescue ::OptionParser::MissingArgument => e
+          log_system_error e.message
+          puts
+          puts opts.to_s
+          exit! 1
+        end
+      end
+
+      log_system_info "#{::OverSIP::PROGRAM_NAME} #{::OverSIP::VERSION} starting..."
+
+      # Options checks.
+
+      # PID file is required.
+      unless options[:pid_file]
+        fatal "PID file is required (use -P or --pid option)"
+      end
+
+      # Ignore user/group if the launcher is not being running as root.
+      unless Process.euid == 0
+        log_system_warn "ignoring user/group parameters when not running as root"
+        options.delete :user
+        options.delete :group
+      else
+        # Get the uid and gid to run with.
+        if options[:user]
+          begin
+            Etc.getpwnam options[:user]
+          rescue ArgumentError
+            fatal "user '#{options[:user]}' does not exist in the system"
+          end
+        end
+        if options[:group]
+          begin
+            Etc.getgrnam options[:group]
+          rescue ArgumentError
+            fatal "group '#{options[:group]}' does not exist in the system"
+          end
+        end
+      end
+
+      # Set the command name (as it appears in "ps" output) to given --process_name option (-p)
+      # or to the script filename otherwise.
+      $0 = options[:process_name] || File.basename(__FILE__)
+
+      OverSIP.master_name = $0
+      log_system_info "master process name: #{OverSIP.master_name}"
+
+      OverSIP::Config.load options[:dir_config]
+      log_system_info "applied configuration:"
+      OverSIP::Config.print options[:colorize]
+
+      log_system_info "creating Posix Message Queue for communicating master and syslogger processes"
+      OverSIP::Logger.init_logger_mq options[:group]
+      OverSIP::Logger.load_methods
+
+      OverSIP::Launcher.daemonize!(options)
+      OverSIP::Launcher.run(options)
+
+    end  # def run
+  end  # class Executable
+end  # module OverSIP
+
+
+::OverSIP::Executable.run

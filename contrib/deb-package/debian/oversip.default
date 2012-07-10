@@ -1,0 +1,12 @@
+#
+# oversip startup options
+#
+
+# Set to 'yes' when configured.
+RUN=no
+
+# User to run as.
+USER=oversip
+
+# Group to run as.
+GROUP=oversip
