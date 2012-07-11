@@ -446,6 +446,9 @@ module OverSIP::Launcher
     # Kill Stud processes.
     pid = Process.spawn "killall oversip_stud 2>/dev/null"
     Process.wait(pid)
+    sleep 0.5
+    pid = Process.spawn "killall -9 oversip_stud 2>/dev/null"
+    Process.wait(pid)
 
     # Exit by preventing any exception.
     exit!( error ? false : true )
