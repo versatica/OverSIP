@@ -13,26 +13,28 @@ build-stamp:
 clean:
 	dh_testdir
 	dh_testroot
-	rm -f build-stamp
+	rm -rf build-stamp oversip
 	dh_clean
 
 install: build
 	dh_testdir
 	dh_testroot
 	dh_clean -k
-	dh_installdirs /etc
+	dh_installdirs /etc /usr/share
 
 	mkdir -p $(CURDIR)/debian/oversip/etc/oversip/
+	mkdir -p $(CURDIR)/debian/oversip/etc/oversip/tls/
+	mkdir -p $(CURDIR)/debian/oversip/etc/oversip/tls/ca/
+	mkdir -p $(CURDIR)/debian/oversip/etc/oversip/tls/utils/
+	mkdir -p $(CURDIR)/debian/oversip/usr/share/oversip/
 	install -m 644 etc/oversip.conf debian/oversip/etc/oversip/
 	install -m 644 etc/proxies.conf debian/oversip/etc/oversip/
 	install -m 644 etc/logic.rb debian/oversip/etc/oversip/
 	install -m 644 etc/websocket_policy.rb debian/oversip/etc/oversip/
-	mkdir -p $(CURDIR)/debian/oversip/etc/oversip/tls/
 	install -m 644 etc/tls/upgrade-cacert.sh debian/oversip/etc/oversip/tls/
-	mkdir -p $(CURDIR)/debian/oversip/etc/oversip/tls/ca/
 	install -m 644 etc/tls/ca/* debian/oversip/etc/oversip/tls/ca/
-	mkdir -p $(CURDIR)/debian/oversip/etc/oversip/tls/utils/
 	install -m 644 etc/tls/utils/* debian/oversip/etc/oversip/tls/utils/
+	install -m 644 oversip.gemspec debian/oversip/usr/share/oversip/
 
 # Build architecture-dependent files here.
 binary-arch: install
