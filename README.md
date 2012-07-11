@@ -1,7 +1,7 @@
 OverSIP
 =======
 
-**UNDER CONSTRUCTION:** please wait a bit...
+**WEB UNDER CONSTRUCTION:** The code is stable and working. This web page and documentation is not... please wait a bit.
 
 OverSIP is an async SIP proxy/server programmable in Ruby language.
 
