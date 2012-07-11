@@ -1,0 +1,11 @@
+AUTHORS
+=======
+
+- Iñaki Baz Castillo <ibc@aliax.net> (Github @ibc)
+
+
+
+ACKNOWLEDGES
+============
+
+- Thanks to Jon Bonilla <manwe@aholab.ehu.es> (Github @manwe) for his contribution in the OverSIP DEB package.

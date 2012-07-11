@@ -63,6 +63,8 @@ Gem::Specification.new do |spec|
 
     Rakefile
     README.md
+    AUTHORS.txt
+    LICENSE.txt
   }
 
   spec.extensions = %w{
