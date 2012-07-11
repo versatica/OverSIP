@@ -20,7 +20,7 @@ install: build
 	dh_testdir
 	dh_testroot
 	dh_clean -k
-	dh_installdirs /etc /usr/share
+	dh_installdirs /etc
 
 	mkdir -p $(CURDIR)/debian/oversip/etc/oversip/
 	mkdir -p $(CURDIR)/debian/oversip/etc/oversip/tls/
@@ -34,7 +34,6 @@ install: build
 	install -m 644 etc/tls/upgrade-cacert.sh debian/oversip/etc/oversip/tls/
 	install -m 644 etc/tls/ca/* debian/oversip/etc/oversip/tls/ca/
 	install -m 644 etc/tls/utils/* debian/oversip/etc/oversip/tls/utils/
-	install -m 644 oversip.gemspec debian/oversip/usr/share/oversip/
 
 # Build architecture-dependent files here.
 binary-arch: install
