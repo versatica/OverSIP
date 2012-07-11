@@ -61,6 +61,13 @@ Gem::Specification.new do |spec|
     ext/stud/extconf.rb
     ext/stud/stud.tar.gz
 
+    etc/*
+    etc/tls/*
+    etc/tls/ca/*
+    etc/tls/utils/*
+
+    debian/*
+
     Rakefile
     README.md
     AUTHORS
