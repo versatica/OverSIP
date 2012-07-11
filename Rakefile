@@ -33,7 +33,7 @@ file "bin/oversip_stud" => "tmp" do
   FileUtils.remove_dir "tmp"
 end
 CLEAN.include("ext/stud/Makefile")
-CLEAN.include("ext/stud/mkmf.log")
+CLEAN.include("thirdparty/stud/mkmf.log")
 CLEAN.include("bin/oversip_stud")
 
 

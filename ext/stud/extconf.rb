@@ -12,9 +12,10 @@ end
 
 
 here = File.expand_path(File.dirname(__FILE__))
-stud_tarball = "#{here}/stud.tar.gz"
+stud_dir = "#{here}/../../thirdparty/stud/"
+stud_tarball = "stud.tar.gz"
 
-Dir.chdir(here) do
+Dir.chdir(stud_dir) do
   sys("tar -zxf #{stud_tarball}")
   Dir.chdir("stud") do
     sys("make")

@@ -59,7 +59,8 @@ Gem::Specification.new do |spec|
     ext/websocket_framing_utils/*.c
 
     ext/stud/extconf.rb
-    ext/stud/stud.tar.gz
+
+    thirdparty/stud/stud.tar.gz
 
     etc/*
     etc/tls/*
