@@ -13,5 +13,6 @@ tmp
 _yardoc
 doc/
 
-create_gem_and_deb.sh
+# Custom devel scripts
+create-deb.sh
 
