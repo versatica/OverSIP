@@ -34,7 +34,7 @@ case "$1" in
 
     # Install the Ruby gem.
     echo "installing 'oversip' Ruby Gem (version $OVERSIP_GEM_VERSION)..."
-    gem1.9.1 install oversip --no-rdoc --no-ri --conservative -v $OVERSIP_GEM_VERSION
+    gem1.9.1 install oversip --no-rdoc --no-ri -v $OVERSIP_GEM_VERSION
     ;;
 
   abort-upgrade|abort-remove|abort-deconfigure)
