@@ -12,7 +12,6 @@ require "openssl"
 
 gem "eventmachine-le", ">= 1.1.0"
 require "eventmachine-le"
-
 gem "iobuffer", ">= 1.1.2"
 require "iobuffer"
 gem "em-udns", ">= 0.3.6"

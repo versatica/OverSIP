@@ -7,9 +7,9 @@ require "syslog"
 
 gem "eventmachine-le", ">= 1.1.0"
 require "eventmachine-le"
-
 gem "em-posixmq", ">= 0.2.3"
 require "em-posixmq"
+
 
 # OverSIP libraries.
 # (not required to be loaded as needed ones have been already

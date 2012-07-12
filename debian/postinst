@@ -1,6 +1,10 @@
-#!/bin/sh
+#!/bin/bash
 
 set -e
+
+
+OVERSIP_GEM_VERSION="~>0.9.1"
+
 
 # summary of how this script can be called:
 #        * <postinst> `configure' <most-recently-configured-version>
@@ -22,9 +26,14 @@ set -e
 
 case "$1" in
     configure)
+      # Add a Debian system user/group called "oversip".
       adduser --quiet --system --group --disabled-password \
               --shell /bin/false --gecos "OverSIP" \
               --home /var/run/oversip oversip || true
+
+      # Install the Ruby gem.
+      echo "installing 'oversip' Ruby Gem (version $OVERSIP_GEM_VERSION)..."
+      gem1.9.1 install oversip --no-rdoc --no-ri --conservative -v $OVERSIP_GEM_VERSION
       ;;
 
     abort-upgrade|abort-remove|abort-deconfigure)

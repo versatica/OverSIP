@@ -1,10 +1,14 @@
-#!/bin/sh
+#!/bin/bash
 
 #DEBHELPER#
 
 if [ "$1" = "purge" ] ; then
-  # remove user/group on purge
+  # Remove the Debian system user/group.
   deluser --quiet --remove-home oversip &>/dev/null || true
+
+  # Remove the Ruby gem.
+  echo "uninstalling 'oversip' Ruby Gem..."
+  gem1.9.1 uninstall oversip -a -x
 fi
 
 exit 0

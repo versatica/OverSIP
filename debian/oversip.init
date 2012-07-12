@@ -29,53 +29,43 @@ UBUNTU_LOGGING=0
 
 [ -r /etc/default/$NAME ] && . /etc/default/$NAME
 
-# Ensure Ruby executable is installed.
-which $RUBY_EXE >/dev/null
-if [ $? -ne 0 ] ; then
-  log_failure_msg "ruby1.9.1 is not installed, exiting."
-  log_end_msg 5
-  exit 5
-fi
 
-# Check whether OverSIP Ruby Gem is installed and get the executable location.
-DAEMON=$(which $NAME)
-if [ $? -ne 0 ] ; then
-  log_failure_msg "$DESC ($NAME): Ruby Gem '$RUBY_GEM' is not installed, exiting."
+# Checks for the start action.
+if [ "$1" == "start" ] ; then
 
-  case "$1" in
-  status)
-    # LSB - 4: program or service status is unknown.
-    log_end_msg 4
-    exit 4
-    ;;
-  *)
-    # LSB - 5: program is not installed.
+  # Ensure that the admin has set RUN=yes in /etc/default/$NAME file.
+  if [ "$RUN" != "yes" ] ; then
+    log_failure_msg "$DESC ($NAME) not yet configured. Set RUN=yes in /etc/default/$NAME."
+    exit 0
+  fi
+
+  # Ensure Ruby executable is installed.
+  which $RUBY_EXE >/dev/null
+  if [ $? -ne 0 ] ; then
+    log_failure_msg "ruby1.9.1 is not installed, exiting."
     log_end_msg 5
     exit 5
-    ;;
-  esac
-fi
+  fi
 
-if [ ! -x $DAEMON ]; then
-  log_failure_msg "$DESC ($NAME): executable '$DAEMON' does not exist or has not execution access. It should be provided by Ruby Gem '$RUBY_GEM'."
+  # Check whether OverSIP Ruby Gem is installed and get the executable location.
+  DAEMON=$(which $NAME)
+  if [ $? -ne 0 ] ; then
+    log_failure_msg "$DESC ($NAME): Ruby Gem '$RUBY_GEM' is not installed, exiting."
 
-  case "$1" in
-  status)
-    # LSB - 4: program or service status is unknown.
-    log_end_msg 4
-    exit 4
-    ;;
-  *)
-    # LSB - 5: program is not installed.
-    log_end_msg 5
-    exit 5
-    ;;
-  esac
-fi
+    case "$1" in
+    status)
+      # LSB - 4: program or service status is unknown.
+      log_end_msg 4
+      exit 4
+      ;;
+    *)
+      # LSB - 5: program is not installed.
+      log_end_msg 5
+      exit 5
+      ;;
+    esac
+  fi
 
-if [ "$RUN" != "yes" ] ; then
-  log_failure_msg "$DESC ($NAME) not yet configured. Set RUN=yes in /etc/default/$NAME."
-  exit 0
 fi
 
 PIDFILE="${HOMEDIR}/${PIDFILE_NAME}"
@@ -147,14 +137,13 @@ case "$1" in
       --name $NAME
     res=$?
 
-    # Posix MQueue for syslogging is created with owner root (to ensure
-    # rlimits and so) so it cannot be deleted by $USER when stopping the
-    # server. This command removes the mqueue when performing the "stop"
-    # action.
-    $DAEMON --remove-mqueue "/${NAME}_syslogger"
-
     if [ $res -eq 0 ] ; then
       log_end_msg 0
+      # Posix MQueue for syslogging is created with owner root (to ensure
+      # rlimits and so) so it cannot be deleted by a non root user when
+      # stopping the server. This command removes the mqueue when performing
+      # the "stop" action.
+      $DAEMON --remove-mqueue "/${NAME}_syslogger" 2>/dev/null
       exit 0
     else
       log_failure_msg "error, failed to stop."
@@ -200,4 +189,5 @@ case "$1" in
     log_failure_msg "Usage: /etc/init.d/$NAME {start|stop|restart|force-reload|status}."
     exit 1
     ;;
+
 esac
