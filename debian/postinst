@@ -3,8 +3,9 @@
 set -e
 
 
-OVERSIP_GEM_VERSION="~>0.9.1"
+#DEBHELPER#
 
+OVERSIP_GEM_VERSION="~>0.9.1"
 
 # summary of how this script can be called:
 #        * <postinst> `configure' <most-recently-configured-version>
@@ -25,24 +26,26 @@ OVERSIP_GEM_VERSION="~>0.9.1"
 #     `abort-remove' or `abort-deconfigure'.
 
 case "$1" in
-    configure)
-      # Add a Debian system user/group called "oversip".
-      adduser --quiet --system --group --disabled-password \
-              --shell /bin/false --gecos "OverSIP" \
-              --home /var/run/oversip oversip || true
+  configure)
+    # Add a Debian system user/group called "oversip".
+    adduser --quiet --system --group --disabled-password \
+            --shell /bin/false --gecos "OverSIP" \
+            --home /var/run/oversip oversip || true
 
-      # Install the Ruby gem.
-      echo "installing 'oversip' Ruby Gem (version $OVERSIP_GEM_VERSION)..."
-      gem1.9.1 install oversip --no-rdoc --no-ri --conservative -v $OVERSIP_GEM_VERSION
-      ;;
+    # Install the Ruby gem.
+    echo "installing 'oversip' Ruby Gem (version $OVERSIP_GEM_VERSION)..."
+    gem1.9.1 install oversip --no-rdoc --no-ri --conservative -v $OVERSIP_GEM_VERSION
+    ;;
 
-    abort-upgrade|abort-remove|abort-deconfigure)
-      ;;
+  abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
 
-    *)
-      echo "postinst called with unknown argument \`$1'" >&2
-      exit 1
-      ;;
+  *)
+    echo "postinst called with unknown argument \`$1'" >&2
+    exit 1
+    ;;
 esac
+
+exit 0
 
 #DEBHELPER#

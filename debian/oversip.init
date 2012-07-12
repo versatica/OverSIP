@@ -68,6 +68,7 @@ if [ "$1" == "start" ] ; then
 
 fi
 
+
 PIDFILE="${HOMEDIR}/${PIDFILE_NAME}"
 OPTIONS="-P ${PIDFILE}"
 if [ -n "$USER" ] ; then

@@ -12,3 +12,5 @@ if [ "$1" = "purge" ] ; then
 fi
 
 exit 0
+
+#DEBHELPER#
