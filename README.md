@@ -1,5 +1,4 @@
-OverSIP
-=======
+<a style="color: red" href="http://www.oversip.net"><img src="../../wiki/oversip-banner.png"/></a>
 
 **WEB UNDER CONSTRUCTION:** The code is stable and working. This web page and documentation is not... please wait a bit.
 
