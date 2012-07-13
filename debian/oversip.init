@@ -205,6 +205,7 @@ case "$1" in
     case $? in
       3)  # Not running.
         log_begin_msg "$DESC ($NAME) is not running."
+        [ $UBUNTU_LOGGING -eq 0 ] && echo
         exit 3
         ;;
       0)  # Running.
