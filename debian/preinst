@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# preinst script can be called with arguments 'install', 'upgrade' and 'abort-upgrade'.
+
+set -e
+
+#DEBHELPER#
+
+OVERSIP_GEM_VERSION="~>1.0.1"
+
+case "$1" in
+
+  install)
+    # Add a Debian system user/group called "oversip".
+    adduser --quiet --system --group --disabled-password \
+            --shell /bin/false --gecos "OverSIP" \
+            --home /var/run/oversip oversip || true
+
+    # Install the Ruby gem.
+    echo "installing 'oversip' Ruby Gem (version $OVERSIP_GEM_VERSION)..."
+    gem1.9.1 install oversip --no-rdoc --no-ri -v $OVERSIP_GEM_VERSION
+    ;;
+
+  upgrade)
+    # Install the Ruby gem.
+    echo "installing 'oversip' Ruby Gem (version $OVERSIP_GEM_VERSION)..."
+    gem1.9.1 install oversip --no-rdoc --no-ri -v $OVERSIP_GEM_VERSION
+    ;;
+
+esac
+
+exit 0
+
+#DEBHELPER#
