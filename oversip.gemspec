@@ -14,7 +14,7 @@ Gem::Specification.new do |spec|
     WebSocket transports, full RFC 3263 (async DNS resolution), Outbound (RFC 5626) and more features."
   spec.required_ruby_version = "~> 1.9.2"
 
-  spec.add_dependency "eventmachine-le", ">= 1.1.1"
+  spec.add_dependency "eventmachine-le", ">= 1.1.2"
   spec.add_dependency "iobuffer", ">= 1.1.2"
   spec.add_dependency "em-posixmq", ">= 0.2.3"
   spec.add_dependency "em-udns", ">= 0.3.6"

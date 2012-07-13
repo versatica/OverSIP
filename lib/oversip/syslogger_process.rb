@@ -5,7 +5,7 @@ require "syslog"
 
 # Ruby external gems.
 
-gem "eventmachine-le", ">= 1.1.1"
+gem "eventmachine-le", ">= 1.1.2"
 require "eventmachine-le"
 gem "em-posixmq", ">= 0.2.3"
 require "em-posixmq"
