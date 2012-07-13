@@ -31,7 +31,7 @@ UBUNTU_LOGGING=0
 
 
 # Checks for the start action.
-if [ "$1" == "start" ] ; then
+if [ "$1" == "start" ] || [ "$1" == "restart" ] || [ "$1" == "force-reload" ] ; then
 
   # Ensure that the admin has set RUN=yes in /etc/default/$NAME file.
   if [ "$RUN" != "yes" ] ; then
@@ -79,7 +79,7 @@ if [ -n "$GROUP" ] ; then
 fi
 
 
-check_homedir ()
+check_homedir()
 {
   # Create HOMEDIR directory in case it doesn't exist.
   # Useful in Ubuntu as /var/run/ content is deleted in shutdown.
@@ -91,7 +91,38 @@ check_homedir ()
 }
 
 
+# Return values:
+# - 3: oversip is not running.
+# - 0: oversip is running.
+# - 1: oversip is not running but PID file exists.
+get_status() {
+  if [ ! -r "$PIDFILE" ]; then
+    return 3
+  fi
+  if read pid < "$PIDFILE" && ps -p "$pid" > /dev/null 2>&1; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+
 start() {
+  set +e
+  get_status
+  case $? in
+    0)  # Already running, do nothing.
+      log_warning_msg "already running."
+      exit 0
+      ;;
+    3)  # Not running, start it.
+      ;;
+    1)  # Not running but PID file exists, remove it and start.
+      log_warning_msg "not running but PID file '$PIDFILE' exists, deleting it."
+      rm "$PIDFILE"
+      ;;
+  esac
+
   start-stop-daemon --start --quiet --pidfile $PIDFILE --quiet \
     --exec $DAEMON -- $OPTIONS
   res=$?
@@ -104,9 +135,6 @@ start() {
       log_failure_msg "error, failed to start."
       log_end_msg 1
       exit 1
-    elif read pid < "$PIDFILE" && ps -p "$pid" > /dev/null 2>&1; then
-      log_warning_msg "already running."
-      exit 0
     else
       log_failure_msg "error, failed to start (and PID file '$PIDFILE' exists)."
       log_end_msg 1
@@ -172,18 +200,23 @@ case "$1" in
     ;;
 
   status)
-    if [ ! -r "$PIDFILE" ]; then
-      log_warning_msg "$DESC ($NAME) is not running."
-      exit 3
-    fi
-    if read pid < "$PIDFILE" && ps -p "$pid" > /dev/null 2>&1; then
-      log_begin_msg "$DESC ($NAME) is running."
-      [ $UBUNTU_LOGGING -eq 0 ] && echo
-      exit 0
-    else
-      log_warning_msg "$DESC ($NAME) is not running but PID file '$PIDFILE' exists."
-      exit 1
-    fi
+    set +e
+    get_status
+    case $? in
+      3)  # Not running.
+        log_begin_msg "$DESC ($NAME) is not running."
+        exit 3
+        ;;
+      0)  # Running.
+        log_begin_msg "$DESC ($NAME) is running."
+        [ $UBUNTU_LOGGING -eq 0 ] && echo
+        exit 0
+        ;;
+      1)  # Not running but PID file exists.
+        log_warning_msg "$DESC ($NAME) is not running but PID file '$PIDFILE' exists."
+        exit 1
+        ;;
+    esac
     ;;
 
   *)
