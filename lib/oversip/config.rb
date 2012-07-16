@@ -135,7 +135,7 @@ module OverSIP
 
 
     def self.load conf_dir = nil
-      @conf_dir ||= DEFAULT_CONFIG_DIR
+      @conf_dir ||= (conf_dir || DEFAULT_CONFIG_DIR)
 
       begin
         conf_yaml = ::YAML.load_file conf_file

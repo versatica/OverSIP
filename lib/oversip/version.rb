@@ -5,7 +5,7 @@ module OverSIP
   module Version
     MAJOR = 1
     MINOR = 0
-    TINY  = 1
+    TINY  = 2
   end
 
   PROGRAM_NAME     = "OverSIP"
