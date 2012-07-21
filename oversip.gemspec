@@ -22,7 +22,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "term-ansicolor"
   spec.add_dependency "posix-spawn", ">= 0.3.6"
 
-  s.add_development_dependency "rake", "~> 0.9.2"
+  spec.add_development_dependency "rake", "~> 0.9.2"
 
   spec.files = Dir.glob %w{
     lib/oversip.rb
