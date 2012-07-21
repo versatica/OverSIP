@@ -1,6 +1,6 @@
 source "http://rubygems.org"
 
-gemspec "oversip"
+gemspec
 
 group :test do
   gem "rake", "~> 0.9.2"
