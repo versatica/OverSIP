@@ -5,3 +5,6 @@ rvm:
 
 before_install:
   - sudo apt-get install libev-dev libssl-dev
+
+after_script:
+  - rake test
