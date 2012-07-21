@@ -10,7 +10,6 @@ end
 # loading server libraries.
 [:HUP, :INT, :USR1, :USR2].each {|signal| trap(signal) {} }
 
-
 require "optparse"
 require "etc"
 require "oversip"
@@ -31,7 +30,7 @@ module OverSIP
         :colorize  => true
       }
 
-      OptionParser.new("", 24, "  ") do |opts|
+      OptionParser.new("", 28, "  ") do |opts|
         opts.banner = "#{::OverSIP::DESCRIPTION}" \
                       "\n\nUsage: #{File.basename(__FILE__)} " \
                       "[#{::OverSIP::PROGRAM_NAME} options] [Ruby options]"
