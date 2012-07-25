@@ -10,3 +10,16 @@ USER=oversip
 
 # Group to run as.
 GROUP=oversip
+
+# Directory with the configuration files.
+# By default '/etc/oversip/'.
+#CONFIG_DIR=/etc/oversip/
+
+# Main configuration file name (within the configuration directory).
+# By default 'oversip.conf'.
+#CONFIG_FILE=oversip.conf
+
+# Number of OverSIP instances that will run together in this host.
+# This parameter is just for some resources allocation, it does not run N instances!
+# By default 1.
+#NUM_INSTANCES=1

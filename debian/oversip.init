@@ -11,13 +11,15 @@
 ### END INIT INFO
 
 PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin:/var/lib/gems/1.9.1/bin
-NAME=oversip
 DESC=OverSIP
-HOMEDIR=/var/run/$NAME
-PIDFILE_NAME=$NAME.pid
+HOMEDIR=/var/run/oversip
 RUN=no
-RUBY_GEM=$NAME
+RUBY_GEM=oversip
 RUBY_EXE=ruby1.9.1
+
+# Process name, it affects to the process name, Posix Message Queue name and PID file.
+# The configuration file under /etc/default/ to read will also be called $NAME.
+NAME=oversip
 
 
 . /lib/lsb/init-functions
@@ -30,53 +32,51 @@ UBUNTU_LOGGING=0
 [ -r /etc/default/$NAME ] && . /etc/default/$NAME
 
 
-# Checks for the start action.
+# Check for the start/restart/force-reload actions.
 if [ "$1" == "start" ] || [ "$1" == "restart" ] || [ "$1" == "force-reload" ] ; then
-
   # Ensure that the admin has set RUN=yes in /etc/default/$NAME file.
   if [ "$RUN" != "yes" ] ; then
     log_failure_msg "$DESC ($NAME) not yet configured. Set RUN=yes in /etc/default/$NAME."
     exit 0
   fi
+fi
 
-  # Ensure Ruby executable is installed.
-  which $RUBY_EXE >/dev/null
-  if [ $? -ne 0 ] ; then
-    log_failure_msg "ruby1.9.1 is not installed, exiting."
+# Ensure Ruby executable is installed.
+which $RUBY_EXE >/dev/null
+if [ $? -ne 0 ] ; then
+  log_failure_msg "ruby1.9.1 is not installed, exiting."
+  log_end_msg 5
+  exit 5
+fi
+
+# Check whether OverSIP Ruby Gem is installed and get the executable location.
+DAEMON=$(which oversip)
+if [ $? -ne 0 ] ; then
+  log_failure_msg "$DESC ($NAME): Ruby Gem '$RUBY_GEM' is not installed, exiting."
+
+  case "$1" in
+  status)
+    # LSB - 4: program or service status is unknown.
+    log_end_msg 4
+    exit 4
+    ;;
+  *)
+    # LSB - 5: program is not installed.
     log_end_msg 5
     exit 5
-  fi
-
-  # Check whether OverSIP Ruby Gem is installed and get the executable location.
-  DAEMON=$(which $NAME)
-  if [ $? -ne 0 ] ; then
-    log_failure_msg "$DESC ($NAME): Ruby Gem '$RUBY_GEM' is not installed, exiting."
-
-    case "$1" in
-    status)
-      # LSB - 4: program or service status is unknown.
-      log_end_msg 4
-      exit 4
-      ;;
-    *)
-      # LSB - 5: program is not installed.
-      log_end_msg 5
-      exit 5
-      ;;
-    esac
-  fi
-
+    ;;
+  esac
 fi
 
 
-PIDFILE="${HOMEDIR}/${PIDFILE_NAME}"
-OPTIONS="-P ${PIDFILE}"
-if [ -n "$USER" ] ; then
- OPTIONS="${OPTIONS} -u ${USER}"
-fi
-if [ -n "$GROUP" ] ; then
- OPTIONS="${OPTIONS} -g ${GROUP}"
-fi
+PIDFILE="${HOMEDIR}/${NAME}.pid"
+OPTIONS="-P ${PIDFILE} -p ${NAME}"
+
+if [ -n "$USER" ]          ; then  OPTIONS="${OPTIONS} -u ${USER}"                       ; fi
+if [ -n "$GROUP" ]         ; then  OPTIONS="${OPTIONS} -g ${GROUP}"                      ; fi
+if [ -n "$CONFIG_DIR" ]    ; then  OPTIONS="${OPTIONS} --config-dir ${CONFIG_DIR}"       ; fi
+if [ -n "$CONFIG_FILE" ]   ; then  OPTIONS="${OPTIONS} --config-file ${CONFIG_FILE}"     ; fi
+if [ -n "$NUM_INSTANCES" ] ; then  OPTIONS="${OPTIONS} --num-instances ${NUM_INSTANCES}" ; fi
 
 
 check_homedir()
@@ -162,8 +162,7 @@ case "$1" in
     echo
     set +e
 
-    start-stop-daemon --oknodo --stop --pidfile $PIDFILE --quiet \
-      --name $NAME
+    start-stop-daemon --oknodo --stop --pidfile $PIDFILE --quiet
     res=$?
 
     if [ $res -eq 0 ] ; then
@@ -186,8 +185,7 @@ case "$1" in
     echo
     set +e
 
-    start-stop-daemon --oknodo --stop --pidfile $PIDFILE --retry=5 --quiet \
-      --name $NAME
+    start-stop-daemon --oknodo --stop --pidfile $PIDFILE --retry=5 --quiet
 
     if [ $? -ne 0 ] ; then
       log_failure_msg "error, failed to stop."
