@@ -106,7 +106,7 @@ module OverSIP::Launcher
         ::OverSIP::WebSocket::WsFraming.class_init
         ::OverSIP::WebSocket::WsApp.class_init
 
-      # I'm the sysloger process.
+      # I'm the syslogger process.
       else
         # Close the pipe in the syslogger process.
         ready_pipe.close rescue nil
@@ -437,18 +437,16 @@ module OverSIP::Launcher
       log_system_info "exiting, thank you for tasting #{::OverSIP::PROGRAM_NAME}"
     end
 
+    # Kill Stud processes.
+    kill_stud_processes
+
     # Wait a bit so pending log messages in the Posix MQ can be queued.
     sleep 0.05
     delete_pid_file
     ::OverSIP::Logger.close
-    kill_syslogger_process
 
-    # Kill Stud processes.
-    pid = Process.spawn "killall oversip_stud 2>/dev/null"
-    Process.wait(pid)
-    sleep 0.5
-    pid = Process.spawn "killall -9 oversip_stud 2>/dev/null"
-    Process.wait(pid)
+    # Fill the syslogger process.
+    kill_syslogger_process
 
     # Exit by preventing any exception.
     exit!( error ? false : true )
@@ -501,9 +499,52 @@ module OverSIP::Launcher
     ssl_option = ( ssl ? "--ssl" : "" )
 
     bin_dir = ::File.join(::File.absolute_path(::File.dirname(__FILE__)), "../../bin/")
-    Dir.chdir(bin_dir) do
-      pid = POSIX::Spawn.spawn "./oversip_stud #{stud_user_group} #{ssl_option} -f '#{listen_ip},#{listen_port}' -b '#{bg_ip},#{bg_port}' -n 2 -s --daemon --write-proxy #{::OverSIP.configuration[:tls][:full_cert]}"
+    stdout_file = "/tmp/stud.#{listen_ip}:#{listen_port}.out"
+
+    ::Dir.chdir(bin_dir) do
+      pid = POSIX::Spawn.spawn "./oversip_stud #{stud_user_group} #{ssl_option} -f '#{listen_ip},#{listen_port}' -b '#{bg_ip},#{bg_port}' -n 2 -s --daemon --write-proxy #{::OverSIP.configuration[:tls][:full_cert]}", :out => stdout_file, :err => "/dev/null"
       Process.waitpid(pid)
+    end
+
+    # Get the PID of the daemonized stud process.
+    stdout = ::File.read stdout_file
+    pid = nil
+    stdout.each_line do |line|
+      pid = line.split(" ")[4]
+      if pid
+        pid = pid.gsub(/\./,"").to_i
+        break  if pid > 0
+      end
+    end
+    ::File.delete stdout_file  rescue nil
+
+    unless pid
+      fatal "error spawning stud server"
+    end
+
+    ::OverSIP.stud_pids ||= []
+    ::OverSIP.stud_pids << pid
+
+    log_system_info "spawned stud server (PID #{pid}) listening into #{listen_ip} : #{listen_port}"
+  end
+
+
+  def self.kill_stud_processes
+    return false  unless ::OverSIP.master_pid
+
+    ::OverSIP.stud_pids.each do |pid|
+      begin
+        log_system_info "killing stud server with PID #{pid}..."
+        ::Process.kill(:TERM, pid)
+        10.times do |i|
+          sleep 0.05
+          ::Process.wait(pid, ::Process::WNOHANG) rescue nil
+          ::Process.kill(0, pid) rescue break
+        end
+        ::Process.kill(0, pid)
+        ::Process.kill(:KILL, pid) rescue nil
+      rescue ::Errno::ESRCH
+      end
     end
   end
 
