@@ -1,4 +1,4 @@
-#!/usr/bin/ruby1.9
+#!/usr/bin/ruby
 # -*- encoding: binary -*-
 
 unless RUBY_VERSION >= "1.9.2"
