@@ -171,7 +171,7 @@ case "$1" in
       # rlimits and so) so it cannot be deleted by a non root user when
       # stopping the server. This command removes the mqueue when performing
       # the "stop" action.
-      $DAEMON --remove-mqueue "/${NAME}_syslogger" 2>/dev/null
+      $DAEMON --remove-mqueue "/${NAME}_syslogger"
       exit 0
     else
       log_failure_msg "error, failed to stop."
