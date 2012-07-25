@@ -11,7 +11,7 @@ module OverSIP
     DEFAULT_CONFIG_DIR = "/etc/oversip/"
     DEFAULT_TLS_DIR = "tls/"
     DEFAULT_TLS_CA_DIR = "tls/ca/"
-    CONF_FILE = "oversip.conf"
+    DEFAULT_CONFIG_FILE = "oversip.conf"
     PROXIES_FILE = "proxies.conf"
     LOGIC_FILE = "logic.rb"
     WEBSOCKET_POLICY_FILE = "websocket_policy.rb"
@@ -20,21 +20,6 @@ module OverSIP
       @log_id ||= "Config"
     end
 
-    def self.conf_file
-      @conf_file ||= ::File.join(@conf_dir, CONF_FILE)
-    end
-
-    def self.proxies_file
-      @proxies_file ||= ::File.join(@conf_dir, PROXIES_FILE)
-    end
-
-    def self.logic_file
-      @logic_file ||= ::File.join(@conf_dir, LOGIC_FILE)
-    end
-
-    def self.websocket_policy_file
-      @websocket_policy_file ||= ::File.join(@conf_dir, WEBSOCKET_POLICY_FILE)
-    end
 
     @configuration = {
       :core => {
@@ -104,7 +89,6 @@ module OverSIP
         :listen_port              => :port,
         :listen_port_tls          => :port,
         :use_tls_tunnel           => :boolean,
-        # TODO, si use_tls_tunnel es yes entonces listen_port_tls_tunnel debe estar puesto.
         :listen_port_tls_tunnel   => :port,
         :local_domains            => [ :domain, :multi_value ],
         :tcp_keepalive_interval        => [ :fixnum, [ :greater_equal_than, 180 ] ],
@@ -134,31 +118,35 @@ module OverSIP
     }
 
 
-    def self.load conf_dir = nil
-      @conf_dir ||= (conf_dir || DEFAULT_CONFIG_DIR)
+    def self.load config_dir=nil, config_file=nil
+      @config_dir = (config_dir || DEFAULT_CONFIG_DIR)
+      @config_file = ::File.join(@config_dir, config_file || DEFAULT_CONFIG_FILE)
+      @proxies_file = ::File.join(@config_dir, PROXIES_FILE)
+      @logic_file ||= ::File.join(@config_dir, LOGIC_FILE)
+      @websocket_policy_file ||= ::File.join(@config_dir, WEBSOCKET_POLICY_FILE)
 
       begin
-        conf_yaml = ::YAML.load_file conf_file
+        conf_yaml = ::YAML.load_file @config_file
       rescue => e
-        fatal "error loading configuration file '#{conf_file}': #{e.message} (#{e.class})"
+        fatal "error loading configuration file '#{@config_file}': #{e.message} (#{e.class})"
       end
 
       begin
-        proxies_yaml = ::YAML.load_file proxies_file
+        proxies_yaml = ::YAML.load_file @proxies_file
       rescue => e
-        fatal "error loading proxies configuration file '#{proxies_file}': #{e.message} (#{e.class})"
+        fatal "error loading proxies configuration file '#{@proxies_file}': #{e.message} (#{e.class})"
       end
 
       begin
-        Kernel.load logic_file
+        Kernel.load @logic_file
       rescue LoadError => e
-        fatal "error loading logic file '#{logic_file}': #{e.message} (#{e.class})"
+        fatal "error loading logic file '#{@logic_file}': #{e.message} (#{e.class})"
       end
 
       begin
-        Kernel.load websocket_policy_file
+        Kernel.load @websocket_policy_file
       rescue LoadError => e
-        log_system_warn "cannot load WebSocket Policy file '#{websocket_policy_file}': #{e.message} (#{e.class}), using default policy (allow all)"
+        log_system_warn "cannot load WebSocket Policy file '#{@websocket_policy_file}': #{e.message} (#{e.class}), using default policy (allow all)"
       end
 
       begin
@@ -221,7 +209,6 @@ module OverSIP
       end
 
       ::OverSIP.configuration = @configuration
-
       ::OverSIP::ProxiesConfig.load proxies_yaml
     end
 
@@ -234,15 +221,15 @@ module OverSIP
       tls_ca_dir = conf_yaml["tls"]["ca_dir"] rescue nil
 
       if tls_public_cert.is_a?(String) and tls_public_cert[0] != "/"
-        conf_yaml["tls"]["public_cert"] = ::File.join(@conf_dir, DEFAULT_TLS_DIR, tls_public_cert)
+        conf_yaml["tls"]["public_cert"] = ::File.join(@config_dir, DEFAULT_TLS_DIR, tls_public_cert)
       end
 
       if tls_private_cert.is_a?(String) and tls_private_cert[0] != "/"
-        conf_yaml["tls"]["private_cert"] = ::File.join(@conf_dir, DEFAULT_TLS_DIR, tls_private_cert)
+        conf_yaml["tls"]["private_cert"] = ::File.join(@config_dir, DEFAULT_TLS_DIR, tls_private_cert)
       end
 
       if tls_ca_dir.is_a?(String) and tls_ca_dir[0] != "/"
-        conf_yaml["tls"]["ca_dir"] = ::File.join(@conf_dir, DEFAULT_TLS_DIR, tls_ca_dir)
+        conf_yaml["tls"]["ca_dir"] = ::File.join(@config_dir, DEFAULT_TLS_DIR, tls_ca_dir)
       end
     end
 
@@ -526,7 +513,7 @@ module OverSIP
 
     def self.reload_logic
       begin
-        Kernel.load logic_file
+        Kernel.load @logic_file
         log_system_info "logic reloaded"
         true
       rescue Exception => e

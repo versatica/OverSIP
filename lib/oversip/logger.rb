@@ -16,7 +16,7 @@ module OverSIP
       "emerg"  => 7
     }
 
-    def self.init_logger_mq(group = nil)
+    def self.init_logger_mq num_instances, group=nil
       OverSIP.syslogger_mq_name = "/#{OverSIP.master_name}_syslogger"
 
       @@logger_mq = ::OverSIP::PosixMQ.create_queue({
@@ -24,6 +24,7 @@ module OverSIP
         :mode    => :write,
         :maxmsg  => 1000,
         :msgsize => 2000,
+        :num_instances => num_instances,
         :group => group
       })
     end

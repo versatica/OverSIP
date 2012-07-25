@@ -6,7 +6,6 @@ module OverSIP
 
     def self.create_queue options={}
       @log_id = "PosixMQ #{options[:name]}"
-      @total_size ||= 0
 
       # Queue attributes.
       mq_name = options[:name]
@@ -42,7 +41,6 @@ module OverSIP
         Process::GID.change_privilege(gid)
       end
 
-      ### TODO: Este tamaño debe multiplicarse por el num de queues!
       # System limits required size (ulimit -q).
       mq_size = case 1.size
         # 32 bits OS.
@@ -50,17 +48,20 @@ module OverSIP
         # 64 bits OS.
         when 8 then mq_attr.maxmsg * 8 + mq_attr.maxmsg * mq_attr.msgsize
         end
+
+      # If --num-instances is given, then multiply it by its value.
+      mq_size *= options[:num_instances]
+
       log_system_debug "queue requires #{mq_size} bytes"  if $oversip_debug
 
       # Set RLIMIT_MSGQUEUE (ulimit) in order to create the queue with required
       # ammount of memory.
-      @total_size += mq_size
-      if ( current_rlimit = ::Process.getrlimit(12)[1] ) < @total_size
-        log_system_debug "incrementing rlimits (currently #{current_rlimit} bytes) to #{@total_size} bytes (ulimit -q)"  if $oversip_debug
+      if ( current_rlimit = ::Process.getrlimit(12)[1] ) < mq_size
+        log_system_debug "incrementing rlimits (currently #{current_rlimit} bytes) to #{mq_size} bytes (ulimit -q)"  if $oversip_debug
         begin
-          ::Process.setrlimit(12, @total_size)
+          ::Process.setrlimit(12, mq_size)
         rescue Errno::EPERM
-          fatal "current user has no permissions to increase rlimits to #{@total_size} bytes (ulimit -q)"
+          fatal "current user has no permissions to increase rlimits to #{mq_size} bytes (ulimit -q)"
         end
       end
 
