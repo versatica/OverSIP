@@ -69,8 +69,6 @@ Gem::Specification.new do |spec|
     etc/tls/ca/*
     etc/tls/utils/*
 
-    debian/*
-
     Rakefile
     README.md
     AUTHORS
