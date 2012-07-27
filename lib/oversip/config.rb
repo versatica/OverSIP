@@ -138,14 +138,14 @@ module OverSIP
       end
 
       begin
-        Kernel.load @logic_file
-      rescue LoadError => e
+        ::Kernel.load @logic_file
+      rescue ::LoadError => e
         fatal "error loading logic file '#{@logic_file}': #{e.message} (#{e.class})"
       end
 
       begin
-        Kernel.load @websocket_policy_file
-      rescue LoadError => e
+       ::Kernel.load @websocket_policy_file
+      rescue ::LoadError => e
         log_system_warn "cannot load WebSocket Policy file '#{@websocket_policy_file}': #{e.message} (#{e.class}), using default policy (allow all)"
       end
 
@@ -164,7 +164,7 @@ module OverSIP
               next
             end
 
-            if values.is_a? Array
+            if values.is_a? ::Array
               unless validations.include? :multi_value
                 fatal "#{section}[#{parameter}] does not allow multiple values"
               end
@@ -174,14 +174,14 @@ module OverSIP
               end
             end
 
-            values = ( values.is_a?(Array) ? values : [ values ] )
+            values = ( values.is_a?(::Array) ? values : [ values ] )
 
             values.each do |value|
               validations.each do |validation|
 
-                if validation.is_a? Symbol
+                if validation.is_a? ::Symbol
                   args = []
-                elsif validation.is_a? Array
+                elsif validation.is_a? ::Array
                   args = validation[1..-1]
                   validation = validation[0]
                 end
@@ -202,7 +202,7 @@ module OverSIP
         post_process
         post_check
 
-      rescue OverSIP::ConfigurationError => e
+      rescue ::OverSIP::ConfigurationError => e
         fatal "configuration error: #{e.message}"
       rescue => e
         fatal e
@@ -220,15 +220,15 @@ module OverSIP
       tls_private_cert = conf_yaml["tls"]["private_cert"] rescue nil
       tls_ca_dir = conf_yaml["tls"]["ca_dir"] rescue nil
 
-      if tls_public_cert.is_a?(String) and tls_public_cert[0] != "/"
+      if tls_public_cert.is_a?(::String) and tls_public_cert[0] != "/"
         conf_yaml["tls"]["public_cert"] = ::File.join(@config_dir, DEFAULT_TLS_DIR, tls_public_cert)
       end
 
-      if tls_private_cert.is_a?(String) and tls_private_cert[0] != "/"
+      if tls_private_cert.is_a?(::String) and tls_private_cert[0] != "/"
         conf_yaml["tls"]["private_cert"] = ::File.join(@config_dir, DEFAULT_TLS_DIR, tls_private_cert)
       end
 
-      if tls_ca_dir.is_a?(String) and tls_ca_dir[0] != "/"
+      if tls_ca_dir.is_a?(::String) and tls_ca_dir[0] != "/"
         conf_yaml["tls"]["ca_dir"] = ::File.join(@config_dir, DEFAULT_TLS_DIR, tls_ca_dir)
       end
     end
@@ -237,9 +237,9 @@ module OverSIP
       if @configuration[:tls][:public_cert] and @configuration[:tls][:private_cert]
         @use_tls = true
         # Generate a full PEM file containing both the public and private certificate (for Stud).
-        full_cert = Tempfile.new("oversip_full_cert_")
-        full_cert.puts File.read(@configuration[:tls][:public_cert])
-        full_cert.puts File.read(@configuration[:tls][:private_cert])
+        full_cert = ::Tempfile.new("oversip_full_cert_")
+        full_cert.puts ::File.read(@configuration[:tls][:public_cert])
+        full_cert.puts ::File.read(@configuration[:tls][:private_cert])
         @configuration[:tls][:full_cert] = full_cert.path
         full_cert.close
       else
@@ -326,7 +326,7 @@ module OverSIP
       end
 
       if @configuration[:sip][:local_domains]
-        if @configuration[:sip][:local_domains].is_a? String
+        if @configuration[:sip][:local_domains].is_a? ::String
           @configuration[:sip][:local_domains] = [ @configuration[:sip][:local_domains].downcase ]
         end
         @configuration[:sip][:local_domains].each {|local_domain| local_domain.downcase!}
@@ -447,7 +447,7 @@ module OverSIP
 
 
     def self.print colorize=true
-      color = Term::ANSIColor  if colorize
+      color = ::Term::ANSIColor  if colorize
 
       puts
       @configuration.each_key do |section|
@@ -459,17 +459,17 @@ module OverSIP
         @configuration[section].each do |parameter, value|
           humanized_value = humanize_value value
           color_value = case value
-            when TrueClass
+            when ::TrueClass
               colorize ? color.bold(color.green(humanized_value)) : humanized_value
-            when FalseClass
+            when ::FalseClass
               colorize ? color.bold(color.red(humanized_value)) : humanized_value
-            when NilClass
+            when ::NilClass
               humanized_value
-            when String, Symbol
+            when ::String, ::Symbol
               colorize ? color.yellow(humanized_value) : humanized_value
-            when Array
+            when ::Array
               colorize ? color.yellow(humanized_value) : humanized_value
-            when Fixnum, Float
+            when ::Fixnum, ::Float
               colorize ? color.bold(color.blue(humanized_value)) : humanized_value
             else
               humanized_value
@@ -482,14 +482,14 @@ module OverSIP
 
     def self.humanize_value value
       case value
-        when TrueClass      ; "yes"
-        when FalseClass     ; "no"
-        when NilClass       ; "null"
-        when String         ; value
-        when Symbol         ; value.to_s
-        when Array          ; value.join(", ")
-        when Fixnum, Float  ; value.to_s
-        else                ; value.to_s
+        when ::TrueClass        ; "yes"
+        when ::FalseClass       ; "no"
+        when ::NilClass         ; "null"
+        when ::String           ; value
+        when ::Symbol           ; value.to_s
+        when ::Array            ; value.join(", ")
+        when ::Fixnum, ::Float  ; value.to_s
+        else                    ; value.to_s
         end
     end
 
@@ -513,10 +513,10 @@ module OverSIP
 
     def self.reload_logic
       begin
-        Kernel.load @logic_file
+        ::Kernel.load @logic_file
         log_system_info "logic reloaded"
         true
-      rescue Exception => e
+      rescue ::Exception => e
         log_system_crit "error reloading logic"
         log_system_crit e
         false

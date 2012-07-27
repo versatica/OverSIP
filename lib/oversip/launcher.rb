@@ -427,7 +427,7 @@ module OverSIP::Launcher
 
     # Signal CHLD is sent by syslogger process if it dies.
     trap :CHLD do
-      # TODO: This won't be logged since syslogger process has died!
+      # NOTE: This won't be logged if the died proces is oversip_syslogger!
       log_system_crit "CHLD signal received, syslogger process could be death"
     end
   end
@@ -441,7 +441,7 @@ module OverSIP::Launcher
     kill_stud_processes
 
     # Wait a bit so pending log messages in the Posix MQ can be queued.
-    sleep 0.05
+    sleep 0.1
     delete_pid_file
     ::OverSIP::Logger.close
 
@@ -502,7 +502,7 @@ module OverSIP::Launcher
     stdout_file = "/tmp/stud.#{listen_ip}:#{listen_port}.out"
 
     ::Dir.chdir(bin_dir) do
-      pid = POSIX::Spawn.spawn "./oversip_stud #{stud_user_group} #{ssl_option} -f '#{listen_ip},#{listen_port}' -b '#{bg_ip},#{bg_port}' -n 2 -s --daemon --write-proxy #{::OverSIP.configuration[:tls][:full_cert]}", :out => stdout_file, :err => "/dev/null"
+      pid = ::POSIX::Spawn.spawn "./oversip_stud #{stud_user_group} #{ssl_option} -f '#{listen_ip},#{listen_port}' -b '#{bg_ip},#{bg_port}' -n 2 -s --daemon --write-proxy #{::OverSIP.configuration[:tls][:full_cert]}", :out => stdout_file, :err => "/dev/null"
       Process.waitpid(pid)
     end
 

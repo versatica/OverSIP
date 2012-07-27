@@ -29,22 +29,22 @@ module OverSIP
       end
 
       def ipv4 value
-        return false  unless value.is_a? String
+        return false  unless value.is_a? ::String
         ::OverSIP::Utils.ip_type(value) == :ipv4 and value != "0.0.0.0"
       end
 
       def ipv6 value
-        return false  unless value.is_a? String
+        return false  unless value.is_a? ::String
         ::OverSIP::Utils.ip_type(value) == :ipv6 and ::OverSIP::Utils.normalize_ipv6(value) != "::"
       end
 
       def ipv4_any value
-        return false  unless value.is_a? String
+        return false  unless value.is_a? ::String
         ::OverSIP::Utils.ip_type(value) == :ipv4
       end
 
       def ipv6_any value
-        return false  unless value.is_a? String
+        return false  unless value.is_a? ::String
         ::OverSIP::Utils.ip_type(value) == :ipv6
       end
 

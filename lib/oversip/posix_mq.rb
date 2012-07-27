@@ -31,14 +31,14 @@ module OverSIP
       end
 
       # Set the UMASK in a way that the group has permission to delete the queue.
-      orig_umask = File.umask(0007)
+      orig_umask = ::File.umask(0007)
 
       # Change the effective group for the Posix queue. Keep the original
       # group.
-      orig_gid = Process::GID.eid
+      orig_gid = ::Process::GID.eid
       if mq_group
-        gid = Etc.getgrnam(mq_group).gid
-        Process::GID.change_privilege(gid)
+        gid = ::Etc.getgrnam(mq_group).gid
+        ::Process::GID.change_privilege(gid)
       end
 
       # System limits required size (ulimit -q).
@@ -60,7 +60,7 @@ module OverSIP
         log_system_debug "incrementing rlimits (currently #{current_rlimit} bytes) to #{mq_size} bytes (ulimit -q)"  if $oversip_debug
         begin
           ::Process.setrlimit(12, mq_size)
-        rescue Errno::EPERM
+        rescue ::Errno::EPERM
           fatal "current user has no permissions to increase rlimits to #{mq_size} bytes (ulimit -q)"
         end
       end
@@ -73,10 +73,10 @@ module OverSIP
       # - mode: 00660  =>  User and group can write and read.
       # - mq_attr      =>  Set maxmsg and msgsize.
       begin
-        mq = ::POSIX_MQ.new mq_name, mq_mode | IO::CREAT | IO::EXCL | IO::NONBLOCK, 00660, mq_attr
+        mq = ::POSIX_MQ.new mq_name, mq_mode | ::IO::CREAT | ::IO::EXCL | ::IO::NONBLOCK, 00660, mq_attr
 
       # Kernel has no support for posix message queues.
-      rescue Errno::ENOSYS => e
+      rescue ::Errno::ENOSYS => e
         fatal "the kernel has no support for posix messages queues, enable it (#{e.class}: #{e.message})"
 
       # http://linux.die.net/man/3/mq_open
@@ -87,25 +87,25 @@ module OverSIP
       # limit, and attr->mq_msgsize must be less than or equal to the msgsize_max limit. In addition, even
       # in a privileged process, attr->mq_maxmsg cannot exceed the HARD_MAX limit. (See mq_overview(7) for
       # details of these limits.)
-      rescue Errno::EINVAL
+      rescue ::Errno::EINVAL
         log_system_warn "cannot set queue attributes due to user permissions, using system default values"
-        mq = ::POSIX_MQ.new mq_name, mq_mode | IO::CREAT | IO::NONBLOCK, 00660
-      rescue Errno::ENOMEM => e
+        mq = ::POSIX_MQ.new mq_name, mq_mode | ::IO::CREAT | ::IO::NONBLOCK, 00660
+      rescue ::Errno::ENOMEM => e
         fatal "insufficient memory (#{e.class}: #{e.message})"
-      rescue Errno::EMFILE => e
+      rescue ::Errno::EMFILE => e
         fatal "the process already has the maximum number of files and message queues open (#{e.class}: #{e.message})"
       rescue Errno::ENFILE => e
         fatal "the system limit on the total number of open files and message queues has been reached (#{e.class}: #{e.message})"
-      rescue Errno::ENOSPC => e
+      rescue ::Errno::ENOSPC => e
         fatal "insufficient space for the creation of a new message queue, probably occurred because the queues_max limit was encountered (#{e.class}: #{e.message})"
 
       end
 
       # Recover the original Umask settings.
-      File.umask(orig_umask)
+      ::File.umask(orig_umask)
 
       # Recover the original effective group.
-      Process::GID.change_privilege(orig_gid)  if mq_group
+      ::Process::GID.change_privilege(orig_gid)  if mq_group
 
       if mq.attr.maxmsg == mq_attr.maxmsg and mq.attr.msgsize == mq_attr.msgsize
         log_system_debug "maxmsg=#{mq.attr.maxmsg}, msgsize=#{mq.attr.msgsize}"  if $oversip_debug

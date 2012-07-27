@@ -161,7 +161,7 @@ module OverSIP
     end
 
     # Default logging identifier is the class name. If log_id() method is redefined by the
-    # class including this module, or it sets @log_id, then such value takes preference.
+    # class including this module, or it sets @log_id, then such a value takes preference.
     def log_id
       @log_id ||= self.class.name
     end
