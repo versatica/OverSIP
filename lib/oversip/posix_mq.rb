@@ -28,6 +28,9 @@ module OverSIP
       rescue ::Errno::ENOENT
       rescue ::Errno::EACCES => e
         fatal "queue already exists and cannot remove it due file permissions"
+      # Kernel has no support for posix message queues.
+      rescue ::Errno::ENOSYS => e
+        fatal "the kernel has no support for posix messages queues, enable it (#{e.class}: #{e.message})"
       end
 
       # Set the UMASK in a way that the group has permission to delete the queue.
