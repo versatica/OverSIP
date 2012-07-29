@@ -1,5 +1,5 @@
 #
-# OverSIP - WebSocket Access Policy
+# OverSIP - WebSocket access policy
 #
 #
 # Fill these functions with your own access policy for allowing or
