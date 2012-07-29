@@ -1,5 +1,5 @@
 #
-# OverSIP - WebSocket access policy
+# OverSIP - WebSocket Access Policy.
 #
 #
 # Fill these functions with your own access policy for allowing or
@@ -28,4 +28,3 @@ module OverSIP::WebSocket::Policy
   end
 
 end
-

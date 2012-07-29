@@ -31,6 +31,8 @@ install: build
 	install -m 644 etc/proxies.conf debian/oversip/etc/oversip/
 	install -m 644 etc/logic.rb debian/oversip/etc/oversip/
 	install -m 644 etc/websocket_policy.rb debian/oversip/etc/oversip/
+	install -m 644 etc/system_events.rb debian/oversip/etc/oversip/
+	install -m 644 etc/custom_lib.rb debian/oversip/etc/oversip/
 	install -m 755 etc/tls/upgrade-cacert.sh debian/oversip/etc/oversip/tls/
 	install -m 644 etc/tls/demo-tls.oversip.net.crt debian/oversip/etc/oversip/tls/
 	install -m 600 etc/tls/demo-tls.oversip.net.key debian/oversip/etc/oversip/tls/

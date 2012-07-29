@@ -298,6 +298,16 @@ module OverSIP::Launcher
         create_pid_file(options[:pid_file])
 
         log_system_info "reactor running"
+
+        # Run the user provided on_started callback.
+        log_system_info "calling user provided OverSIP::SystemEvents.on_started() callback..."
+        begin
+          ::OverSIP::SystemEvents.on_started
+        rescue ::Exception => e
+          log_system_crit "error calling user provided OverSIP::SystemEvents.on_started() callback:"
+          fatal e
+        end
+
         log_system_info "master process (PID #{$$}) ready"
         log_system_info "#{::OverSIP::PROGRAM_NAME} #{::OverSIP::VERSION} running in background"
 
@@ -313,9 +323,10 @@ module OverSIP::Launcher
         $stdout.reopen("/dev/null")
         $stderr.reopen("/dev/null")
         ::OverSIP.daemonized = true
-
+        # So update the logger to write to syslog.
         ::OverSIP::Logger.load_methods
 
+        # Set the EventMachine error handler.
         ::EM.error_handler do |e|
           log_system_error "error raised during event loop and rescued by EM.error_handler:"
           log_system_error e
@@ -431,6 +442,7 @@ module OverSIP::Launcher
       log_system_crit "CHLD signal received, syslogger process could be death"
     end
   end
+
 
   def self.terminate error=false
     unless error

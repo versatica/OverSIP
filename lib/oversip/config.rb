@@ -15,6 +15,8 @@ module OverSIP
     PROXIES_FILE = "proxies.conf"
     LOGIC_FILE = "logic.rb"
     WEBSOCKET_POLICY_FILE = "websocket_policy.rb"
+    SYSTEM_EVENTS_FILE = "system_events.rb"
+    CUSTOM_LIB_FILE = "custom_lib.rb"
 
     def self.log_id
       @log_id ||= "Config"
@@ -122,13 +124,31 @@ module OverSIP
       @config_dir = (config_dir || DEFAULT_CONFIG_DIR)
       @config_file = ::File.join(@config_dir, config_file || DEFAULT_CONFIG_FILE)
       @proxies_file = ::File.join(@config_dir, PROXIES_FILE)
-      @logic_file ||= ::File.join(@config_dir, LOGIC_FILE)
-      @websocket_policy_file ||= ::File.join(@config_dir, WEBSOCKET_POLICY_FILE)
+      @logic_file = ::File.join(@config_dir, LOGIC_FILE)
+      @websocket_policy_file = ::File.join(@config_dir, WEBSOCKET_POLICY_FILE)
+      @system_events_file = ::File.join(@config_dir, SYSTEM_EVENTS_FILE)
+      @custom_lib_file = ::File.join(@config_dir, CUSTOM_LIB_FILE)
 
       begin
         conf_yaml = ::YAML.load_file @config_file
       rescue => e
-        fatal "error loading configuration file '#{@config_file}': #{e.message} (#{e.class})"
+        fatal "error loading Main Configuration file '#{@config_file}': #{e.message} (#{e.class})"
+      end
+
+      begin
+       ::Kernel.load @custom_lib_file
+      rescue ::LoadError => e
+        log_system_warn "cannot load Custom Lib file '#{@custom_lib_file}': #{e.message} (#{e.class})"
+      rescue ::Exception => e
+        log_system_crit "error loading Custom Lib file '#{@custom_lib_file}':"
+        fatal e
+      end
+
+      begin
+       ::Kernel.load @system_events_file
+      rescue ::Exception => e
+        log_system_crit "error loading System Events file '#{@system_events_file}':"
+        fatal e
       end
 
       begin

@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 #
-# OverSIP - OverSIP logic example.
+# OverSIP - Logic.
 #
 #
 
