@@ -154,13 +154,13 @@ module OverSIP
       begin
         proxies_yaml = ::YAML.load_file @proxies_file
       rescue => e
-        fatal "error loading proxies configuration file '#{@proxies_file}': #{e.message} (#{e.class})"
+        fatal "error loading Proxies Configuration file '#{@proxies_file}': #{e.message} (#{e.class})"
       end
 
       begin
         ::Kernel.load @logic_file
       rescue ::LoadError => e
-        fatal "error loading logic file '#{@logic_file}': #{e.message} (#{e.class})"
+        fatal "error loading Logic file '#{@logic_file}': #{e.message} (#{e.class})"
       end
 
       begin
