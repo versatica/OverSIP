@@ -531,6 +531,7 @@ module OverSIP::Launcher
 
   def self.kill_stud_processes
     return false  unless ::OverSIP.master_pid
+    return false  unless ::OverSIP.stud_pids
 
     ::OverSIP.stud_pids.each do |pid|
       begin

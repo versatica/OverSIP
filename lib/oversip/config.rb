@@ -498,12 +498,26 @@ module OverSIP
         if type == :ipv4
           socket = ::UDPSocket.new ::Socket::AF_INET
           socket.connect("1.2.3.4", 1)
+          ip = socket.local_address.ip_address
+          socket.close
+          socket = ::UDPSocket.new ::Socket::AF_INET
         elsif type == :ipv6
           socket = ::UDPSocket.new ::Socket::AF_INET6
           socket.connect("2001::1", 1)
+          ip = socket.local_address.ip_address
+          socket.close
+          socket = ::UDPSocket.new ::Socket::AF_INET6
         end
-        ip = socket.local_address.ip_address
-        socket.close
+        # Test whether the IP is in fact bindeable (not true for link-scope IPv6 addresses).
+        begin
+          socket.bind ip, 0
+        rescue => e
+          log_system_warn "cannot bind in autodiscovered local #{type == :ipv4 ? "IPv4" : "IPv6"} '#{ip}': #{e.message} (#{e.class})"
+          return false
+        ensure
+          socket.close
+        end
+        # Valid IP, return it.
         return ip
       rescue => e
         log_system_warn "cannot autodiscover local #{type == :ipv4 ? "IPv4" : "IPv6"}: #{e.message} (#{e.class})"
