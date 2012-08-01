@@ -17,8 +17,6 @@ module OverSIP
     }
 
     def self.init_logger_mq group=nil
-      OverSIP.syslogger_mq_name = "/#{OverSIP.master_name}_syslogger"
-
       @@logger_mq = ::OverSIP::PosixMQ.create_queue({
         :name    => ::OverSIP.syslogger_mq_name,
         :mode    => :write,
