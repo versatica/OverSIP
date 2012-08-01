@@ -10,7 +10,8 @@ Package: oversip
 Architecture: all
 Pre-Depends: ${shlibs:Depends}, ${misc:Depends}, ruby1.9.1, ruby1.9.1-dev, make, g++, libssl-dev, libev-dev
 Suggests: unbound
-Description: OverSIP (the SIP framework you dreamed about) is an async SIP proxy/server programmable in Ruby language.
+Description: OverSIP (the SIP framework you dreamed about)
+  OverSIP is an async SIP proxy/server programmable in Ruby language.
   Some features of OverSIP are:
   - SIP transports: UDP, TCP, TLS and WebSocket.
   - Full IPv4 and IPv6 support.
