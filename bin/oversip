@@ -176,6 +176,7 @@ module OverSIP
       ::OverSIP::Config.print options[:colorize]
 
       log_system_info "creating Posix Message Queue for communicating master and syslogger processes"
+      ::OverSIP.syslogger_mq_name = "/#{OverSIP.master_name}_syslogger"
       ::OverSIP::Logger.init_logger_mq options[:group]
       ::OverSIP::Logger.load_methods
 
