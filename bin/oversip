@@ -32,7 +32,6 @@ module OverSIP
 
       # Options by default.
       options = {
-        :num_instances => 1,
         :colorize => true
       }
 
@@ -65,10 +64,6 @@ module OverSIP
 
         opts.on("-g", "--group GROUP", "System group to run with") do |value|
           options[:group] = value
-        end
-
-        opts.on("-n", "--num-instances NUM", "Number of OverSIP instances that will run together in this host (this parameter is just for some resources allocation, it does not run NUM instances!) (default 1)") do |value|
-          options[:num_instances] = value.to_i
         end
 
         opts.on("--no-color", "Don't colorize text printed in stdout") do |value|
@@ -169,11 +164,6 @@ module OverSIP
         end
       end
 
-      # Check the --num-instances parameter.
-      if options[:num_instances] < 1
-        fatal "num_instances #{n} is not a valid value (must be greater than 0)"
-      end
-
       # Set the command name (as it appears in "ps" output) to given --process_name option (-p)
       # or to the script filename otherwise.
       $0 = options[:process_name] || ::File.basename(__FILE__)
@@ -186,7 +176,7 @@ module OverSIP
       ::OverSIP::Config.print options[:colorize]
 
       log_system_info "creating Posix Message Queue for communicating master and syslogger processes"
-      ::OverSIP::Logger.init_logger_mq options[:num_instances], options[:group]
+      ::OverSIP::Logger.init_logger_mq options[:group]
       ::OverSIP::Logger.load_methods
 
       ::OverSIP::Launcher.daemonize!(options)

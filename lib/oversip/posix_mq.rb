@@ -52,9 +52,6 @@ module OverSIP
         when 8 then mq_attr.maxmsg * 8 + mq_attr.maxmsg * mq_attr.msgsize
         end
 
-      # If --num-instances is given, then multiply it by its value.
-      mq_size *= options[:num_instances]
-
       log_system_info "queue requires #{mq_size} bytes"
 
       # Set RLIMIT_MSGQUEUE (ulimit) in order to create the queue with required

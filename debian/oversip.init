@@ -76,7 +76,6 @@ if [ -n "$USER" ]          ; then  OPTIONS="${OPTIONS} -u ${USER}"              
 if [ -n "$GROUP" ]         ; then  OPTIONS="${OPTIONS} -g ${GROUP}"                      ; fi
 if [ -n "$CONFIG_DIR" ]    ; then  OPTIONS="${OPTIONS} --config-dir ${CONFIG_DIR}"       ; fi
 if [ -n "$CONFIG_FILE" ]   ; then  OPTIONS="${OPTIONS} --config-file ${CONFIG_FILE}"     ; fi
-if [ -n "$NUM_INSTANCES" ] ; then  OPTIONS="${OPTIONS} --num-instances ${NUM_INSTANCES}" ; fi
 
 
 check_homedir()
