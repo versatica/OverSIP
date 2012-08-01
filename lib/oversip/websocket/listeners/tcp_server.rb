@@ -3,8 +3,7 @@ module OverSIP::WebSocket
   class TcpServer < ::EM::Connection
 
     include ::OverSIP::Logger
-    include ::OverSIP::WebSocket::DefaultPolicy
-    include ::OverSIP::WebSocket::Policy  rescue nil  # As it could not exist (i.e. the user deleted the file).
+    include ::OverSIP::WebSocket::Policy
 
     # Max size (bytes) of the buffered data when receiving message headers
     # (avoid DoS attacks).

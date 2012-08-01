@@ -131,16 +131,15 @@ module OverSIP
 
       begin
         conf_yaml = ::YAML.load_file @config_file
-      rescue => e
-        fatal "error loading Main Configuration file '#{@config_file}': #{e.message} (#{e.class})"
+      rescue ::Exception => e
+        log_system_crit "error loading Main Configuration file '#{@config_file}':"
+        fatal e
       end
 
       begin
        ::Kernel.load @custom_lib_file
-      rescue ::LoadError => e
-        log_system_warn "cannot load Custom Lib file '#{@custom_lib_file}': #{e.message} (#{e.class})"
       rescue ::Exception => e
-        log_system_crit "error loading Custom Lib file '#{@custom_lib_file}':"
+        log_system_crit "error loading Custom Library file '#{@custom_lib_file}':"
         fatal e
       end
 
@@ -153,20 +152,23 @@ module OverSIP
 
       begin
         proxies_yaml = ::YAML.load_file @proxies_file
-      rescue => e
-        fatal "error loading Proxies Configuration file '#{@proxies_file}': #{e.message} (#{e.class})"
+      rescue ::Exception => e
+        log_system_crit "error loading Proxies Configuration file '#{@proxies_file}':"
+        fatal e
       end
 
       begin
         ::Kernel.load @logic_file
-      rescue ::LoadError => e
-        fatal "error loading Logic file '#{@logic_file}': #{e.message} (#{e.class})"
+      rescue ::Exception => e
+        log_system_crit "error loading Logic file '#{@logic_file}':"
+        fatal e
       end
 
       begin
        ::Kernel.load @websocket_policy_file
-      rescue ::LoadError => e
-        log_system_warn "cannot load WebSocket Policy file '#{@websocket_policy_file}': #{e.message} (#{e.class}), using default policy (allow all)"
+      rescue ::Exception => e
+        log_system_crit "error loading WebSocket Policy file '#{@websocket_policy_file}':"
+        fatal e
       end
 
       begin
@@ -553,7 +555,7 @@ module OverSIP
       end
     end
 
-    def self.reload_logic
+    def self.reload
       begin
         ::Kernel.load @logic_file
         log_system_info "logic reloaded"

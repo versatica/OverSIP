@@ -432,8 +432,8 @@ module OverSIP::Launcher
     # Signal HUP reloads logic.
     # TODO: Reload proxies (so purge DNS cache in all of them), reload websocket policy.
     trap :HUP do
-      log_system_info "HUP signal received, reloading logic..."
-      ::OverSIP::Config.reload_logic
+      log_system_info "HUP signal received, reloading"
+      ::OverSIP::Config.reload
     end
 
     # Signal CHLD is sent by syslogger process if it dies.
