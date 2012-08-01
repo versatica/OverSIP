@@ -1,0 +1,16 @@
+# Increase the ammount of open file descriptors by oversip system user.
+# This is required for both OverSIP and STUD servers (both running with
+# oversip user).
+#
+oversip    soft    nofile    65536
+oversip    hard    nofile    65536
+
+
+# Increase the Posix Message Queue ammount of bytes for root user (the
+# queue used by OverSIP is created as root).
+# NOTE: Each OverSIP instance requires 2008000 bytes. Let's allocate
+# a value for 4 instances of OverSIP (2008000 x 4 = 8032000). Increase
+# this value if you need more instances of OverSIP in this host.
+#
+root    soft    msgqueue    8032000
+root    hard    msgqueue    8032000
