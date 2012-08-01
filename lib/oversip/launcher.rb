@@ -515,7 +515,7 @@ module OverSIP::Launcher
 
     ::Dir.chdir(bin_dir) do
       pid = ::POSIX::Spawn.spawn "./oversip_stud #{stud_user_group} #{ssl_option} -f '#{listen_ip},#{listen_port}' -b '#{bg_ip},#{bg_port}' -n 2 -s --daemon --write-proxy #{::OverSIP.configuration[:tls][:full_cert]}", :out => stdout_file, :err => "/dev/null"
-      Process.waitpid(pid)
+      ::Process.waitpid(pid)
     end
 
     # Get the PID of the daemonized stud process.

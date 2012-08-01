@@ -10,9 +10,9 @@ module OverSIP
       # Queue attributes.
       mq_name = options[:name]
       mq_mode = case options[:mode]
-        when :read       then IO::RDONLY
-        when :write      then IO::WRONLY
-        when :read_write then IO::RDWR
+        when :read       then ::IO::RDONLY
+        when :write      then ::IO::WRONLY
+        when :read_write then ::IO::RDWR
         end
       mq_group = options[:group]
       mq_attr = ::POSIX_MQ::Attr.new
@@ -83,7 +83,7 @@ module OverSIP
 
       # http://linux.die.net/man/3/mq_open
       #
-      # O_CREAT was specified in oflag, and attr was not NULL, but attr->mq_maxmsg or attr->mq_msqsize was
+      # IO_CREAT was specified in oflag, and attr was not NULL, but attr->mq_maxmsg or attr->mq_msqsize was
       # invalid. Both of these fields must be greater than zero. In a process that is unprivileged (does not
       # have the CAP_SYS_RESOURCE capability), attr->mq_maxmsg must be less than or equal to the msg_max
       # limit, and attr->mq_msgsize must be less than or equal to the msgsize_max limit. In addition, even
