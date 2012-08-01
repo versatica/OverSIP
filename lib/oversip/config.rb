@@ -313,6 +313,14 @@ module OverSIP
         @configuration[:websocket][:enable_ipv6] = nil
       end
 
+      unless @configuration[:websocket][:enable_ipv4]
+        @configuration[:websocket][:listen_ipv4] = nil
+      end
+
+      unless @configuration[:websocket][:enable_ipv6]
+        @configuration[:websocket][:listen_ipv6] = nil
+      end
+
       if ( @use_sip_udp_or_tcp or @use_sip_tls ) and @configuration[:sip][:listen_ipv4] == nil and @configuration[:sip][:enable_ipv4]
         unless (@configuration[:sip][:listen_ipv4] = discover_local_ip(:ipv4))
           log_system_warn "dissabling IPv4 for SIP"
