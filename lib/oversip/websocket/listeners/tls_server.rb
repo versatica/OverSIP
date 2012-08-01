@@ -61,8 +61,8 @@ module OverSIP::WebSocket
 
 
     def unbind cause=nil
-      super
       @timer_tls_handshake.cancel  if @timer_tls_handshake
+      super
     end
 
   end

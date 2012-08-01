@@ -59,7 +59,7 @@ module OverSIP::SIP
 
     # Other attributes.
     attr_accessor :tvars  # Transaction variables (a hash).
-
+    attr_accessor :cvars  # Connection variables (a hash).
 
     def udp?               ; @transport == :udp          end
     def tcp?               ; @transport == :tcp          end

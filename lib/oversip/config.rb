@@ -16,6 +16,7 @@ module OverSIP
     LOGIC_FILE = "logic.rb"
     WEBSOCKET_POLICY_FILE = "websocket_policy.rb"
     SYSTEM_EVENTS_FILE = "system_events.rb"
+    EVENTS_FILE = "events.rb"
     CUSTOM_LIB_FILE = "custom_lib.rb"
 
     def self.log_id
@@ -127,6 +128,7 @@ module OverSIP
       @logic_file = ::File.join(@config_dir, LOGIC_FILE)
       @websocket_policy_file = ::File.join(@config_dir, WEBSOCKET_POLICY_FILE)
       @system_events_file = ::File.join(@config_dir, SYSTEM_EVENTS_FILE)
+      @events_file = ::File.join(@config_dir, EVENTS_FILE)
       @custom_lib_file = ::File.join(@config_dir, CUSTOM_LIB_FILE)
 
       begin
@@ -147,6 +149,13 @@ module OverSIP
        ::Kernel.load @system_events_file
       rescue ::Exception => e
         log_system_crit "error loading System Events file '#{@system_events_file}':"
+        fatal e
+      end
+
+      begin
+       ::Kernel.load @events_file
+      rescue ::Exception => e
+        log_system_crit "error loading Events file '#{@events_file}':"
         fatal e
       end
 

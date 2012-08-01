@@ -20,12 +20,14 @@ module OverSIP::WebSocket
 
     attr_accessor :ws_protocol, :ws_app_klass
     attr_reader :connection_log_id, :remote_ip_type, :remote_ip, :remote_port
+    attr_reader :cvars  # A Hash for storing user provided data.
 
 
     def initialize
       @http_parser = ::OverSIP::WebSocket::HttpRequestParser.new
       @buffer = ::IO::Buffer.new
       @state = :init
+      @cvars = {}
     end
 
 
@@ -68,6 +70,15 @@ module OverSIP::WebSocket
       log_system_debug log_msg  if $oversip_debug
 
       @ws_framing.tcp_closed  if @ws_framing
+
+      if @state == :websocket_frames
+        begin
+          ::OverSIP::Events.on_websocket_connection_closed self
+        rescue ::Exception => e
+          log_system_error "error calling user provided OverSIP::Events.on_websocket_connection_closed():"
+          log_system_error e
+        end
+      end
     end
 
 
@@ -88,6 +99,9 @@ module OverSIP::WebSocket
 
         when :check_http_request
           check_http_request
+
+        when :new_websocket_connection_callback
+          check_new_websocket_connection_callback
 
         when :accept_ws_handshake
           accept_ws_handshake
@@ -213,8 +227,29 @@ module OverSIP::WebSocket
         return false
       end
 
-      @state = :accept_ws_handshake
+      @state = :new_websocket_connection_callback
       true
+    end
+
+
+    def check_new_websocket_connection_callback
+      begin
+        ::OverSIP::Events.on_new_websocket_connection self, @http_request
+      rescue ::Exception => e
+        log_system_error "error calling user provided OverSIP::Events.on_new_websocket_connection() callback => 500:"
+        log_system_error e
+        http_reject 500
+        return false
+      end
+
+      # The user provided callback could have reject the WS connection,, so
+      # check it not to reply a 101 after the reply sent by the user.
+      if @state == :new_websocket_connection_callback
+        @state = :accept_ws_handshake
+        true
+      else
+        false
+      end
     end
 
 

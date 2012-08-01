@@ -86,12 +86,12 @@ module OverSIP::SIP
             return
           end
 
-          # Initialize some attributes for the request (for received responses
-          # it's set in Proxy#receive_response).
+          # Initialize some attributes for the request.
           @msg.tvars = {}
+          @msg.cvars = @cvars
 
           # Create the Logic instance and run it!
-          OverSIP::SIP::Logic.new(@msg).run
+          ::OverSIP::SIP::Logic.new(@msg).run
         rescue => e
           log_system_error e
           @msg.reply 503, "Internal Error", ["Content-Type: text/plain"], "#{e.class }: #{e.message}"

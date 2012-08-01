@@ -15,6 +15,7 @@ module OverSIP::WebSocket
       @connection = connection
       @ws_framing = ws_framing
       @ws_message = ::IO::Buffer.new
+      @cvars = connection.cvars
 
       # Mantain WebSocket keepalive.
       @ws_framing.do_keep_alive @@ws_keepalive_interval  if @@ws_keepalive_interval

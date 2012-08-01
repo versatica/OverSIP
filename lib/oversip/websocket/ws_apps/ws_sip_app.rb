@@ -22,7 +22,7 @@ module OverSIP::WebSocket
     attr_reader :outbound_flow_token
 
 
-    def initialize *args
+    def initialize connection, ws_framing
       super
       # WebSocket is message boundary so we just need a SIP parser instance.
       @@parser ||= ::OverSIP::SIP::MessageParser.new

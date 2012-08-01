@@ -29,6 +29,9 @@ module OverSIP::SIP
         set_sock_opt Socket::SOL_TCP, Socket::TCP_KEEPIDLE, ::OverSIP::SIP.tcp_keepalive_interval  # First TCP ping.
         set_sock_opt Socket::SOL_TCP, Socket::TCP_KEEPINTVL, ::OverSIP::SIP.tcp_keepalive_interval  # Interval between TCP pings.
       end
+
+      # Initialize @cvars.
+      @cvars = {}
     end
 
     def remote_desc force=nil

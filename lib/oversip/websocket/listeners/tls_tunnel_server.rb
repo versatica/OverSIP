@@ -51,6 +51,9 @@ module OverSIP::WebSocket
         when :check_http_request
           check_http_request
 
+        when :new_websocket_connection_callback
+          check_new_websocket_connection_callback
+
         when :accept_ws_handshake
           accept_ws_handshake
 

@@ -19,6 +19,9 @@ module OverSIP::SIP
 
       # Create an Outbound (RFC 5626) flow token for this connection.
       @outbound_flow_token = ::OverSIP::SIP::TransportManager.add_outbound_connection self
+
+      # Initialize @cvars.
+      @cvars = {}
     end
 
     def remote_desc force=nil

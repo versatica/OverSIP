@@ -2,7 +2,6 @@ module OverSIP::SIP
 
   class TcpClient < TcpReactor
 
-    attr_accessor :server_class  ## TODO: sirve??
     attr_reader :connected
     attr_reader :pending_client_transactions
 
