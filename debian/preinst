@@ -8,6 +8,13 @@ set -e
 
 OVERSIP_GEM_VERSION="~>1.0.6.beta1"
 
+
+install_gem() {
+  echo "installing 'oversip' Ruby Gem (version $OVERSIP_GEM_VERSION)..."
+  gem1.9.1 install oversip --no-rdoc --no-ri -v $OVERSIP_GEM_VERSION
+}
+
+
 case "$1" in
 
   install)
@@ -17,14 +24,12 @@ case "$1" in
             --home /var/run/oversip oversip || true
 
     # Install the Ruby gem.
-    echo "installing 'oversip' Ruby Gem (version $OVERSIP_GEM_VERSION)..."
-    gem1.9.1 install oversip --no-rdoc --no-ri -v $OVERSIP_GEM_VERSION
+    install_gem
     ;;
 
   upgrade)
     # Install the Ruby gem.
-    echo "installing 'oversip' Ruby Gem (version $OVERSIP_GEM_VERSION)..."
-    gem1.9.1 install oversip --no-rdoc --no-ri -v $OVERSIP_GEM_VERSION
+    install_gem
     ;;
 
 esac
