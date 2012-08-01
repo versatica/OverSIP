@@ -92,7 +92,7 @@ module OverSIP::Launcher
       ready_pipe.write($$.to_s + "\n") if ready_pipe
 
       # I'm master process.
-      if syslogger_pid = fork
+      if (syslogger_pid = fork) != nil
         ::OverSIP.syslogger_pid = syslogger_pid
         log_system_info "starting syslogger process (PID #{syslogger_pid})..."
         ::OverSIP::Logger.load_methods
