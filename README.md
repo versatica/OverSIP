@@ -12,4 +12,4 @@ Some features of OverSIP are:
 * Fully programmable in Ruby language (make SIP easy).
 * Fast and efficient: OverSIP core is coded in C language.
 
-OverSIP is build on top of EventMachine async library which follows the Reactor Pattern design, allowing thousands of concurrent connections and requests in a never-blocking fashion.
+OverSIP is build on top of EventMachine async library which follows the Reactor Design Pattern, allowing thousands of concurrent connections and requests in a never-blocking fashion.
