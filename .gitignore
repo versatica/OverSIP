@@ -14,7 +14,10 @@ Gemfile.lock
 _yardoc
 doc/
 
+# Files after creating the Deb package
+debian/files
+debian/oversip.debhelper.log
+
 # Custom scripts or files
 create-deb.sh
 bin/ov
-
