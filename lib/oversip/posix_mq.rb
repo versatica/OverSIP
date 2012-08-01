@@ -55,17 +55,19 @@ module OverSIP
       # If --num-instances is given, then multiply it by its value.
       mq_size *= options[:num_instances]
 
-      log_system_debug "queue requires #{mq_size} bytes"  if $oversip_debug
+      log_system_info "queue requires #{mq_size} bytes"
 
       # Set RLIMIT_MSGQUEUE (ulimit) in order to create the queue with required
       # ammount of memory.
       if ( current_rlimit = ::Process.getrlimit(12)[1] ) < mq_size
-        log_system_debug "incrementing rlimits (currently #{current_rlimit} bytes) to #{mq_size} bytes (ulimit -q)"  if $oversip_debug
+        log_system_info "incrementing rlimits for Posix Message Queues (currently #{current_rlimit} bytes) to #{mq_size} bytes (ulimit -q)"
         begin
           ::Process.setrlimit(12, mq_size)
         rescue ::Errno::EPERM
           fatal "current user has no permissions to increase rlimits to #{mq_size} bytes (ulimit -q)"
         end
+      else
+        log_system_info "rlimits for Posix Message Queues is #{current_rlimit} bytes (>= #{mq_size}), no need to increase it"
       end
 
       # Create the Posix message queue to write into it.
