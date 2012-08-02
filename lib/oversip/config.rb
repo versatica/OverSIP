@@ -240,7 +240,15 @@ module OverSIP
       end
 
       ::OverSIP.configuration = @configuration
-      ::OverSIP::ProxiesConfig.load proxies_yaml
+
+      begin
+        ::OverSIP::ProxiesConfig.load proxies_yaml
+      rescue ::OverSIP::ConfigurationError => e
+        fatal "error loading Proxies Configuration file '#{@proxies_file}':  #{e.message}"
+      rescue ::Exception => e
+        log_system_crit "error loading Proxies Configuration file '#{@proxies_file}':"
+        fatal e
+      end
     end
 
 
@@ -564,15 +572,50 @@ module OverSIP
       end
     end
 
-    def self.reload
+    def self.system_reload
+      log_system_notice "reloading OverSIP..."
+
+      begin
+       ::Kernel.load @custom_lib_file
+       log_system_notice "Custom Library file '#{@custom_lib_file}' reloaded"
+      rescue ::Exception => e
+        log_system_crit "error reloading Custom Library file '#{@custom_lib_file}':"
+        log_system_crit e
+      end
+
+      begin
+       ::Kernel.load @system_events_file
+       log_system_notice "System Events file '#{@system_events_file}' reloaded"
+      rescue ::Exception => e
+        log_system_crit "error reloading System Events file '#{@system_events_file}':"
+        log_system_crit e
+      end
+
+      begin
+       ::Kernel.load @events_file
+       log_system_notice "Events file '#{@events_file}' reloaded"
+      rescue ::Exception => e
+        log_system_crit "error reloading Events file '#{@events_file}':"
+        log_system_crit e
+      end
+
+      begin
+        proxies_yaml = ::YAML.load_file @proxies_file
+        ::OverSIP::ProxiesConfig.load proxies_yaml, reload=true
+        log_system_notice "Proxies Configuration file '#{@proxies_file}' reloaded"
+      rescue ::OverSIP::ConfigurationError => e
+        log_system_crit "error reloading Proxies Configuration file '#{@proxies_file}':  #{e.message}"
+      rescue ::Exception => e
+        log_system_crit "error reloading Proxies Configuration file '#{@proxies_file}':"
+        log_system_crit e
+      end
+
       begin
         ::Kernel.load @logic_file
-        log_system_info "logic reloaded"
-        true
+        log_system_notice "Logic file '#{@logic_file}' reloaded"
       rescue ::Exception => e
-        log_system_crit "error reloading logic"
+        log_system_crit "error reloading Logic file '#{@logic_file}':"
         log_system_crit e
-        false
       end
     end
 

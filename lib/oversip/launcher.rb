@@ -418,7 +418,7 @@ module OverSIP::Launcher
     end
 
     # Signals that must be ignored.
-    ignore_signals = [:ALRM, :INT, :PIPE, :POLL, :PROF, :USR1, :USR2, :VTALRM, :WINCH]
+    ignore_signals = [:ALRM, :INT, :PIPE, :POLL, :PROF, :USR2, :WINCH]
     ignore_signals.each do |signal|
       begin
         trap signal do
@@ -429,11 +429,26 @@ module OverSIP::Launcher
       end
     end
 
-    # Signal HUP reloads logic.
-    # TODO: Reload proxies (so purge DNS cache in all of them), reload websocket policy.
+    # Special treatment for VTALRM signal (TODO: since it occurs too much).
+    trap :VTALRM do
+    end
+
+    # Signal HUP reloads OverSIP system configuration.
     trap :HUP do
-      log_system_info "HUP signal received, reloading"
-      ::OverSIP::Config.reload
+      log_system_notice "HUP signal received, reloading configuration files..."
+      ::OverSIP::Config.system_reload
+    end
+
+    # Signal USR1 reloads custom code provided by the user.
+    trap :USR1 do
+      log_system_notice "USR1 signal received, calling user provided OverSIP::SystemEvents.on_user_reload() callback..."
+      # Run the user provided on_started callback.
+      begin
+        ::OverSIP::SystemEvents.on_user_reload
+      rescue ::Exception => e
+        log_system_crit "error calling user provided OverSIP::SystemEvents.on_user_reload() callback:"
+        log_system_crit e
+      end
     end
 
     # Signal CHLD is sent by syslogger process if it dies.

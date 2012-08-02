@@ -6,7 +6,7 @@ set -e
 
 #DEBHELPER#
 
-OVERSIP_GEM_VERSION="~>1.0.6.beta3"
+OVERSIP_GEM_VERSION="~>1.0.7.beta1"
 
 
 install_gem() {

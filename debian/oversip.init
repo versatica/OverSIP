@@ -32,8 +32,7 @@ UBUNTU_LOGGING=0
 [ -r /etc/default/$NAME ] && . /etc/default/$NAME
 
 
-# Check for the start/restart/force-reload actions.
-if [ "$1" == "start" ] || [ "$1" == "restart" ] || [ "$1" == "force-reload" ] ; then
+if [ "$1" != "stop" ] && [ "$1" != "status" ] ; then
   # Ensure that the admin has set RUN=yes in /etc/default/$NAME file.
   if [ "$RUN" != "yes" ] ; then
     log_failure_msg "$DESC ($NAME) not yet configured. Set RUN=yes in /etc/default/$NAME. If OverSIP has been installed using this terminal then open another one to run OverSIP in order to apply new system limits in /etc/security/limits.d/oversip.conf"
@@ -217,8 +216,52 @@ case "$1" in
     esac
     ;;
 
+  reload)
+    set +e
+    get_status
+    case $? in
+      3)  # Not running.
+        log_begin_msg "$DESC ($NAME) is not running."
+        [ $UBUNTU_LOGGING -eq 0 ] && echo
+        exit 3
+        ;;
+      0)  # Running.
+        log_begin_msg "$DESC ($NAME) reloading..."
+        kill -s HUP "$pid"
+        [ $UBUNTU_LOGGING -eq 0 ] && echo
+        exit 0
+        ;;
+      1)  # Not running but PID file exists.
+        log_warning_msg "$DESC ($NAME) is not running but PID file '$PIDFILE' exists."
+        exit 1
+        ;;
+    esac
+    ;;
+
+  user-reload)
+    set +e
+    get_status
+    case $? in
+      3)  # Not running.
+        log_begin_msg "$DESC ($NAME) is not running."
+        [ $UBUNTU_LOGGING -eq 0 ] && echo
+        exit 3
+        ;;
+      0)  # Running.
+        log_begin_msg "$DESC ($NAME) user-reloading..."
+        kill -s USR1 "$pid"
+        [ $UBUNTU_LOGGING -eq 0 ] && echo
+        exit 0
+        ;;
+      1)  # Not running but PID file exists.
+        log_warning_msg "$DESC ($NAME) is not running but PID file '$PIDFILE' exists."
+        exit 1
+        ;;
+    esac
+    ;;
+
   *)
-    log_failure_msg "Usage: /etc/init.d/$NAME {start|stop|restart|force-reload|status}."
+    log_failure_msg "Usage: /etc/init.d/$NAME {start|stop|restart|force-reload|status|reload|user-reload}."
     exit 1
     ;;
 

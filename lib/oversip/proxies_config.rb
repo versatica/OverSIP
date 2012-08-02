@@ -9,8 +9,6 @@ module OverSIP
       @log_id ||= "ProxiesConfig"
     end
 
-    @proxies = {}
-
     @proxy_configuration = {
       :do_loose_routing           => true,
       :use_dns                    => true,
@@ -45,51 +43,53 @@ module OverSIP
       :tls_validation             => :boolean
     }
 
-    def self.load proxies_yaml
-      unless proxies_yaml.is_a? Hash
-        fatal "invalid proxies configuration file, it is not a collection"
-      end
-
+    def self.load proxies_yaml, reload=false
       begin
+        unless proxies_yaml.is_a? ::Hash
+          raise "invalid proxies configuration file, it is not a collection"
+        end
+
+        proxies = {}
+
         proxies_yaml.each do |proxy, conf|
-          unless proxy.is_a? String
-            fatal "proxy name is not a string (#{proxy.inspect})"
+          unless proxy.is_a? ::String
+            raise "proxy name is not a string (#{proxy.inspect})"
           end
 
-          @proxies[proxy.to_sym] = @proxy_configuration.dup
-          @proxies[proxy.to_sym].each do |parameter, default_value|
-            @proxies[proxy.to_sym][parameter] = default_value.clone rescue default_value
+          proxies[proxy.to_sym] = @proxy_configuration.dup
+          proxies[proxy.to_sym].each do |parameter, default_value|
+            proxies[proxy.to_sym][parameter] = default_value.clone rescue default_value
           end
 
           PROXY_CONFIG_VALIDATIONS.each do |parameter, validations|
             values = proxies_yaml[proxy][parameter.to_s]
-            validations = [ validations ]  unless validations.is_a?(Array)
+            validations = [ validations ]  unless validations.is_a?(::Array)
 
             if values == nil
               if validations.include? :required
-                fatal "#{proxy}[#{parameter}] requires a value"
+                raise "#{proxy}[#{parameter}] requires a value"
               end
               next
             end
 
-            if values.is_a? Array
+            if values.is_a? ::Array
               unless validations.include? :multi_value
-                fatal "#{proxy}[#{parameter}] does not allow multiple values"
+                raise "#{proxy}[#{parameter}] does not allow multiple values"
               end
 
               if validations.include? :non_empty and values.empty?
-                fatal "#{proxy}[#{parameter}] does not allow empty values"
+                raise "#{proxy}[#{parameter}] does not allow empty values"
               end
             end
 
-            values = ( values.is_a?(Array) ? values : [ values ] )
+            values = ( values.is_a?(::Array) ? values : [ values ] )
 
             values.each do |value|
               validations.each do |validation|
 
-                if validation.is_a? Symbol
+                if validation.is_a? ::Symbol
                   args = []
-                elsif validation.is_a? Array
+                elsif validation.is_a? ::Array
                   args = validation[1..-1]
                   validation = validation[0]
                 end
@@ -97,23 +97,26 @@ module OverSIP
                 next if [:required, :multi_value, :non_empty].include? validation
 
                 unless send validation, value, *args
-                  fatal "#{proxy}[#{parameter}] has invalid value '#{::OverSIP::Config.humanize_value value}' (does not satisfy '#{validation}' validation requirement)"
+                  raise "#{proxy}[#{parameter}] has invalid value '#{::OverSIP::Config.humanize_value value}' (does not satisfy '#{validation}' validation requirement)"
                 end
               end
 
-              @proxies[proxy.to_sym][parameter] = ( validations.include?(:multi_value) ? values : values[0] )
+              proxies[proxy.to_sym][parameter] = ( validations.include?(:multi_value) ? values : values[0] )
             end
 
           end  # PROXY_CONFIG_VALIDATIONS[section].each
         end  # proxies_yaml.each
 
-        post_process
-
-      rescue OverSIP::ConfigurationError => e
-        fatal "proxies configuration error: #{e.message}"
-      rescue => e
-        fatal e
+      rescue ::Exception => e
+        unless reload
+          fatal e.message
+        else
+          raise ::OverSIP::ConfigurationError, e.message
+        end
       end
+
+      @proxies = proxies
+      post_process
 
       ::OverSIP.proxies = @proxies
     end
