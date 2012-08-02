@@ -1,19 +1,17 @@
 #!/bin/bash
 
-# preinst script can be called with arguments 'install', 'upgrade' and 'abort-upgrade'.
-
-set -e
+# Doc: http://wiki.debian.org/MaintainerScripts
 
 #DEBHELPER#
 
 OVERSIP_GEM_VERSION="~>1.0.7.beta1"
 
+set -e
 
 install_gem() {
   echo "installing 'oversip' Ruby Gem (version $OVERSIP_GEM_VERSION)..."
   gem1.9.1 install oversip --no-rdoc --no-ri -v $OVERSIP_GEM_VERSION
 }
-
 
 case "$1" in
 

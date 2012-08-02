@@ -1,15 +1,21 @@
 #!/bin/bash
 
+# Doc: http://wiki.debian.org/MaintainerScripts
+
 #DEBHELPER#
 
-if [ "$1" = "purge" ] ; then
-  # Remove the Debian system user/group.
-  deluser --quiet --remove-home oversip &>/dev/null || true
+case "$1" in
 
-  # Remove the Ruby gem.
-  echo "uninstalling 'oversip' Ruby Gem..."
-  gem1.9.1 uninstall oversip -a -x
-fi
+  purge)
+    # Remove the Debian system user/group.
+    deluser --quiet --remove-home oversip &>/dev/null || true
+
+    # Remove the Ruby gem.
+    echo "uninstalling 'oversip' Ruby Gem..."
+    gem1.9.1 uninstall oversip -a -x
+    ;;
+
+esac
 
 exit 0
 
