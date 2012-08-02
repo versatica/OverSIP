@@ -71,7 +71,7 @@ module OverSIP::WebSocket
 
       @ws_framing.tcp_closed  if @ws_framing
 
-      if @state == :websocket_frames
+      if @ws_handshake_done
         begin
           ::OverSIP::Events.on_websocket_connection_closed self
         rescue ::Exception => e
@@ -242,7 +242,7 @@ module OverSIP::WebSocket
         return false
       end
 
-      # The user provided callback could have reject the WS connection,, so
+      # The user provided callback could have reject the WS connection, so
       # check it not to reply a 101 after the reply sent by the user.
       if @state == :new_websocket_connection_callback
         @state = :accept_ws_handshake
@@ -276,6 +276,7 @@ module OverSIP::WebSocket
       @ws_framing = ::OverSIP::WebSocket::WsFraming.new(self, @buffer)
       @ws_framing.ws_app = @ws_app_klass.new(self, @ws_framing)
 
+      @ws_handshake_done = true
       @state = :websocket_frames
       true
     end

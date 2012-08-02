@@ -575,7 +575,7 @@ module OverSIP::WebSocket
       unless in_reply_to_close
         # Let's some time for the client to send us a close frame (it will
         # be ignored anyway) before closing the TCP connection.
-        EM.add_timer(0.2) do
+        ::EM.add_timer(0.2) do
           @connection.close_connection_after_writing
         end
       else
