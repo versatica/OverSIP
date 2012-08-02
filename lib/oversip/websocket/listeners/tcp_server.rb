@@ -3,7 +3,6 @@ module OverSIP::WebSocket
   class TcpServer < ::EM::Connection
 
     include ::OverSIP::Logger
-    include ::OverSIP::WebSocket::Policy
 
     # Max size (bytes) of the buffered data when receiving message headers
     # (avoid DoS attacks).
@@ -209,19 +208,19 @@ module OverSIP::WebSocket
 
       # Check WebSocket policy.
 
-      unless check_hostport(@http_request.host, @http_request.port)
+      unless ::OverSIP::WebSocket::Policy.check_hostport(@http_request.host, @http_request.port)
         log_system_notice "host/port policy not satisfied (host=#{@http_request.host.inspect}, port=#{@http_request.port.inspect}) => 403"
         http_reject 403, "request host/port not satisfied"
         return false
       end
 
-      unless check_origin(@http_request.hdr_origin)
+      unless ::OverSIP::WebSocket::Policy.check_origin(@http_request.hdr_origin)
         log_system_notice "'Origin' policy not satisfied (origin=#{@http_request.hdr_origin.inspect}) => 403"
         http_reject 403, "request 'Origin' not satisfied"
         return false
       end
 
-      unless check_request_uri(@http_request.uri_path, @http_request.uri_query)
+      unless ::OverSIP::WebSocket::Policy.check_request_uri(@http_request.uri_path, @http_request.uri_query)
         log_system_notice "request URI path/query not satisfied (path=#{@http_request.uri_path.inspect}, query=#{@http_request.uri_query.inspect}) => 403"
         http_reject 403, "request URI path/query not satisfied"
         return false
