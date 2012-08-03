@@ -225,8 +225,8 @@ module OverSIP
   #   connection.http_reject(status_code, reason_phrase=nil, extra_headers=nil)
   #
   # You can also set variables for this connection via the connection.cvars
-  # Hash. Later you can access to this Hash in SIP request from this connection
-  # by accessing to request.cvars attribute.
+  # Hash. Later you can access to this Hash in SIP requests from this connection
+  # by retrieving request.cvars attribute.
   #
   # def WebSocketEvents.on_connection connection, http_request
   #   [...]
