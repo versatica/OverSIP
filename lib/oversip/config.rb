@@ -118,7 +118,7 @@ module OverSIP
 
 
     def self.load config_dir=nil, config_file=nil
-      @config_dir = (::File.expand_path(config_dir) || DEFAULT_CONFIG_DIR)
+      @config_dir = (::File.expand_path(config_dir) if config_dir) || DEFAULT_CONFIG_DIR
       @config_file = ::File.join(@config_dir, config_file || DEFAULT_CONFIG_FILE)
       @proxies_file = ::File.join(@config_dir, PROXIES_FILE)
       @server_file = ::File.join(@config_dir, SERVER_FILE)
