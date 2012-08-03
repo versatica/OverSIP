@@ -4,25 +4,11 @@ module OverSIP::SIP
 
     include ::OverSIP::Logger
 
-    def initialize request, proxy_conf
-      @request = request
-      @proxy_conf = proxy_conf
-      @log_id = "Proxy #{proxy_conf[:name]} #{request.via_branch_id}"
-
-      # Create the server transaction if it doesn't exist yet.
-      @server_transaction = @request.server_transaction or case @request.sip_method
-        # Here it can arrive an INVITE, ACK-for-2XX and any method but CANCEL.
-        when :INVITE
-          InviteServerTransaction.new @request
-        when :ACK
-        else
-          NonInviteServerTransaction.new @request
-        end
-      @request.server_transaction ||= @server_transaction
-
-      # Set this core layer to the server transaction.
-      @request.server_transaction.core = self  if @request.server_transaction
-    end  # initialize
+    def initialize proxy_name=:default_proxy
+      unless (@proxy_conf = ::OverSIP.proxies[proxy_name.to_sym])
+        raise ::OverSIP::RuntimeError, "proxy '#{proxy_name}' is not defined in Proxies Configuration file"
+      end
+    end
 
 
     def on_provisional_response &block
@@ -55,7 +41,27 @@ module OverSIP::SIP
     end
 
 
-    def route dst_host=nil, dst_port=nil, dst_transport=nil
+    def route request, dst_host=nil, dst_port=nil, dst_transport=nil
+      unless (@request = request).is_a? ::OverSIP::SIP::Request
+        raise ::OverSIP::RuntimeError, "request must be a OverSIP::SIP::Request instance"
+      end
+
+      @log_id = "Proxy #{@proxy_conf[:name]} #{@request.via_branch_id}"
+
+      # Create the server transaction if it doesn't exist yet.
+      @server_transaction = @request.server_transaction or case @request.sip_method
+        # Here it can arrive an INVITE, ACK-for-2XX and any method but CANCEL.
+        when :INVITE
+          InviteServerTransaction.new @request
+        when :ACK
+        else
+          NonInviteServerTransaction.new @request
+        end
+      @request.server_transaction ||= @server_transaction
+
+      # Set this core layer to the server transaction.
+      @request.server_transaction.core = self  if @request.server_transaction
+
       # NOTE: Routing can be based on incoming request for an Outbound (RFC 5626) connection
       # or based on normal RFC 3263 procedures.
 

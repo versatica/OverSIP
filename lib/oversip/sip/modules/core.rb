@@ -33,17 +33,6 @@ module OverSIP::SIP
       end
 
 
-      # Returns a Proxy instance. The user MUST call route() and optionally set the callbacks
-      # before calling route().
-      def proxy proxy_name=:default_proxy
-        if (proxy_conf = ::OverSIP.proxies[proxy_name.to_sym])
-          ::OverSIP::SIP::Proxy.new self, proxy_conf
-        else
-          raise ::OverSIP::RuntimeError, "proxy '#{proxy_name}' is not defined"
-        end
-      end
-
-
       def loose_route
         num_removes = 0
         has_preloaded_route_with_ob_param = false

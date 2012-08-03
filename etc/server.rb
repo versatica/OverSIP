@@ -77,7 +77,8 @@ module OverSIP
     if request.in_dialog?
       if request.loose_route
         log_debug "proxying in-dialog #{request.sip_method}"
-        request.proxy(:proxy_in_dialog).route
+        proxy = ::OverSIP::SIP::Proxy.new :proxy_in_dialog
+        proxy.route request
       else
         unless request.sip_method == :ACK
           log_notice "forbidden in-dialog request without top Route pointing to us => 403"
@@ -111,7 +112,7 @@ module OverSIP
     if request.incoming_outbound_requested?
       log_info "routing initial request to an Outbound client"
 
-      proxy = request.proxy(:proxy_to_users)
+      proxy = ::OverSIP::SIP::Proxy.new :proxy_to_users
 
       proxy.on_success_response do |response|
         log_info "incoming Outbound on_success_response: #{response.status_code} '#{response.reason_phrase}'"
@@ -128,7 +129,7 @@ module OverSIP
       end
 
       # Route the request and return.
-      proxy.route
+      proxy.route request
       return
     end
 
@@ -148,7 +149,7 @@ module OverSIP
         ::OverSIP::SIP::Modules::UserAssertion.add_pai request
       end
 
-      proxy = request.proxy(:proxy_out)
+      proxy = ::OverSIP::SIP::Proxy.new :proxy_out
 
       proxy.on_provisional_response do |response|
         log_info "on_provisional_response: #{response.status_code} '#{response.reason_phrase}'"
@@ -166,7 +167,7 @@ module OverSIP
         log_notice "on_error: #{status} '#{reason}'"
       end
 
-      proxy.route
+      proxy.route request
       return
 
     when :REGISTER
@@ -176,7 +177,7 @@ module OverSIP
         ::OverSIP::SIP::Modules::RegistrarWithoutPath.add_outbound_to_contact request
       end
 
-      proxy = request.proxy(:proxy_out)
+      proxy = ::OverSIP::SIP::Proxy.new :proxy_out
 
       proxy.on_success_response do |response|
         if MyExampleApp::SIP_USE_MODULE_REGISTRAR_WITHOUT_PATH
@@ -200,7 +201,7 @@ module OverSIP
         end
       end
 
-      proxy.route
+      proxy.route request
       return
 
     else
