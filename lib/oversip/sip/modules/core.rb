@@ -39,7 +39,7 @@ module OverSIP::SIP
         if (proxy_conf = ::OverSIP.proxies[proxy_name.to_sym])
           ::OverSIP::SIP::Proxy.new self, proxy_conf
         else
-          raise ::OverSIP::LogicError, "proxy '#{proxy_name}' is not defined"
+          raise ::OverSIP::RuntimeError, "proxy '#{proxy_name}' is not defined"
         end
       end
 

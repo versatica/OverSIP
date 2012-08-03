@@ -25,7 +25,6 @@ module OverSIP::SIP
           get_body
 
         when :finished
-          # Invoke the custom logic for requests.
           if @msg.request?
             process_request
           else

@@ -11,7 +11,7 @@ module OverSIP::SIP
 
       def self.add_outbound_to_contact request
         unless request.sip_method == :REGISTER
-          raise ::OverSIP::LogicError, "request must be a REGISTER"
+          raise ::OverSIP::RuntimeError, "request must be a REGISTER"
         end
 
         if request.contact and request.connection_outbound_flow_token
@@ -52,7 +52,7 @@ module OverSIP::SIP
 
       def self.remove_outbound_from_contact message
         unless message.is_a? ::OverSIP::SIP::Message
-          raise ::OverSIP::LogicError, "message must be a OverSIP::SIP::Request or OverSIP::SIP::Response"
+          raise ::OverSIP::RuntimeError, "message must be a OverSIP::SIP::Request or OverSIP::SIP::Response"
         end
 
         if (contacts = message.headers["Contact"])

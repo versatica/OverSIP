@@ -73,8 +73,8 @@ module OverSIP::SIP
 
 
     def process_request
-      # Create a new Logic instance for this request (unless it's a retransmission of the request,
-      # a CANCEL or an ACK for a final non-2XX response).
+      # Run the user provided OverSIP::SipEvents.on_request() callback (unless the request
+      # it's a retransmission, a CANCEL or an ACK for a final non-2XX response).
       unless check_transaction
         begin
           # Create the antiloop identifier for this request.
@@ -90,7 +90,7 @@ module OverSIP::SIP
           @msg.tvars = {}
           @msg.cvars = @cvars
 
-          # Run the user provided OverSIP::SipEvents.on_request() callback.
+          # Run the callback.
           ::OverSIP::SipEvents.on_request @msg
         rescue ::Exception => e
           log_system_error "error calling OverSIP::WebSocketEvents.on_request() => 500:"

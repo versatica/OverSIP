@@ -16,7 +16,7 @@ module OverSIP::SIP
         when ::OverSIP::SIP::Response
           request = message.request
         else
-          raise ::OverSIP::LogicError, "message must be a OverSIP::SIP::Request or OverSIP::SIP::Response"
+          raise ::OverSIP::RuntimeError, "message must be a OverSIP::SIP::Request or OverSIP::SIP::Response"
         end
 
         # Don't do this stuf for UDP or for outbound connections.
@@ -38,7 +38,7 @@ module OverSIP::SIP
         when ::OverSIP::SIP::Response
           request = message.request
         else
-          raise ::OverSIP::LogicError, "message must be a OverSIP::SIP::Request or OverSIP::SIP::Response"
+          raise ::OverSIP::RuntimeError, "message must be a OverSIP::SIP::Request or OverSIP::SIP::Response"
         end
 
         request.connection.asserted_user = false
