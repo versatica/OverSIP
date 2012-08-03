@@ -26,6 +26,7 @@ require "oversip/launcher.rb"
 require "oversip/utils.so"
 require "oversip/utils.rb"
 require "oversip/posix_mq.rb"
+require "oversip/default_server.rb"
 
 
 

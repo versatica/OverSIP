@@ -4,7 +4,7 @@
 
 #DEBHELPER#
 
-OVERSIP_GEM_VERSION="~>1.0.7.beta1"
+OVERSIP_GEM_VERSION="~>1.1.0.beta1"
 
 set -e
 

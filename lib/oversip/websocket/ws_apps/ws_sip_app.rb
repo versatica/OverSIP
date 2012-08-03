@@ -151,6 +151,6 @@ module OverSIP::WebSocket
     end
 
 
-  end  # WsSipApplication
+  end  # WsSipApp
 
 end

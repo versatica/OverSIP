@@ -71,6 +71,6 @@ module OverSIP::WebSocket
     end
 
 
-  end  # WsApplication
+  end  # WsApp
 
 end

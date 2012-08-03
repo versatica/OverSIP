@@ -13,11 +13,7 @@ module OverSIP
     DEFAULT_TLS_CA_DIR = "tls/ca/"
     DEFAULT_CONFIG_FILE = "oversip.conf"
     PROXIES_FILE = "proxies.conf"
-    LOGIC_FILE = "logic.rb"
-    WEBSOCKET_POLICY_FILE = "websocket_policy.rb"
-    SYSTEM_EVENTS_FILE = "system_events.rb"
-    EVENTS_FILE = "events.rb"
-    CUSTOM_LIB_FILE = "custom_lib.rb"
+    SERVER_FILE = "server.rb"
 
     def self.log_id
       @log_id ||= "Config"
@@ -122,40 +118,15 @@ module OverSIP
 
 
     def self.load config_dir=nil, config_file=nil
-      @config_dir = (config_dir || DEFAULT_CONFIG_DIR)
+      @config_dir = (::File.expand_path(config_dir) || DEFAULT_CONFIG_DIR)
       @config_file = ::File.join(@config_dir, config_file || DEFAULT_CONFIG_FILE)
       @proxies_file = ::File.join(@config_dir, PROXIES_FILE)
-      @logic_file = ::File.join(@config_dir, LOGIC_FILE)
-      @websocket_policy_file = ::File.join(@config_dir, WEBSOCKET_POLICY_FILE)
-      @system_events_file = ::File.join(@config_dir, SYSTEM_EVENTS_FILE)
-      @events_file = ::File.join(@config_dir, EVENTS_FILE)
-      @custom_lib_file = ::File.join(@config_dir, CUSTOM_LIB_FILE)
+      @server_file = ::File.join(@config_dir, SERVER_FILE)
 
       begin
         conf_yaml = ::YAML.load_file @config_file
       rescue ::Exception => e
         log_system_crit "error loading Main Configuration file '#{@config_file}':"
-        fatal e
-      end
-
-      begin
-       ::Kernel.load @custom_lib_file
-      rescue ::Exception => e
-        log_system_crit "error loading Custom Library file '#{@custom_lib_file}':"
-        fatal e
-      end
-
-      begin
-       ::Kernel.load @system_events_file
-      rescue ::Exception => e
-        log_system_crit "error loading System Events file '#{@system_events_file}':"
-        fatal e
-      end
-
-      begin
-       ::Kernel.load @events_file
-      rescue ::Exception => e
-        log_system_crit "error loading Events file '#{@events_file}':"
         fatal e
       end
 
@@ -167,16 +138,9 @@ module OverSIP
       end
 
       begin
-        ::Kernel.load @logic_file
+        ::Kernel.load @server_file
       rescue ::Exception => e
-        log_system_crit "error loading Logic file '#{@logic_file}':"
-        fatal e
-      end
-
-      begin
-       ::Kernel.load @websocket_policy_file
-      rescue ::Exception => e
-        log_system_crit "error loading WebSocket Policy file '#{@websocket_policy_file}':"
+        log_system_crit "error loading Server file '#{@server_file}':"
         fatal e
       end
 
@@ -576,30 +540,6 @@ module OverSIP
       log_system_notice "reloading OverSIP..."
 
       begin
-       ::Kernel.load @custom_lib_file
-       log_system_notice "Custom Library file '#{@custom_lib_file}' reloaded"
-      rescue ::Exception => e
-        log_system_crit "error reloading Custom Library file '#{@custom_lib_file}':"
-        log_system_crit e
-      end
-
-      begin
-       ::Kernel.load @system_events_file
-       log_system_notice "System Events file '#{@system_events_file}' reloaded"
-      rescue ::Exception => e
-        log_system_crit "error reloading System Events file '#{@system_events_file}':"
-        log_system_crit e
-      end
-
-      begin
-       ::Kernel.load @events_file
-       log_system_notice "Events file '#{@events_file}' reloaded"
-      rescue ::Exception => e
-        log_system_crit "error reloading Events file '#{@events_file}':"
-        log_system_crit e
-      end
-
-      begin
         proxies_yaml = ::YAML.load_file @proxies_file
         ::OverSIP::ProxiesConfig.load proxies_yaml, reload=true
         log_system_notice "Proxies Configuration file '#{@proxies_file}' reloaded"
@@ -611,10 +551,10 @@ module OverSIP
       end
 
       begin
-        ::Kernel.load @logic_file
-        log_system_notice "Logic file '#{@logic_file}' reloaded"
+        ::Kernel.load @server_file
+        log_system_notice "Server file '#{@server_file}' reloaded"
       rescue ::Exception => e
-        log_system_crit "error reloading Logic file '#{@logic_file}':"
+        log_system_crit "error reloading Server file '#{@server_file}':"
         log_system_crit e
       end
     end

@@ -72,9 +72,9 @@ module OverSIP::WebSocket
 
       if @ws_handshake_done
         begin
-          ::OverSIP::Events.on_websocket_connection_closed self
+          ::OverSIP::WebSocketEvents.on_connection_closed self
         rescue ::Exception => e
-          log_system_error "error calling user provided OverSIP::Events.on_websocket_connection_closed():"
+          log_system_error "error calling OverSIP::WebSocketEvents.on_connection_closed():"
           log_system_error e
         end
       end
@@ -99,8 +99,8 @@ module OverSIP::WebSocket
         when :check_http_request
           check_http_request
 
-        when :new_websocket_connection_callback
-          check_new_websocket_connection_callback
+        when :ws_connection_callback
+          check_ws_connection_callback
 
         when :accept_ws_handshake
           accept_ws_handshake
@@ -206,36 +206,16 @@ module OverSIP::WebSocket
         end
       end
 
-      # Check WebSocket policy.
-
-      unless ::OverSIP::WebSocket::Policy.check_hostport(@http_request.host, @http_request.port)
-        log_system_notice "host/port policy not satisfied (host=#{@http_request.host.inspect}, port=#{@http_request.port.inspect}) => 403"
-        http_reject 403, "request host/port not satisfied"
-        return false
-      end
-
-      unless ::OverSIP::WebSocket::Policy.check_origin(@http_request.hdr_origin)
-        log_system_notice "'Origin' policy not satisfied (origin=#{@http_request.hdr_origin.inspect}) => 403"
-        http_reject 403, "request 'Origin' not satisfied"
-        return false
-      end
-
-      unless ::OverSIP::WebSocket::Policy.check_request_uri(@http_request.uri_path, @http_request.uri_query)
-        log_system_notice "request URI path/query not satisfied (path=#{@http_request.uri_path.inspect}, query=#{@http_request.uri_query.inspect}) => 403"
-        http_reject 403, "request URI path/query not satisfied"
-        return false
-      end
-
-      @state = :new_websocket_connection_callback
+      @state = :ws_connection_callback
       true
     end
 
 
-    def check_new_websocket_connection_callback
+    def check_ws_connection_callback
       begin
-        ::OverSIP::Events.on_new_websocket_connection self, @http_request
+        ::OverSIP::WebSocketEvents.on_connection self, @http_request
       rescue ::Exception => e
-        log_system_error "error calling user provided OverSIP::Events.on_new_websocket_connection() callback => 500:"
+        log_system_error "error calling OverSIP::WebSocketEvents.on_connection() => 500:"
         log_system_error e
         http_reject 500
         return false
@@ -243,7 +223,7 @@ module OverSIP::WebSocket
 
       # The user provided callback could have reject the WS connection, so
       # check it not to reply a 101 after the reply sent by the user.
-      if @state == :new_websocket_connection_callback
+      if @state == :ws_connection_callback
         @state = :accept_ws_handshake
         true
       else

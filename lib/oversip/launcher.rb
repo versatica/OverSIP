@@ -300,11 +300,11 @@ module OverSIP::Launcher
         log_system_info "reactor running"
 
         # Run the user provided on_started callback.
-        log_system_info "calling user provided OverSIP::SystemEvents.on_started() callback..."
+        log_system_info "calling OverSIP::SystemEvents.on_started()..."
         begin
           ::OverSIP::SystemEvents.on_started
         rescue ::Exception => e
-          log_system_crit "error calling user provided OverSIP::SystemEvents.on_started() callback:"
+          log_system_crit "error calling OverSIP::SystemEvents.on_started():"
           fatal e
         end
 
@@ -441,12 +441,12 @@ module OverSIP::Launcher
 
     # Signal USR1 reloads custom code provided by the user.
     trap :USR1 do
-      log_system_notice "USR1 signal received, calling user provided OverSIP::SystemEvents.on_user_reload() callback..."
+      log_system_notice "USR1 signal received, calling OverSIP::SystemEvents.on_user_reload()..."
       # Run the user provided on_started callback.
       begin
         ::OverSIP::SystemEvents.on_user_reload
       rescue ::Exception => e
-        log_system_crit "error calling user provided OverSIP::SystemEvents.on_user_reload() callback:"
+        log_system_crit "error calling OverSIP::SystemEvents.on_user_reload():"
         log_system_crit e
       end
     end

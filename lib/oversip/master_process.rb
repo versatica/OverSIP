@@ -24,8 +24,6 @@ require "posix-spawn"
 
 # OverSIP files.
 
-require "oversip/ruby_ext/eventmachine.rb"
-
 require "oversip/sip/sip.rb"
 require "oversip/sip/sip_parser.so"
 require "oversip/sip/constants.rb"
@@ -43,7 +41,6 @@ require "oversip/sip/transport_manager.rb"
 require "oversip/sip/timers.rb"
 require "oversip/sip/tags.rb"
 require "oversip/sip/rfc3263.rb"
-require "oversip/sip/logic.rb"
 require "oversip/sip/proxy.rb"
 
 require "oversip/websocket/ws_http_parser.so"
@@ -56,10 +53,13 @@ require "oversip/websocket/ws_framing.rb"
 require "oversip/websocket/ws_app.rb"
 require "oversip/websocket/ws_apps.rb"
 
+require "oversip/sip/modules/core.rb"
+require "oversip/sip/modules/user_assertion.rb"
+require "oversip/sip/modules/registrar_without_path.rb"
+
+require "oversip/default_server.rb"
 require "oversip/fiber_pool.rb"
 require "oversip/tls.rb"
 require "oversip/stun.so"
 
-require "oversip/sip/modules/core.rb"
-require "oversip/sip/modules/user_assertion.rb"
-require "oversip/sip/modules/registrar_without_path.rb"
+require "oversip/ruby_ext/eventmachine.rb"
