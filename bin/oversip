@@ -5,6 +5,8 @@ unless RUBY_VERSION >= "1.9.2"
   raise ::LoadError, "OverSIP requires Ruby version >= 1.9.2 (current version is #{RUBY_VERSION})"
 end
 
+$LOAD_PATH.insert 0, File.expand_path(File.join(File.dirname(__FILE__), "../", "lib"))
+
 # When OverSIP is executed automaticaly via the system init (i.e. after booting the host)
 # the Encoding.default_external is US_ASCII which causes fails when reading daat from
 # some files (i.e. the cacert.pem file which contains no valid US_ASCII symbols). So
@@ -23,12 +25,13 @@ require "oversip"
 module OverSIP
 
   class Executable
+    extend ::OverSIP::Logger
 
     @log_id = "executable"
 
     def self.run
+      $0 = ::File.basename(__FILE__)
       ::OverSIP::Logger.load_methods
-      extend ::OverSIP::Logger
 
       # Options by default.
       options = {
@@ -48,6 +51,8 @@ module OverSIP
 
         opts.on("-p", "--process-name NAME", "Change the running process name, also affects to syslogger process and Posix Message Queue name (default 'oversip')") do |value|
           options[:process_name] = value
+          $0 = options[:process_name]
+          ::OverSIP::Logger.load_methods
         end
 
         opts.on("--config-dir DIR", "Absolute path to the directory with user configuration files (default '/etc/oversip/')") do |value|
@@ -166,13 +171,11 @@ module OverSIP
 
       # Set the command name (as it appears in "ps" output) to given --process_name option (-p)
       # or to the script filename otherwise.
-      $0 = options[:process_name] || ::File.basename(__FILE__)
-
-      ::OverSIP.master_name = $0
+      ::OverSIP.master_name = options[:process_name] || ::File.basename(__FILE__)
+      $0 = ::OverSIP.master_name
       log_system_info "master process name: #{::OverSIP.master_name}"
 
       ::OverSIP::Config.load options[:config_dir], options[:config_file]
-      log_system_info "applied configuration:"
       ::OverSIP::Config.print options[:colorize]
 
       log_system_info "creating Posix Message Queue for communicating master and syslogger processes"

@@ -5,17 +5,6 @@ module OverSIP
   # attribute.
   module Logger
 
-    SYSLOG_POSIXMQ_MAPPING = {
-      "debug"  => 0,
-      "info"   => 1,
-      "notice" => 2,
-      "warn"   => 3,
-      "error"  => 4,
-      "crit"   => 5,
-      "alert"  => 6,
-      "emerg"  => 7
-    }
-
     def self.init_logger_mq group=nil
       @@logger_mq = ::OverSIP::PosixMQ.create_queue({
         :name    => ::OverSIP.syslogger_mq_name,
@@ -28,8 +17,17 @@ module OverSIP
 
 
     def self.load_methods
+      # When not yet daemonized, also log to syslog.
+      if not ::OverSIP.daemonized?
+        ::Syslog.close  if ::Syslog.opened?
+
+        syslog_options = ::Syslog::LOG_PID | ::Syslog::LOG_NDELAY
+        syslog_facility = ::OverSIP::Syslog::SYSLOG_FACILITY_MAPPING[::OverSIP.configuration[:core][:syslog_facility]] rescue ::Syslog::LOG_DAEMON
+        ::Syslog.open(::OverSIP.master_name, syslog_options, syslog_facility)
+      end
+
       begin
-        @@threshold = SYSLOG_POSIXMQ_MAPPING[::OverSIP.configuration[:core][:syslog_level]]
+        @@threshold = ::OverSIP::Syslog::SYSLOG_SEVERITY_MAPPING[::OverSIP.configuration[:core][:syslog_level]]
       rescue
         @@threshold = 0  # debug.
       end
@@ -38,7 +36,7 @@ module OverSIP
 
       @@congested = false
 
-      SYSLOG_POSIXMQ_MAPPING.each do |level, level_value|
+      ::OverSIP::Syslog::SYSLOG_SEVERITY_MAPPING.each do |level, level_value|
         method_str = "
           def log_system_#{level}(msg)
         "
@@ -49,27 +47,33 @@ module OverSIP
             begin
               unless @@logger_mq.trysend ::OverSIP::Logger.syslog_system_msg2str(#{level_value}, msg, log_id), 0
                 @@congested = true
-                EM.add_timer(1) do
+                ::EM.add_timer(1) do
                   @@logger_mq.trysend ::OverSIP::Logger.syslog_system_msg2str(4, \"logger message queue was full, some logs have been lost\", log_id), 1
                   @@congested = false
                 end
               end
-            rescue Errno::EMSGSIZE
+            rescue ::Errno::EMSGSIZE
               @@logger_mq.trysend ::OverSIP::Logger.syslog_system_msg2str(4, \"too long message could not be logged\", log_id), 1 rescue nil
-            rescue => e
+            rescue ::Exception => e
               @@logger_mq.trysend ::OverSIP::Logger.syslog_system_msg2str(4, \"unexpected logging error (\#{e.class}: \#{e.message})\", log_id), 1 rescue nil
             end
           "
         end
 
-        unless ::OverSIP.daemonized?
+        if not ::OverSIP.daemonized?
           if %w{debug info notice}.include? level
             method_str << "
               puts ::OverSIP::Logger.fg_system_msg2str('#{level}', msg, log_id)
+              if not ::OverSIP.syslogger_ready?
+                ::OverSIP::Syslog.log ::OverSIP::Logger.syslog_system_msg2str(#{level_value}, msg, log_id)
+              end
             "
           else
             method_str << "
               $stderr.puts ::OverSIP::Logger.fg_system_msg2str('#{level}', msg, log_id)
+              if not ::OverSIP.syslogger_ready?
+                ::OverSIP::Syslog.log ::OverSIP::Logger.syslog_system_msg2str(#{level_value}, msg, log_id)
+              end
             "
           end
         end
@@ -80,21 +84,21 @@ module OverSIP
 
 
         if ::OverSIP.syslogger_ready?
-          # User/script logs.
+          # User logs.
           method_str = "
             def log_#{level}(msg)
               return false if @@threshold > #{level_value} || @@congested
               begin
                 unless @@logger_mq.trysend ::OverSIP::Logger.syslog_user_msg2str(#{level_value}, msg, log_id), 0
                   @@congested = true
-                  EM.add_timer(1) do
+                  ::EM.add_timer(1) do
                     @@logger_mq.trysend ::OverSIP::Logger.syslog_user_msg2str(4, \"logger message queue was full, some logs have been lost\", log_id), 1
                     @@congested = false
                   end
                 end
-              rescue Errno::EMSGSIZE
+              rescue ::Errno::EMSGSIZE
                 @@logger_mq.trysend ::OverSIP::Logger.syslog_user_msg2str(4, \"too long message could not be logged\", log_id), 1 rescue nil
-              rescue => e
+              rescue ::Exception => e
                 @@logger_mq.trysend ::OverSIP::Logger.syslog_user_msg2str(4, \"unexpected logging error (\#{e.class}: \#{e.message})\", log_id), 1 rescue nil
               end
             end
@@ -133,11 +137,11 @@ module OverSIP
     def self.syslog_user_msg2str(level_value, msg, log_id)
       case msg
       when ::String
-        level_value.to_s << "<" << log_id << "> script: " << msg
+        level_value.to_s << "<" << log_id << "> [user] " << msg
       when ::Exception
-        "#{level_value}<#{log_id}> script: #{msg.message} (#{msg.class })\n#{(msg.backtrace || [])[0..3].join("\n")}"
+        "#{level_value}<#{log_id}> [user] #{msg.message} (#{msg.class })\n#{(msg.backtrace || [])[0..3].join("\n")}"
       else
-        level_value.to_s << "<" << log_id << "> script: " << msg.inspect
+        level_value.to_s << "<" << log_id << "> [user] " << msg.inspect
       end
     end
 

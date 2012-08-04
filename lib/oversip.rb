@@ -12,11 +12,13 @@ require "tempfile"
 
 require "term/ansicolor"
 require "posix_mq"
+require "syslog"
 
 
 # OverSIP files.
 
 require "oversip/version.rb"
+require "oversip/syslog.rb"
 require "oversip/logger.rb"
 require "oversip/config.rb"
 require "oversip/config_validators.rb"

@@ -110,7 +110,7 @@ module OverSIP
       ::Process::GID.change_privilege(orig_gid)  if mq_group
 
       if mq.attr.maxmsg == mq_attr.maxmsg and mq.attr.msgsize == mq_attr.msgsize
-        log_system_debug "maxmsg=#{mq.attr.maxmsg}, msgsize=#{mq.attr.msgsize}"  if $oversip_debug
+        log_system_info "maxmsg=#{mq.attr.maxmsg}, msgsize=#{mq.attr.msgsize}"
       else
         log_system_warn "maxmsg=#{mq.attr.maxmsg}, msgsize=#{mq.attr.msgsize}, " \
                     "but recommended values are maxmsg=#{mq_attr.maxmsg}, msgsize=#{mq_attr.msgsize}"

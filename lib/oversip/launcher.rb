@@ -552,7 +552,7 @@ module OverSIP::Launcher
     ::OverSIP.stud_pids ||= []
     ::OverSIP.stud_pids << pid
 
-    log_system_info "spawned stud server (PID #{pid}) listening into #{listen_ip} : #{listen_port}"
+    log_system_info "spawned stud server (PID #{pid}) listening on #{listen_ip} : #{listen_port}"
   end
 
 
