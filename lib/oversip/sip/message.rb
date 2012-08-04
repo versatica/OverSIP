@@ -163,6 +163,14 @@ module OverSIP::SIP
       end
     end
 
+    # Close the connection from which the SIP request/response has been
+    # received.
+    def close_connection
+      return false  if @transport == :udp
+      @connection.close_connection
+      true
+    end
+
   end  # class Message
 
 end

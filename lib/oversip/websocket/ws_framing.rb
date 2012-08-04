@@ -535,7 +535,7 @@ module OverSIP::WebSocket
       end
 
       unless in_reply_to_close
-        log_system_notice "sending close frame: status=#{status.inspect}, reason=#{reason.inspect}"
+        log_system_debug "sending close frame: status=#{status.inspect}, reason=#{reason.inspect}"  if $oversip_debug
       else
         log_system_debug "sending reply close frame: status=#{status.inspect}, reason=#{reason.inspect}"  if $oversip_debug
       end
