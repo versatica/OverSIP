@@ -185,7 +185,7 @@ module OverSIP::SIP
 
 
     def receive_response response
-      log_system_debug "received response #{response.status_code}"
+      log_system_debug "received response #{response.status_code}"  if $oversip_debug
 
       response.delete_header_top "Via"
 

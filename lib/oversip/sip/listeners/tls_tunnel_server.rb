@@ -15,7 +15,7 @@ module OverSIP::SIP
         return
       end
 
-      log_system_debug "connection from the TLS tunnel " << remote_desc
+      log_system_debug ("connection from the TLS tunnel " << remote_desc)  if $oversip_debug
 
       # Create an Outbound (RFC 5626) flow token for this connection.
       @outbound_flow_token = ::OverSIP::SIP::TransportManager.add_outbound_connection self
