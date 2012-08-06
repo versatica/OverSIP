@@ -8,6 +8,8 @@ module OverSIP::Launcher
 
 
   def self.daemonize!(options)
+    @log_id = "launcher (daemonize)"
+
     $stdin.reopen("/dev/null")
 
     # grandparent (launcher)  : Reads pipe, exits when master is ready.
@@ -30,7 +32,7 @@ module OverSIP::Launcher
       # its PID.
       master_pid = nil
       begin
-        ::Timeout::timeout(READY_PIPE_TIMEOUT/2) do
+        ::Timeout.timeout(READY_PIPE_TIMEOUT/2) do
           master_pid = rd.gets("\n").to_i rescue nil
         end
       rescue ::Timeout::Error
@@ -80,6 +82,8 @@ module OverSIP::Launcher
 
 
   def self.run(options)
+    @log_id = "launcher (run)"
+
     configuration = ::OverSIP.configuration
 
     # Store the master process PID.
@@ -94,7 +98,6 @@ module OverSIP::Launcher
       # I'm master process.
       if (syslogger_pid = fork) != nil
         ::OverSIP.syslogger_pid = syslogger_pid
-        log_system_info "starting syslogger process (PID #{syslogger_pid})..."
         ::OverSIP::Logger.load_methods
 
         # Load all the libraries for the master process.
@@ -116,6 +119,8 @@ module OverSIP::Launcher
         ::OverSIP::SysLoggerProcess.run options
         exit
       end
+
+      @log_id = "launcher (master)"
 
       ::EM.run do
 
