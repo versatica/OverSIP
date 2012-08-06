@@ -482,8 +482,9 @@ module OverSIP::Launcher
       log_system_info "exiting, thank you for tasting #{::OverSIP::PROGRAM_NAME}"
     end
 
-    # Kill Stud processes.
+    # Kill Stud processes and delete its temporal file with the full certificate.
     kill_stud_processes
+    ::File.delete ::OverSIP.configuration[:tls][:full_cert]  rescue nil
 
     # Wait a bit so pending log messages in the Posix MQ can be queued.
     sleep 0.1
