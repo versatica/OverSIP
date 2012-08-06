@@ -50,6 +50,15 @@ end
 # end
 
 
+# This method is called after OverSIP has been terminated. It's called
+# with argument "error" which is _true_ in case OverSIP has died in an
+# unexpected way.
+#
+# def (OverSIP::SystemEvents).on_terminated error
+#   [...]
+# end
+
+
 
 
 ### OverSIP SIP Events:

@@ -405,7 +405,7 @@ module OverSIP::Launcher
     # This should never occur, but maybe if I've missed trapping a signal.
     at_exit do
       log_system_crit "exiting due to an unknown cause ($! = #{$!.inspect})..."
-      terminate
+      terminate error=true
     end
 
     # Signals that cause OverSIP to terminate.
@@ -413,7 +413,7 @@ module OverSIP::Launcher
     exit_signals.each do |signal|
       trap signal do
         log_system_notice "#{signal} signal received, exiting..."
-        terminate
+        terminate error=false
       end
     end
 
@@ -460,6 +460,15 @@ module OverSIP::Launcher
 
 
   def self.terminate error=false
+    # Run the user provided on_terminated callback.
+    log_system_info "calling OverSIP::SystemEvents.on_terminated()..."
+    begin
+      ::OverSIP::SystemEvents.on_terminated error
+    rescue ::Exception => e
+      log_system_crit "error calling OverSIP::SystemEvents.on_terminated():"
+      log_system_crit e
+    end
+
     unless error
       log_system_info "exiting, thank you for tasting #{::OverSIP::PROGRAM_NAME}"
     end

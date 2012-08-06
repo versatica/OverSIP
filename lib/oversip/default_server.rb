@@ -12,6 +12,11 @@ module OverSIP
       log_system_notice "on_user_reload() event is not defined"
     end
 
+    def self.on_terminated error
+      log_system_notice "on_terminated() event is not defined"
+    end
+
+
   end
 
   module SipEvents
