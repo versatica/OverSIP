@@ -642,7 +642,7 @@ static void header_param(VALUE parsed, enum header_field header_field, const cha
   TRACE();
   VALUE v;
   VALUE header_params;
-  
+
   switch(header_field) {
     case header_field_via:
       if ((header_params = rb_ivar_get(parsed, id_via_params)) == Qnil) {
