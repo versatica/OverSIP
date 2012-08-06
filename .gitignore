@@ -1,18 +1,14 @@
-*.gem
-.bundle
-.config
-pkg
-rdoc
-spec/reports
-test/tmp
-test/version_tmp
-tmp
-Gemfile.lock
-
-# YARD artifacts
-.yardoc
-_yardoc
-doc/
+/*.gem
+/.bundle
+/.config
+/test/tmp
+/tmp
+/Gemfile.lock
+*.so
+*.o
+Makefile
+mkmf.log
+bin/oversip_stud
 
 # Custom scripts or files
 create-deb.sh
