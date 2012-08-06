@@ -545,9 +545,10 @@ module OverSIP::Launcher
 
     bin_dir = ::File.join(::File.absolute_path(::File.dirname(__FILE__)), "../../bin/")
     stdout_file = "/tmp/stud.#{listen_ip}:#{listen_port}.out"
+    stderr_file = "/tmp/stud.#{listen_ip}:#{listen_port}.err"
 
     ::Dir.chdir(bin_dir) do
-      pid = ::POSIX::Spawn.spawn "./oversip_stud #{stud_user_group} #{ssl_option} -f '#{listen_ip},#{listen_port}' -b '#{bg_ip},#{bg_port}' -n 2 -s --daemon --write-proxy #{::OverSIP.configuration[:tls][:full_cert]}", :out => stdout_file, :err => "/dev/null"
+      pid = ::POSIX::Spawn.spawn "./oversip_stud #{stud_user_group} #{ssl_option} -f '#{listen_ip},#{listen_port}' -b '#{bg_ip},#{bg_port}' -n 2 -s --daemon --write-proxy #{::OverSIP.configuration[:tls][:full_cert]}", :out => stdout_file, :err => stderr_file
       ::Process.waitpid(pid)
     end
 
@@ -564,8 +565,12 @@ module OverSIP::Launcher
     ::File.delete stdout_file  rescue nil
 
     unless pid
-      fatal "error spawning stud server"
+      stderr = ::File.read stderr_file
+      ::File.delete stderr_file  rescue nil
+      log_system_crit "error spawning stud server:"
+      fatal stderr
     end
+    ::File.delete stderr_file  rescue nil
 
     ::OverSIP.stud_pids ||= []
     ::OverSIP.stud_pids << pid
