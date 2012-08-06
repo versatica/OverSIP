@@ -572,15 +572,21 @@ module OverSIP::WebSocket
       @connection.ignore_incoming_data
       @connection.send_data frame
 
-      unless in_reply_to_close
+      # NOTE: Don't do it since it "seems" that the connection has been closed
+      # by the client.
+      #unless in_reply_to_close
         # Let's some time for the client to send us a close frame (it will
         # be ignored anyway) before closing the TCP connection.
-        ::EM.add_timer(0.2) do
-          @connection.close_connection_after_writing
-        end
-      else
-        @connection.close_connection_after_writing
-      end
+        # NOTE: Don't do it since it "seems" that the connection has been closed
+        # by the client.
+        #::EM.add_timer(0.2) do
+          #@connection.close_connection_after_writing
+        #end
+      #else
+        #@connection.close_connection_after_writing
+      #end
+
+      @connection.close_connection_after_writing
       true
     end
 

@@ -229,8 +229,10 @@ end
 # end
 
 
-# This method is called when a WebSocket connection is closed.
+# This method is called when a WebSocket connection is closed. The connection
+# is given as first argument along with a second argument "client_closed" which
+# is _true_ in case the WebSocket connection was closed by the client.
 #
-# def (OverSIP::WebSocketEvents).on_connection_closed connection
+# def (OverSIP::WebSocketEvents).on_connection_closed connection, client_closed
 #   [...]
 # end

@@ -32,7 +32,7 @@ module OverSIP
       log_system_notice "on_connection() event is not defined"
     end
 
-    def self.on_connection_closed connection
+    def self.on_connection_closed connection, client_closed
       log_system_notice "on_connection_closed() event is not defined"
     end
 

@@ -20,6 +20,7 @@ module OverSIP::WebSocket
     attr_accessor :ws_protocol, :ws_app_klass
     attr_reader :connection_log_id, :remote_ip_type, :remote_ip, :remote_port
     attr_reader :cvars  # A Hash for storing user provided data.
+    attr_accessor :ws_locally_closed
 
 
     def initialize
@@ -72,7 +73,7 @@ module OverSIP::WebSocket
 
       if @ws_handshake_done
         begin
-          ::OverSIP::WebSocketEvents.on_connection_closed self
+          ::OverSIP::WebSocketEvents.on_connection_closed self, !@ws_locally_closed
         rescue ::Exception => e
           log_system_error "error calling OverSIP::WebSocketEvents.on_connection_closed():"
           log_system_error e

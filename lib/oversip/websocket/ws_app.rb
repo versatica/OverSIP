@@ -24,6 +24,7 @@ module OverSIP::WebSocket
 
     def close_connection status=nil, reason=nil
       @ws_framing.send_close_frame status, reason
+      @connection.ws_locally_closed = true
     end
 
 
