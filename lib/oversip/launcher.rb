@@ -567,7 +567,7 @@ module OverSIP::Launcher
     unless pid
       stderr = ::File.read stderr_file
       ::File.delete stderr_file  rescue nil
-      log_system_crit "error spawning stud server:"
+      log_system_crit "error spawning stud server for listening on #{listen_ip} : #{listen_port}:"
       fatal stderr
     end
     ::File.delete stderr_file  rescue nil
