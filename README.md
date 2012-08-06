@@ -1,5 +1,7 @@
 <a href="http://www.oversip.net"><img src="http://www-test.oversip.net/images/dev/oversip-banner.png"/></a>
 
+[![Build Status](https://secure.travis-ci.org/versatica/OverSIP.png?branch=master)](http://travis-ci.org/versatica/OverSIP)
+
 **WEB UNDER CONSTRUCTION:** The code is stable and working. This web page and documentation is not... please wait a bit.
 
 OverSIP is an async SIP proxy/server programmable in Ruby language.
