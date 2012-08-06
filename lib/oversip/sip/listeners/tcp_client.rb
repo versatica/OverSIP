@@ -62,7 +62,7 @@ module OverSIP::SIP
           client_transaction.connection_failed
         end
         @pending_client_transactions.clear
-      end
+      end unless $!
 
       @connected = false
     end

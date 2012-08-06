@@ -203,7 +203,7 @@ module OverSIP::SIP
 
 
     def unbind cause=nil
-      unless $!.is_a? ::SystemExit
+      unless $!
         log_system_crit "UDP socket closed!!! cause: #{cause.inspect}"
       end
     end

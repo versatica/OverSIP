@@ -55,7 +55,7 @@ module OverSIP::SIP
         log_msg << ( @local_closed ? "locally closed" : "remotely closed" )
         log_msg << " (cause: #{cause.inspect})"  if cause
         log_system_debug log_msg
-      end unless $!.is_a? ::SystemExit
+      end unless $!
     end
 
   end

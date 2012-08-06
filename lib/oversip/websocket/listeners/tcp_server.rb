@@ -69,7 +69,7 @@ module OverSIP::WebSocket
         log_msg << ( @local_closed ? "locally closed" : "remotely closed" )
         log_msg << " (cause: #{cause.inspect})"  if cause
         log_system_debug log_msg
-      end unless $!.is_a? ::SystemExit
+      end unless $!
 
       @ws_framing.tcp_closed  if @ws_framing
 
@@ -80,7 +80,7 @@ module OverSIP::WebSocket
           log_system_error "error calling OverSIP::WebSocketEvents.on_connection_closed():"
           log_system_error e
         end
-      end unless $!.is_a? ::SystemExit
+      end unless $!
     end
 
 
