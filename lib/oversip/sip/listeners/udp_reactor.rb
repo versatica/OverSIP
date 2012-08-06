@@ -203,7 +203,9 @@ module OverSIP::SIP
 
 
     def unbind cause=nil
-      log_system_crit "UDP socket closed!!! cause: #{cause.inspect}"
+      unless $!.is_a? ::SystemExit
+        log_system_crit "UDP socket closed!!! cause: #{cause.inspect}"
+      end
     end
 
   end  # class UdpReactor

@@ -402,10 +402,17 @@ module OverSIP::Launcher
 
 
   def self.trap_signals
-    # This should never occur, but maybe if I've missed trapping a signal.
+    # This should never occur (unless some not trapped signal is received
+    # and causes Ruby to exit, or maybe the user called "exit()" within its
+    # custom code).
     at_exit do
-      log_system_crit "exiting due to an unknown cause ($! = #{$!.inspect})..."
-      terminate error=true
+      if $!.is_a? ::SystemExit
+        log_system_notice "exiting due to SystemExit..."
+        terminate error=false
+      else
+        log_system_crit "exiting due to an unknown cause ($! = #{$!.inspect})..."
+        terminate error=true
+      end
     end
 
     # Signals that cause OverSIP to terminate.
