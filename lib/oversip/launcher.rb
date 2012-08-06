@@ -466,14 +466,16 @@ module OverSIP::Launcher
   end
 
 
-  def self.terminate error=false
-    # Run the user provided on_terminated callback.
-    log_system_info "calling OverSIP::SystemEvents.on_terminated()..."
-    begin
-      ::OverSIP::SystemEvents.on_terminated error
-    rescue ::Exception => e
-      log_system_crit "error calling OverSIP::SystemEvents.on_terminated():"
-      log_system_crit e
+  def self.terminate error=false, fatal=false
+    unless fatal
+      # Run the user provided on_terminated callback.
+      log_system_info "calling OverSIP::SystemEvents.on_terminated()..."
+      begin
+        ::OverSIP::SystemEvents.on_terminated error
+      rescue ::Exception => e
+        log_system_crit "error calling OverSIP::SystemEvents.on_terminated():"
+        log_system_crit e
+      end
     end
 
     unless error

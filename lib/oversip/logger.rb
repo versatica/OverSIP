@@ -115,7 +115,7 @@ module OverSIP
         log_system_crit msg
         log_system_crit "exiting with error status"
 
-        ::OverSIP::Launcher.terminate error=true
+        ::OverSIP::Launcher.terminate error=true, fatal=true
       end
     end
 
