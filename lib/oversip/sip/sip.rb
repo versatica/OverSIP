@@ -1,9 +1,5 @@
 module OverSIP::SIP
 
-  # This hash contains the proxies defined by the user. It will be filled after loading the
-  # configuration (proxies.conf file).
-  PROXIES = {}
-
   def self.module_init
     conf = ::OverSIP.configuration
 
