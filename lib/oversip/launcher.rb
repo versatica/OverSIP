@@ -488,11 +488,12 @@ module OverSIP::Launcher
 
     # Wait a bit so pending log messages in the Posix MQ can be queued.
     sleep 0.1
-    delete_pid_file
     ::OverSIP::Logger.close
 
     # Fill the syslogger process.
     kill_syslogger_process
+
+    delete_pid_file
 
     # Exit by preventing any exception.
     exit!( error ? false : true )
@@ -527,7 +528,7 @@ module OverSIP::Launcher
     uid = ::Etc.getpwnam(user).uid  if user
     gid = ::Etc.getgrnam(group).gid  if group
     if uid or gid
-      if gid && ::Process.egid != gid
+      if gid and ::Process.egid != gid
         ::Process.initgroups(user, gid)  if user
         ::Process::GID.change_privilege(gid)
       end
