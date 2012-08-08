@@ -17,7 +17,7 @@ Description: OverSIP (the SIP framework you dreamed about)
   - Full IPv4 and IPv6 support.
   - RFC 3263: SIP DNS mechanism (NAPTR, SRV, A, AAAA) for failover and load
     balancing based on DNS.
-  - RFC 5626: OverSIP is a perfect Outbound EDGE proxy, including an integrated
+  - RFC 5626: OverSIP is a perfect Outbound Edge Proxy, including an integrated
     STUN server.
   - Fully programmable in Ruby language (make SIP easy).
   - Fast and efficient: OverSIP core is coded in C language.
