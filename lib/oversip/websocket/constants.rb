@@ -48,7 +48,7 @@ module OverSIP::WebSocket
 
   REASON_PHARSE_NOT_SET = "Reason Phrase Not Set"
 
-  HDR_SERVER = "Server: #{::OverSIP::PROGRAM_DESC}/#{::OverSIP::VERSION}"
+  HDR_SERVER = "Server: #{::OverSIP::PROGRAM_NAME}/#{::OverSIP::VERSION}".freeze
 
   WS_SIP_PROTOCOL = "sip"
   WS_AUTOBAHN_PROTOCOL = "autobahn"

@@ -5,8 +5,8 @@ require "./lib/oversip/version"
   spec.version = ::OverSIP::VERSION
   spec.date = ::Time.now
   spec.authors = [::OverSIP::AUTHOR]
-  spec.email = ::OverSIP::AUTHOR_EMAIL
-  spec.homepage = ::OverSIP::WEB
+  spec.email = [::OverSIP::AUTHOR_EMAIL]
+  spec.homepage = ::OverSIP::HOMEPAGE
   spec.summary = "OverSIP (the SIP framework you dreamed about)"
   spec.description = <<-_END_
 OverSIP is an async SIP proxy/server programmable in Ruby language. Some features of OverSIP are:
