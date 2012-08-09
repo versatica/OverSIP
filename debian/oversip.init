@@ -35,7 +35,7 @@ UBUNTU_LOGGING=0
 if [ "$1" != "stop" ] && [ "$1" != "status" ] ; then
   # Ensure that the admin has set RUN=yes in /etc/default/$NAME file.
   if [ "$RUN" != "yes" ] ; then
-    log_failure_msg "$DESC ($NAME) not yet configured. Set RUN=yes in /etc/default/$NAME. If OverSIP has been installed using this terminal then open another one to run OverSIP in order to apply new system limits in /etc/security/limits.d/oversip.conf"
+    log_failure_msg "$DESC ($NAME) not yet configured, set RUN=yes in /etc/default/$NAME"
     exit 0
   fi
 fi
