@@ -21,6 +21,6 @@ Description: OverSIP (the SIP framework you dreamed about)
     STUN server.
   - Fully programmable in Ruby language (make SIP easy).
   - Fast and efficient: OverSIP core is coded in C language.
-  OverSIP is build on top of EventMachine async library which follows the Reactor
+  OverSIP is build on top of EventMachine-LE async library which follows the Reactor
   Design Pattern, allowing thousands of concurrent connections and requests in a
   never-blocking fashion.
