@@ -9,10 +9,14 @@ CONTRIBUTORS
 ============
 
 - Jon Bonilla <manwe@aholab.ehu.es> (Github @manwe)
-  Lot of help with Debian package.
+
+  Lots of help with packaging for Debian based distributions.
+  The first deployment of OverSIP in production for thousands of clients.
 
 - Saúl Ibarra Corretgé <saghul@gmail.com> (Github @saghul)
+
   Testing, ideas, proposals, too many proposals.
 
 - José Luis Millán <jmillan@aliax.net> (Github @jmillan)
-  Intensive testing with JsSIP library acting as client with OverSIP.
+
+  Intensive testing with JsSIP library acting as a SIP Outbound UA with OverSIP.
