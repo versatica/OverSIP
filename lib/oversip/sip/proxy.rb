@@ -302,7 +302,6 @@ module OverSIP::SIP
       end
 
       # Add Record-Route or Path header.
-      # Here we only arrive if @request.loose_record_aware?.
       if add_rr_path
         case @request.sip_method
 
