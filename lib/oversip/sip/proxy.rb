@@ -265,7 +265,9 @@ module OverSIP::SIP
       return  if @num_target and @num_target > 0
 
       add_rr_path = false
-      if @request.initial? && @request.loose_record_aware?
+
+      # NOTE: As per RFC 6665 the proxy MUST add Record-Route to in-dialog NOTIFY's.
+      if (@request.initial? and @request.loose_record_aware?) or @request.sip_method == :NOTIFY
         do_loose_routing = @proxy_conf[:do_loose_routing]
 
         # Request has no previous RR/Path and current proxy performs loose-routing.
@@ -300,7 +302,7 @@ module OverSIP::SIP
       end
 
       # Add Record-Route or Path header.
-      # Here we only arrive if @request.loose_record_aware?, so method is INVITE, REGISTER, SUBSCRIBE or REFER.
+      # Here we only arrive if @request.loose_record_aware?.
       if add_rr_path
         case @request.sip_method
 
@@ -321,7 +323,7 @@ module OverSIP::SIP
             @request.insert_header "Path", @request.connection.class.record_route
           end
 
-        # Record-Route for INVITE, SUBSCRIBE, REFER.
+        # Record-Route for INVITE, SUBSCRIBE, REFER and in-dialog NOTIFY.
         else
           if @request.outgoing_outbound_requested?
             if @request.incoming_outbound_requested?
