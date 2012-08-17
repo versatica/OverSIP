@@ -109,7 +109,7 @@ def (OverSIP::SipEvents).on_request request
 
   if MyExampleApp::SIP_USE_MODULE_REGISTRAR_WITHOUT_PATH
     # Extract the Outbound flow token from the RURI.
-    OverSIP::SIP::Modules::RegistrarWithoutPath.extract_outbound_from_ruri request
+    ::OverSIP::SIP::Modules::RegistrarWithoutPath.extract_outbound_from_ruri request
   end
 
   # The request goes to a client using Outbound through OverSIP.
@@ -147,7 +147,7 @@ def (OverSIP::SipEvents).on_request request
   # An outgoing initial request.
   case request.sip_method
 
-  when :INVITE, :MESSAGE, :OPTIONS, :SUBSCRIBE, :PUBLISH
+  when :INVITE, :MESSAGE, :OPTIONS, :SUBSCRIBE, :PUBLISH, :REFER
 
     if MyExampleApp::SIP_USE_MODULE_USER_ASSERTION
       ::OverSIP::SIP::Modules::UserAssertion.add_pai request
