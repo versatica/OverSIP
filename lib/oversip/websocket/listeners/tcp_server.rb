@@ -264,7 +264,7 @@ module OverSIP::WebSocket
     end
 
 
-    def http_reject status_code, reason_phrase=nil, extra_headers=nil
+    def http_reject status_code=403, reason_phrase=nil, extra_headers=nil
       @http_request.reply(status_code, reason_phrase, extra_headers)
       close_connection_after_writing
       @state = :ignore
