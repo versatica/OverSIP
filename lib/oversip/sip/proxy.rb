@@ -267,17 +267,17 @@ module OverSIP::SIP
       add_rr_path = false
 
       # NOTE: As per RFC 6665 the proxy MUST add Record-Route to in-dialog NOTIFY's.
-      if (@request.initial? and @request.loose_record_aware?) or @request.sip_method == :NOTIFY
-        do_loose_routing = @proxy_conf[:do_loose_routing]
+      if (@request.initial? and @request.record_routing_aware?) or @request.sip_method == :NOTIFY
+        do_record_routing = @proxy_conf[:do_record_routing]
 
-        # Request has no previous RR/Path and current proxy performs loose-routing.
+        # Request has no previous RR/Path and current proxy performs record-routing.
         # So add RR/Path.
-        if ! @request.in_rr && do_loose_routing
+        if ! @request.in_rr && do_record_routing
           add_rr_path = true
 
-        # Request has previous RR/Path and current proxy does not perform loose-routing.
+        # Request has previous RR/Path and current proxy does not perform record-routing.
         # So don't add RR/Path and remove the existing one.
-        elsif @request.in_rr && ! do_loose_routing
+        elsif @request.in_rr && ! do_record_routing
           case @request.in_rr
           when :rr, :outgoing_outbound_rr, :incoming_outbound_rr, :both_outbound_rr
             @request.delete_header_top "Record-Route"
@@ -287,8 +287,8 @@ module OverSIP::SIP
           @request.in_rr = nil
 
         # Remaining cases are:
-        # - Request has previous RR/Path and current proxy performs loose-routing.
-        # - Request has no previous RR/Path and current proxy does not perform loose-routing.
+        # - Request has previous RR/Path and current proxy performs record-routing.
+        # - Request has no previous RR/Path and current proxy does not perform record-routing.
         # So don't add RR/Path.
         end
       end

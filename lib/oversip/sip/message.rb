@@ -5,7 +5,7 @@ module OverSIP::SIP
     include ::OverSIP::Logger
 
     DIALOG_FORMING_METHODS = { :INVITE=>true, :SUBSCRIBE=>true, :REFER=>true }
-    LOOSE_RECORD_AWARE_METHODS = { :INVITE=>true, :REGISTER=>true, :SUBSCRIBE=>true, :REFER=>true }
+    RECORD_ROUTING_AWARE_METHODS = { :INVITE=>true, :REGISTER=>true, :SUBSCRIBE=>true, :REFER=>true }
     OUTBOUND_AWARE_METHODS = { :INVITE=>true, :REGISTER=>true, :SUBSCRIBE=>true, :REFER=>true }
     EMPTY_ARRAY = [].freeze
 
@@ -79,8 +79,8 @@ module OverSIP::SIP
       DIALOG_FORMING_METHODS[@sip_method]
     end
 
-    def loose_record_aware?
-      LOOSE_RECORD_AWARE_METHODS[@sip_method]
+    def record_routing_aware?
+      RECORD_ROUTING_AWARE_METHODS[@sip_method]
     end
 
     def outbound_aware?

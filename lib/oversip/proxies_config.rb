@@ -10,7 +10,7 @@ module OverSIP
     end
 
     @proxy_configuration = {
-      :do_loose_routing           => true,
+      :do_record_routing          => true,
       :use_dns                    => true,
       :use_dns_cache              => true,
       :dns_cache_time             => 300,
@@ -27,7 +27,7 @@ module OverSIP
     }
 
     PROXY_CONFIG_VALIDATIONS = {
-      :do_loose_routing           => :boolean,
+      :do_record_routing          => :boolean,
       :use_dns                    => :boolean, 
       :use_dns_cache              => :boolean,
       :dns_cache_time             => [ :fixnum, [ :greater_equal_than, 300 ] ],
