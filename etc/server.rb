@@ -34,14 +34,14 @@ end
 ### OverSIP System Events:
 
 
-# This method is called once the OverSIP reactor has been started.
+# This callback is called once the OverSIP reactor has been started.
 #
 # def (OverSIP::SystemEvents).on_started
 #   [...]
 # end
 
 
-# This method is called when a USR1 signal is received by OverSIP main
+# This callback is called when a USR1 signal is received by OverSIP main
 # process and allows the user to set custom code to be executed
 # or reloaded.
 #
@@ -50,7 +50,7 @@ end
 # end
 
 
-# This method is called after OverSIP has been terminated. It's called
+# This callback is called after OverSIP has been terminated. It's called
 # with argument "error" which is _true_ in case OverSIP has died in an
 # unexpected way.
 #
@@ -64,7 +64,7 @@ end
 ### OverSIP SIP Events:
 
 
-# This method is called when a SIP request is received.
+# This callback is called when a SIP request is received.
 #
 def (OverSIP::SipEvents).on_request request
 
@@ -223,7 +223,7 @@ end
 ### OverSIP WebSocket Events:
 
 
-# This method is called when a new WebSocket connection is being requested.
+# This callback is called when a new WebSocket connection is being requested.
 # Here you can inspect the connection and the HTTP GET request. If you
 # decide not to accept this connection then call to:
 #
@@ -238,10 +238,10 @@ end
 # end
 
 
-# This method is called when a WebSocket connection is closed. The connection
+# This callback is called when a WebSocket connection is closed. The connection
 # is given as first argument along with a second argument "client_closed" which
 # is _true_ in case the WebSocket connection was closed by the client.
 #
-# def (OverSIP::WebSocketEvents).on_connection_closed connection, client_closed
+# def (OverSIP::WebSocketEvents).on_disconnection connection, client_closed
 #   [...]
 # end

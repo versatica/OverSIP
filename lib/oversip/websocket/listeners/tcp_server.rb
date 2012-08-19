@@ -75,9 +75,9 @@ module OverSIP::WebSocket
 
       if @ws_handshake_done
         begin
-          ::OverSIP::WebSocketEvents.on_connection_closed self, !@ws_locally_closed
+          ::OverSIP::WebSocketEvents.on_disconnection self, !@ws_locally_closed
         rescue ::Exception => e
-          log_system_error "error calling OverSIP::WebSocketEvents.on_connection_closed():"
+          log_system_error "error calling OverSIP::WebSocketEvents.on_disconnection():"
           log_system_error e
         end
       end unless $!
