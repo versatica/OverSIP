@@ -1,6 +1,6 @@
 module OverSIP::WebSocket
 
-  class TcpServer < ::EM::Connection
+  class TcpServer < Connection
 
     include ::OverSIP::Logger
 
