@@ -42,7 +42,7 @@ Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r
 Sec-WebSocket-protocol: foo , chat.lalala.com\r
 Sec-WebSocket-protocol:  xmpp.nonaino.org\r
 Origin: http://example.Com\r
-Sec-WebSocket-Version: 8\r
+Sec-WebSocket-Version: 13\r
 noNaino-lALA  :  qwe\r
 NOnaino-lala: asd\r
 \r
@@ -62,7 +62,7 @@ END
     assert_nil request.content_length
     assert request.hdr_connection.include?("upgrade")
     assert_equal "websocket", request.hdr_upgrade
-    assert_equal 8, request.hdr_sec_websocket_version
+    assert_equal 13, request.hdr_sec_websocket_version
     assert_equal "dGhlIHNhbXBsZSBub25jZQ==", request.hdr_sec_websocket_key
     assert_equal "http://example.com", request.hdr_origin
     assert_equal ["foo", "chat.lalala.com", "xmpp.nonaino.org"], request.hdr_sec_websocket_protocol
