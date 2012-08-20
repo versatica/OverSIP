@@ -1,5 +1,6 @@
 # OverSIP files
 
+require "oversip/websocket/connection"
 require "oversip/websocket/listeners/tcp_server"
 require "oversip/websocket/listeners/tls_server"
 require "oversip/websocket/listeners/tls_tunnel_server"
