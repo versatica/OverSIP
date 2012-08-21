@@ -16,18 +16,8 @@ module OverSIP
       configuration = ::OverSIP.configuration
       if configuration[:tls][:public_cert] and configuration[:tls][:private_cert]
         log_system_info "TLS enabled"
-
-        ::OverSIP.tls = true
         ::OverSIP.tls_public_cert = configuration[:tls][:public_cert]
         ::OverSIP.tls_private_cert = configuration[:tls][:private_cert]
-
-        if (::OverSIP.tls_proxy_ipv4 = configuration[:tls][:tls_proxy_ipv4])
-          log_system_info "TLS proxy enabled from IPv4 #{::OverSIP.tls_proxy_ipv4}"
-        end
-        if (::OverSIP.tls_proxy_ipv6 = configuration[:tls][:tls_proxy_ipv6])
-          log_system_info "TLS proxy enabled from IPv6 #{::OverSIP.tls_proxy_ipv6}"
-        end
-
       else
         log_system_info "TLS disabled"
         return

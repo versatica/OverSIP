@@ -40,7 +40,7 @@ module OverSIP
                   :syslogger_pid, :syslogger_mq_name,
                   :configuration,
                   :proxies,
-                  :tls, :tls_public_cert, :tls_private_cert, :tls_proxy_ipv4, :tls_proxy_ipv6,
+                  :tls_public_cert, :tls_private_cert,
                   :stud_pids
 
     def master?
