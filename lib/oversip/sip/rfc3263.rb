@@ -285,7 +285,7 @@ module OverSIP::SIP
 
             # If @use_srv is false then perform A/AAAA queries.
             else
-              log_system_debug "SRV is dissabled, performing A/AAAA queries"  if $oversip_debug
+              log_system_debug "SRV is disabled, performing A/AAAA queries"  if $oversip_debug
 
               port = 5061 if dns_transport == :tls
               port ||= case @uri_scheme
@@ -311,12 +311,12 @@ module OverSIP::SIP
             # If @use_naptr is false then NAPTR must not be performed.
             if ! @use_naptr
               if @use_srv
-                log_system_debug "NAPTR is dissabled, performing SRV queries"  if $oversip_debug
+                log_system_debug "NAPTR is disabled, performing SRV queries"  if $oversip_debug
                 continue_with_SRV
 
               # If @use_srv is false then perform A/AAAA queries.
               else
-                log_system_debug "NAPTR and SRV are dissabled, performing A/AAAA queries"  if $oversip_debug
+                log_system_debug "NAPTR and SRV are disabled, performing A/AAAA queries"  if $oversip_debug
                 case @uri_scheme
                 when :sip
                   if @has_sip_udp

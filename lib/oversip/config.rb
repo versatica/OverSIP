@@ -306,7 +306,7 @@ module OverSIP
 
       if ( @use_sip_udp_or_tcp or @use_sip_tls ) and @configuration[:sip][:listen_ipv4] == nil and @configuration[:sip][:enable_ipv4]
         unless (@configuration[:sip][:listen_ipv4] = discover_local_ip(:ipv4))
-          log_system_warn "dissabling IPv4 for SIP"
+          log_system_warn "disabling IPv4 for SIP"
           @configuration[:sip][:listen_ipv4] = nil
           @configuration[:sip][:enable_ipv4] = false
         end
@@ -314,7 +314,7 @@ module OverSIP
 
       if ( @use_sip_udp_or_tcp or @use_sip_tls ) and @configuration[:sip][:listen_ipv6] == nil and @configuration[:sip][:enable_ipv6]
         unless (@configuration[:sip][:listen_ipv6] = discover_local_ip(:ipv6))
-          log_system_warn "dissabling IPv6 for SIP"
+          log_system_warn "disabling IPv6 for SIP"
           @configuration[:sip][:listen_ipv6] = nil
           @configuration[:sip][:enable_ipv6] = false
         end
@@ -322,7 +322,7 @@ module OverSIP
 
       if ( @use_sip_ws or @use_sip_wss ) and @configuration[:websocket][:listen_ipv4] == nil and @configuration[:websocket][:enable_ipv4]
         unless (@configuration[:websocket][:listen_ipv4] = discover_local_ip(:ipv4))
-          log_system_warn "dissabling IPv4 for WebSocket"
+          log_system_warn "disabling IPv4 for WebSocket"
           @configuration[:websocket][:listen_ipv4] = nil
           @configuration[:websocket][:enable_ipv4] = false
         end
@@ -330,7 +330,7 @@ module OverSIP
 
       if ( @use_sip_ws or @use_sip_wss ) and @configuration[:websocket][:listen_ipv6] == nil and @configuration[:websocket][:enable_ipv6]
         unless (@configuration[:websocket][:listen_ipv6] = discover_local_ip(:ipv6))
-          log_system_warn "dissabling IPv6 for WebSocket"
+          log_system_warn "disabling IPv6 for WebSocket"
           @configuration[:websocket][:listen_ipv6] = nil
           @configuration[:websocket][:enable_ipv6] = false
         end

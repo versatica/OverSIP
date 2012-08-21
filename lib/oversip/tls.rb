@@ -29,7 +29,7 @@ module OverSIP
         end
 
       else
-        log_system_info "TLS dissabled"
+        log_system_info "TLS disabled"
         return
       end
 
@@ -86,7 +86,7 @@ module OverSIP
         end
 
         if num_certs_added == 0
-          log_system_notice "zero public certificates found in '#{ca_dir}' directory, dissabling TLS validation"
+          log_system_notice "zero public certificates found in '#{ca_dir}' directory, disabling TLS validation"
           @store = nil
         end
         log_system_info "#{num_certs_added} public certificates available for TLS validation"
@@ -106,7 +106,7 @@ module OverSIP
     # - tls_error: OpenSSL validation error code (Fixnum) in case of validation error.
     # - tls_error_string: OpenSSL validation error string in case of validation error.
     def self.validate pem, intermediate_pems=nil
-      return nil, nil, nil, "no CAs provided, validation dissabled"  unless @store
+      return nil, nil, nil, "no CAs provided, validation disabled"  unless @store
       return nil, nil, nil, "no certificate provided by peer"  unless pem
 
       begin
