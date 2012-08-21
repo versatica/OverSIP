@@ -66,7 +66,7 @@ module OverSIP::SIP
         if validated
           log_system_info "server provides a valid TLS certificate"
           sip_identities = ::OverSIP::TLS.get_sip_identities(cert)
-          log_system_debug "SIP identities in peer cert: #{sip_identities.keys}"  if $oversip_debug
+          log_system_debug "SIP identities in peer cert: #{sip_identities}"  if $oversip_debug
         else
           log_system_notice "server's TLS certificate validation failed (TLS error: #{tls_error.inspect}, description: #{tls_error_string.inspect})"
           @pending_client_transactions.each do |client_transaction|

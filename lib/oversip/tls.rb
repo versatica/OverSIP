@@ -161,7 +161,8 @@ module OverSIP
         end
       end
 
-      return sip_identities
+      # Return an array with the SIP identities (domains) in the certificate.
+      return sip_identities.keys
     end
 
   end
