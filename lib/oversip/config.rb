@@ -67,52 +67,52 @@ module OverSIP
 
     CONFIG_VALIDATIONS = {
       :core => {
-        :nameservers              => [ :ipv4, :multi_value ],
-        :syslog_facility          => [
+        :nameservers                     => [ :ipv4, :multi_value ],
+        :syslog_facility                 => [
           [ :choices,
             %w{ kern user daemon local0 local1 local2 local3 local4 local5 local6 local7 } ]
         ],
-        :syslog_level             => [
+        :syslog_level                    => [
           [ :choices,
             %w{ debug info notice warn error crit } ]
         ],
       },
       :sip => {
-        :sip_udp                  => :boolean,
-        :sip_tcp                  => :boolean,
-        :sip_tls                  => :boolean,
-        :enable_ipv4              => :boolean,
-        :listen_ipv4              => :ipv4,
-        :enable_ipv6              => :boolean,
-        :listen_ipv6              => :ipv6,
-        :listen_port              => :port,
-        :listen_port_tls          => :port,
-        :use_tls_tunnel           => :boolean,
-        :listen_port_tls_tunnel   => :port,
-        :local_domains            => [ :domain, :multi_value ],
-        :tcp_keepalive_interval        => [ :fixnum, [ :greater_equal_than, 180 ] ],
-        :record_route_hostname_tls_ipv4 => :domain,
-        :record_route_hostname_tls_ipv6 => :domain,
+        :sip_udp                         => :boolean,
+        :sip_tcp                         => :boolean,
+        :sip_tls                         => :boolean,
+        :enable_ipv4                     => :boolean,
+        :listen_ipv4                     => :ipv4,
+        :enable_ipv6                     => :boolean,
+        :listen_ipv6                     => :ipv6,
+        :listen_port                     => :port,
+        :listen_port_tls                 => :port,
+        :use_tls_tunnel                  => :boolean,
+        :listen_port_tls_tunnel          => :port,
+        :local_domains                   => [ :domain, :multi_value ],
+        :tcp_keepalive_interval          => [ :fixnum, [ :greater_equal_than, 180 ] ],
+        :record_route_hostname_tls_ipv4  => :domain,
+        :record_route_hostname_tls_ipv6  => :domain,
       },
       :websocket => {
-        :sip_ws                   => :boolean,
-        :sip_wss                  => :boolean,
-        :enable_ipv4              => :boolean,
-        :listen_ipv4              => :ipv4,
-        :enable_ipv6              => :boolean,
-        :listen_ipv6              => :ipv6,
-        :listen_port              => :port,
-        :listen_port_tls          => :port,
-        :use_tls_tunnel           => :boolean,
-        :listen_port_tls_tunnel   => :port,
-        :max_ws_message_size      => [ :fixnum, [ :minor_than, 1048576 ] ],
-        :max_ws_frame_size        => [ :fixnum, [ :minor_than, 1048576 ] ],
-        :ws_keepalive_interval    => [ :fixnum, [ :greater_equal_than, 180 ] ]
+        :sip_ws                          => :boolean,
+        :sip_wss                         => :boolean,
+        :enable_ipv4                     => :boolean,
+        :listen_ipv4                     => :ipv4,
+        :enable_ipv6                     => :boolean,
+        :listen_ipv6                     => :ipv6,
+        :listen_port                     => :port,
+        :listen_port_tls                 => :port,
+        :use_tls_tunnel                  => :boolean,
+        :listen_port_tls_tunnel          => :port,
+        :max_ws_message_size             => [ :fixnum, [ :minor_than, 1048576 ] ],
+        :max_ws_frame_size               => [ :fixnum, [ :minor_than, 1048576 ] ],
+        :ws_keepalive_interval           => [ :fixnum, [ :greater_equal_than, 180 ] ]
       },
       :tls => {
-        :public_cert              => [ :readable_file, :tls_pem_chain ],
-        :private_cert             => [ :readable_file, :tls_pem_private ],
-        :ca_dir                   => :readable_dir
+        :public_cert                     => [ :readable_file, :tls_pem_chain ],
+        :private_cert                    => [ :readable_file, :tls_pem_private ],
+        :ca_dir                          => :readable_dir
       }
     }
 
