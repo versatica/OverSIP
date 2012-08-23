@@ -300,7 +300,6 @@ module OverSIP::Launcher
         end
 
         # Stop writting into standard output/error.
-        # TODO: UNCOMMENT THIS  !!!
         $stdout.reopen("/dev/null")
         $stderr.reopen("/dev/null")
         ::OverSIP.daemonized = true
