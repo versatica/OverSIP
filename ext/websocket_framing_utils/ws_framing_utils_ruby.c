@@ -14,7 +14,7 @@ static VALUE cUtf8Validator;
  * Ruby functions.
  */
 
-VALUE WsFrammingUtils_unmask(VALUE self, VALUE payload, VALUE mask)
+VALUE WsFramingUtils_unmask(VALUE self, VALUE payload, VALUE mask)
 {
   char *payload_str, *mask_str;
   long payload_len;  /* mask length is always 4 bytes. */
@@ -127,7 +127,7 @@ void Init_ws_framing_utils()
   mFramingUtils = rb_define_module_under(mWebSocket, "FramingUtils");
   cUtf8Validator = rb_define_class_under(mFramingUtils, "Utf8Validator", rb_cObject);
 
-  rb_define_module_function(mFramingUtils, "unmask", WsFrammingUtils_unmask,2);
+  rb_define_module_function(mFramingUtils, "unmask", WsFramingUtils_unmask,2);
 
   rb_define_alloc_func(cUtf8Validator, Utf8Validator_alloc);
   rb_define_method(cUtf8Validator, "reset", Utf8Validator_reset,0);

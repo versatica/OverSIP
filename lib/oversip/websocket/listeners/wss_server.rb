@@ -1,8 +1,8 @@
 module OverSIP::WebSocket
 
-  class TlsServer < TcpServer
+  class WssServer < WsServer
 
-    TLS_HANDSHAKE_MAX_TIME = 8
+    TLS_HANDSHAKE_MAX_TIME = 4
 
 
     def post_init
@@ -44,25 +44,26 @@ module OverSIP::WebSocket
     def ssl_handshake_completed
       log_system_info "TLS connection established from " << remote_desc
 
-      # TODO: What to do it falidation fails? always do validation?
-
-      validated, cert, tls_error, tls_error_string = ::OverSIP::TLS.validate @client_pems.pop, @client_pems
-      if validated
-        log_system_info "client provides a valid TLS certificate"
-      else
-        log_system_notice "client's TLS certificate validation failed (TLS error: #{tls_error.inspect}, description: #{tls_error_string.inspect})"
-      end
-
-      # @connected in TlsServer means "TLS connection" rather than
+      # @connected in WssServer means "TLS connection" rather than
       # just "TCP connection".
       @connected = true
       @timer_tls_handshake.cancel  if @timer_tls_handshake
+
+      if ::OverSIP::WebSocket.callback_on_client_tls_handshake
+        begin
+          ::OverSIP::WebSocketEvents.on_client_tls_handshake self, @client_pems
+        rescue ::Exception => e
+          log_system_error "error calling OverSIP::WebSocketEvents.on_client_tls_handshake():"
+          log_system_error e
+          close_connection
+        end
+      end
     end
 
 
     def unbind cause=nil
-      @timer_tls_handshake.cancel  if @timer_tls_handshake
       super
+      @timer_tls_handshake.cancel  if @timer_tls_handshake
     end
 
   end

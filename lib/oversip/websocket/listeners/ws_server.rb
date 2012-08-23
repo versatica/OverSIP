@@ -1,10 +1,8 @@
 module OverSIP::WebSocket
 
-  class TcpServer < Connection
+  class WsServer < Connection
 
-    include ::OverSIP::Logger
-
-    # Max size (bytes) of the buffered data when receiving message headers
+   # Max size (bytes) of the buffered data when receiving HTTP headers
     # (avoid DoS attacks).
     HEADERS_MAX_SIZE = 2048
 
@@ -13,18 +11,11 @@ module OverSIP::WebSocket
     HDR_SUPPORTED_WEBSOCKET_VERSIONS = [ "X-Supported-WebSocket-Versions: #{WS_VERSIONS.keys.join(", ")}" ]
 
 
-    class << self
-      attr_accessor :ip_type, :transport
-    end
-
-    attr_accessor :ws_protocol, :ws_app_klass
-    attr_reader :connection_log_id, :remote_ip_type, :remote_ip, :remote_port
-    attr_reader :cvars  # A Hash for storing user provided data.
-    attr_accessor :ws_locally_closed
+    attr_reader :outbound_flow_token
+    attr_writer :ws_established, :client_closed
 
 
     def initialize
-      @http_parser = ::OverSIP::WebSocket::HttpRequestParser.new
       @buffer = ::IO::Buffer.new
       @state = :init
       @cvars = {}
@@ -40,9 +31,16 @@ module OverSIP::WebSocket
         @state = :ignore
         return
       end
-      @connection_log_id = ::SecureRandom.hex(4)
 
-      log_system_info "connection opened from " << remote_desc
+      @connection_id = ::OverSIP::SIP::TransportManager.add_connection self, self.class, self.class.ip_type, @remote_ip, @remote_port
+
+      # Create an Outbound (RFC 5626) flow token for this connection.
+      @outbound_flow_token = ::OverSIP::SIP::TransportManager.add_outbound_connection self
+
+      # Initialize @cvars.
+      @cvars = {}
+
+      log_system_debug("connection opened from " << remote_desc)  if $oversip_debug
     end
 
 
@@ -62,7 +60,16 @@ module OverSIP::WebSocket
 
 
     def unbind cause=nil
+      @state = :ignore
+
+      # Remove the connection.
+      self.class.connections.delete @connection_id
+
+      # Remove the Outbound token flow.
+      ::OverSIP::SIP::TransportManager.delete_outbound_connection @outbound_flow_token
+
       @local_closed = true  if cause == ::Errno::ETIMEDOUT
+      @local_closed = false  if @client_closed
 
       if $oversip_debug
         log_msg = "connection from #{remote_desc} "
@@ -71,11 +78,9 @@ module OverSIP::WebSocket
         log_system_debug log_msg
       end unless $!
 
-      @ws_framing.tcp_closed  if @ws_framing
-
-      if @ws_handshake_done
+      if @ws_established
         begin
-          ::OverSIP::WebSocketEvents.on_disconnection self, !@ws_locally_closed
+          ::OverSIP::WebSocketEvents.on_disconnection self, !@local_closed
         rescue ::Exception => e
           log_system_error "error calling OverSIP::WebSocketEvents.on_disconnection():"
           log_system_error e
@@ -90,8 +95,8 @@ module OverSIP::WebSocket
 
       while (case @state
         when :init
+          @http_parser = ::OverSIP::WebSocket::HttpRequestParser.new
           @http_request = ::OverSIP::WebSocket::HttpRequest.new
-          @http_parser.reset
           @http_parser_nbytes = 0
           @bytes_remaining = 0
           @state = :http_headers
@@ -103,14 +108,13 @@ module OverSIP::WebSocket
           check_http_request
 
         when :ws_connection_callback
-          check_ws_connection_callback
+          ws_connection_callback
 
         when :accept_ws_handshake
           accept_ws_handshake
 
-        when :websocket_frames
-          return false  if @buffer.size.zero?
-
+        when :websocket
+          @ws_established = true
           @ws_framing.receive_data
           false
 
@@ -147,10 +151,6 @@ module OverSIP::WebSocket
       @buffer.read(@http_parser_nbytes)
 
       @http_request.connection = self
-      @http_request.transport = self.class.transport
-      @http_request.source_ip = @remote_ip
-      @http_request.source_port = @remote_port
-      @http_request.source_ip_type = @remote_ip_type ||= self.class.ip_type
 
       @state = :check_http_request
       true
@@ -200,7 +200,7 @@ module OverSIP::WebSocket
 
       # Check Sec-WebSocket-Protocol.
       if @http_request.hdr_sec_websocket_protocol
-        if @http_request.hdr_sec_websocket_protocol.include? @ws_protocol
+        if @http_request.hdr_sec_websocket_protocol.include? WS_SIP_PROTOCOL
           @websocket_protocol_negotiated = true
         else
           log_system_notice "Sec-WebSocket-Protocol does not contain a supported protocol but #{@http_request.hdr_sec_websocket_protocol} => 501"
@@ -214,7 +214,7 @@ module OverSIP::WebSocket
     end
 
 
-    def check_ws_connection_callback
+    def ws_connection_callback
       begin
         ::OverSIP::WebSocketEvents.on_connection self, @http_request
       rescue ::Exception => e
@@ -245,7 +245,7 @@ module OverSIP::WebSocket
       ]
 
       if @websocket_protocol_negotiated
-        extra_headers << "Sec-WebSocket-Protocol: #{@ws_protocol}"
+        extra_headers << "Sec-WebSocket-Protocol: #{WS_SIP_PROTOCOL}"
       end
 
       if @websocket_extensions
@@ -254,12 +254,12 @@ module OverSIP::WebSocket
 
       @http_request.reply 101, nil, extra_headers
 
-      # Set the WS framming layer and WS application layer.
-      @ws_framing = ::OverSIP::WebSocket::WsFraming.new(self, @buffer)
-      @ws_framing.ws_app = @ws_app_klass.new(self, @ws_framing)
+      # Set the WS framing layer and WS application layer.
+      @ws_framing = ::OverSIP::WebSocket::WsFraming.new self, @buffer
+      ws_sip_app = ::OverSIP::WebSocket::WsSipApp.new self, @ws_framing
+      @ws_framing.ws_app = ws_sip_app
 
-      @ws_handshake_done = true
-      @state = :websocket_frames
+      @state = :websocket
       true
     end
 
@@ -271,12 +271,26 @@ module OverSIP::WebSocket
     end
 
 
-    def ignore_incoming_data
-      @state = :ignore  # The WS application needs to set the connection in :ignore state
-                        # after sending a close frame to the client.
+    # Parameters ip and port are just included because they are needed in UDP, so the API remains equal.
+    def send_sip_msg msg, ip=nil, port=nil
+      if self.error?
+        log_system_notice "SIP message could not be sent, connection is closed"
+        return false
+      end
+
+      # If the SIP message is fully valid UTF-8 send a WS text frame.
+      if msg.force_encoding(::Encoding::UTF_8).valid_encoding?
+        @ws_framing.send_text_frame msg
+
+      # If not, send a WS binary frame.
+      else
+        @ws_framing.send_binary_frame msg
+      end
+
+      true
     end
 
-  end  # class TcpServer
+  end
 
 end
 

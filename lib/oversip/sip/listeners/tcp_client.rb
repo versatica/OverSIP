@@ -1,12 +1,12 @@
 module OverSIP::SIP
 
-  class TcpClient < TcpReactor
+  class TcpClient < TcpConnection
 
     attr_reader :connected
     attr_reader :pending_client_transactions
 
     def initialize ip, port
-      # NOTE: The parent class implementing "initialize" method is Reactor, and allows no arguments.
+      # NOTE: The parent class implementing "initialize" method is Connection, and allows no arguments.
       # If we call just "super" from here it will fail since "ip" and "port" will be passed as
       # arguments. So we must use "super()" and we are done (no arguments are passed to parent).
       super()
@@ -19,7 +19,6 @@ module OverSIP::SIP
 
       ### TODO: make it configurable.
       set_pending_connect_timeout 2.0
-
     end
 
 

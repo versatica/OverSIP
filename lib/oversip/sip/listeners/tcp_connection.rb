@@ -1,10 +1,22 @@
 module OverSIP::SIP
 
-  class TcpReactor < Reactor
+  class TcpConnection < Connection
 
     # Max size (bytes) of the buffered data when receiving message headers
     # (avoid DoS attacks).
     HEADERS_MAX_SIZE = 16384
+
+    def remote_ip_type
+      @remote_ip_type || self.class.ip_type
+    end
+
+    def remote_ip
+      @remote_ip
+    end
+
+    def remote_port
+      @remote_port
+    end
 
     def receive_data data
       @state == :ignore and return
@@ -104,7 +116,7 @@ module OverSIP::SIP
       @msg.source_port = @remote_port
       @msg.source_ip_type = @remote_ip_type || self.class.ip_type
 
-      unless valid_message?
+      unless valid_message? @parser
         close_connection_after_writing
         @state = :ignore
         return false

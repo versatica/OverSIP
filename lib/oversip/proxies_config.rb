@@ -23,7 +23,7 @@ module OverSIP
       :timer_B                    => 32,
       :timer_C                    => 120,
       :timer_F                    => 32,
-      :tls_validation             => false
+      :callback_on_server_tls_handshake => true
     }
 
     PROXY_CONFIG_VALIDATIONS = {
@@ -40,7 +40,7 @@ module OverSIP
       :timer_B                    => [ :fixnum, [ :greater_equal_than, 2 ], [ :minor_equal_than, 64 ] ],
       :timer_C                    => [ :fixnum, [ :greater_equal_than, 8 ], [ :minor_equal_than, 180 ] ],
       :timer_F                    => [ :fixnum, [ :greater_equal_than, 2 ], [ :minor_equal_than, 64 ] ],
-      :tls_validation             => :boolean
+      :callback_on_server_tls_handshake => :boolean
     }
 
     def self.load proxies_yaml, reload=false

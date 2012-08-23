@@ -1,6 +1,6 @@
 module OverSIP::SIP
 
-  class TcpServer < TcpReactor
+  class TcpServer < TcpConnection
 
     attr_reader :outbound_flow_token
 
@@ -13,8 +13,6 @@ module OverSIP::SIP
         @state = :ignore
         return
       end
-
-      log_system_info "connection opened from " << remote_desc
 
       @connection_id = ::OverSIP::SIP::TransportManager.add_connection self, self.class, self.class.ip_type, @remote_ip, @remote_port
 
@@ -32,6 +30,8 @@ module OverSIP::SIP
 
       # Initialize @cvars.
       @cvars = {}
+
+      log_system_info "connection opened from " << remote_desc
     end
 
     def remote_desc force=nil

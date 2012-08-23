@@ -215,6 +215,43 @@ def (OverSIP::SipEvents).on_request request
     return
 
   end
+
+end
+
+
+# This callback is called when a client initiates a SIP TLS handshake.
+def (OverSIP::SipEvents).on_client_tls_handshake connection, pems
+
+  log_info "validating TLS connection from IP #{connection.remote_ip} and port #{connection.remote_port}"
+
+  cert, validated, tls_error, tls_error_string = ::OverSIP::TLS.validate pems
+  identities = ::OverSIP::TLS.get_sip_identities cert
+
+  if validated
+    log_info "client provides a valid TLS certificate with SIP identities #{identities}"
+  else
+    log_notice "client provides an invalid TLS certificate with SIP identities #{identities} (TLS error: #{tls_error.inspect}, description: #{tls_error_string.inspect})"
+    #connection.close
+  end
+
+end
+
+
+# This callback is called when conntacting a SIP TLS server and the TLS handshake takes place.
+def (OverSIP::SipEvents).on_server_tls_handshake connection, pems
+
+  log_info "validating TLS connection to IP #{connection.remote_ip} and port #{connection.remote_port}"
+
+  cert, validated, tls_error, tls_error_string = ::OverSIP::TLS.validate pems
+  identities = ::OverSIP::TLS.get_sip_identities cert
+
+  if validated
+    log_info "server provides a valid TLS certificate with SIP identities #{identities}"
+  else
+    log_notice "server provides an invalid TLS certificate with SIP identities #{identities} (TLS error: #{tls_error.inspect}, description: #{tls_error_string.inspect})"
+    #connection.close
+  end
+
 end
 
 
@@ -245,3 +282,21 @@ end
 # def (OverSIP::WebSocketEvents).on_disconnection connection, client_closed
 #   [...]
 # end
+
+
+# This callback is called when a client initiates a WebSocket TLS handshake.
+def (OverSIP::WebSocketEvents).on_client_tls_handshake connection, pems
+
+  log_info "validating TLS connection from IP #{connection.remote_ip} and port #{connection.remote_port}"
+
+  cert, validated, tls_error, tls_error_string = ::OverSIP::TLS.validate pems
+  identities = ::OverSIP::TLS.get_sip_identities cert
+
+  if validated
+    log_info "client provides a valid TLS certificate with SIP identities #{identities}"
+  else
+    log_notice "client provides an invalid TLS certificate with SIP identities #{identities} (TLS error: #{tls_error.inspect}, description: #{tls_error_string.inspect})"
+    #connection.close
+  end
+
+end

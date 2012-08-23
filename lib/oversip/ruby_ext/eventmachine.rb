@@ -21,10 +21,6 @@ module EventMachine
       ::EventMachine::send_datagram @signature, data, data.bytesize, address, port
     end
 
-    def open?
-      ! error?
-    end
-
     # Rewrite close_connection so it set an internal attribute (which can be
     # inspected when unbind() callback is called).
     alias _em_close_connection close_connection

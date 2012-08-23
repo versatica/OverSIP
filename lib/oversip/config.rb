@@ -38,6 +38,7 @@ module OverSIP
         :listen_port_tls          => 5061,
         :use_tls_tunnel           => false,
         :listen_port_tls_tunnel   => 5062,
+        :callback_on_client_tls_handshake => true,
         :local_domains            => nil,
         :tcp_keepalive_interval   => nil,
         :record_route_hostname_tls_ipv4 => nil,
@@ -54,6 +55,7 @@ module OverSIP
         :listen_port_tls          => 10443,
         :use_tls_tunnel           => false,
         :listen_port_tls_tunnel   => 10444,
+        :callback_on_client_tls_handshake => true,
         :max_ws_message_size      => 65536,
         :max_ws_frame_size        => 65536,
         :ws_keepalive_interval    => nil
@@ -89,6 +91,7 @@ module OverSIP
         :listen_port_tls                 => :port,
         :use_tls_tunnel                  => :boolean,
         :listen_port_tls_tunnel          => :port,
+        :callback_on_client_tls_handshake => :boolean,
         :local_domains                   => [ :domain, :multi_value ],
         :tcp_keepalive_interval          => [ :fixnum, [ :greater_equal_than, 180 ] ],
         :record_route_hostname_tls_ipv4  => :domain,
@@ -105,6 +108,7 @@ module OverSIP
         :listen_port_tls                 => :port,
         :use_tls_tunnel                  => :boolean,
         :listen_port_tls_tunnel          => :port,
+        :callback_on_client_tls_handshake => :boolean,
         :max_ws_message_size             => [ :fixnum, [ :minor_than, 1048576 ] ],
         :max_ws_frame_size               => [ :fixnum, [ :minor_than, 1048576 ] ],
         :ws_keepalive_interval           => [ :fixnum, [ :greater_equal_than, 180 ] ]
@@ -418,6 +422,14 @@ module OverSIP
             binds[:tcp] << [ "::1", @configuration[:websocket][:listen_port_tls_tunnel] ]
           end
         end
+      end
+
+      unless @configuration[:sip][:use_tls_tunnel]
+        @configuration[:sip][:listen_port_tls_tunnel] = nil
+      end
+
+      unless @configuration[:websocket][:use_tls_tunnel]
+        @configuration[:websocket][:listen_port_tls_tunnel] = nil
       end
 
       [:udp, :tcp].each do |transport|

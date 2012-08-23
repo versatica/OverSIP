@@ -1,6 +1,6 @@
 module OverSIP::SIP
 
-  class IPv6UdpServer < UdpReactor
+  class IPv6UdpServer < UdpConnection
 
     @ip_type = :ipv6
     @transport = :udp

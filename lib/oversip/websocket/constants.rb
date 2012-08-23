@@ -51,6 +51,5 @@ module OverSIP::WebSocket
   HDR_SERVER = "Server: #{::OverSIP::PROGRAM_NAME}/#{::OverSIP::VERSION}".freeze
 
   WS_SIP_PROTOCOL = "sip"
-  WS_AUTOBAHN_PROTOCOL = "autobahn"
 
 end

@@ -106,8 +106,9 @@ module OverSIP::Launcher
         ::OverSIP::TLS.module_init
         ::OverSIP::SIP.module_init
         ::OverSIP::SIP::RFC3263.module_init
+        ::OverSIP::WebSocket.module_init
         ::OverSIP::WebSocket::WsFraming.class_init
-        ::OverSIP::WebSocket::WsApp.class_init
+        ::OverSIP::WebSocket::WsSipApp.class_init
 
       # I'm the syslogger process.
       else
@@ -211,15 +212,13 @@ module OverSIP::Launcher
           # WebSocket IPv4 TCP SIP server.
           if configuration[:websocket][:enable_ipv4]
             ::OverSIP::WebSocket::Launcher.run true, :ipv4, configuration[:websocket][:listen_ipv4],
-                                                      configuration[:websocket][:listen_port], :tcp,
-                                                      ::OverSIP::WebSocket::WS_SIP_PROTOCOL
+                                                      configuration[:websocket][:listen_port], :ws
           end
 
           # WebSocket IPv6 TCP SIP server.
           if configuration[:websocket][:enable_ipv6]
             ::OverSIP::WebSocket::Launcher.run true, :ipv6, configuration[:websocket][:listen_ipv6],
-                                                      configuration[:websocket][:listen_port], :tcp,
-                                                      ::OverSIP::WebSocket::WS_SIP_PROTOCOL
+                                                      configuration[:websocket][:listen_port], :ws
           end
         end
 
@@ -228,27 +227,23 @@ module OverSIP::Launcher
             # WebSocket IPv4 TLS SIP server (native).
             if configuration[:websocket][:enable_ipv4]
               ::OverSIP::WebSocket::Launcher.run true, :ipv4, configuration[:websocket][:listen_ipv4],
-                                            configuration[:websocket][:listen_port_tls], :tls,
-                                            ::OverSIP::WebSocket::WS_SIP_PROTOCOL
+                                            configuration[:websocket][:listen_port_tls], :wss
             end
 
             # WebSocket IPv6 TLS SIP server (native).
             if configuration[:websocket][:enable_ipv6]
               ::OverSIP::WebSocket::Launcher.run true, :ipv6, configuration[:websocket][:listen_ipv6],
-                                            configuration[:websocket][:listen_port_tls], :tls,
-                                            ::OverSIP::WebSocket::WS_SIP_PROTOCOL
+                                            configuration[:websocket][:listen_port_tls], :wss
             end
           else
             # WebSocket IPv4 TLS SIP server (Stud).
             if configuration[:websocket][:enable_ipv4]
               ::OverSIP::WebSocket::Launcher.run true, :ipv4, "127.0.0.1",
-                                            configuration[:websocket][:listen_port_tls_tunnel], :tls_tunnel,
-                                            ::OverSIP::WebSocket::WS_SIP_PROTOCOL,
+                                            configuration[:websocket][:listen_port_tls_tunnel], :wss_tunnel,
                                             configuration[:websocket][:listen_ipv4],
                                             configuration[:websocket][:listen_port_tls]
               ::OverSIP::WebSocket::Launcher.run false, :ipv4, configuration[:websocket][:listen_ipv4],
-                                            configuration[:websocket][:listen_port_tls], :tls,
-                                            ::OverSIP::WebSocket::WS_SIP_PROTOCOL
+                                            configuration[:websocket][:listen_port_tls], :wss
 
               # Spawn a Stud process.
               spawn_stud_process options,
@@ -260,13 +255,11 @@ module OverSIP::Launcher
             # WebSocket IPv6 TLS SIP server (Stud).
             if configuration[:sip][:enable_ipv6]
               ::OverSIP::WebSocket::Launcher.run true, :ipv6, "::1",
-                                            configuration[:websocket][:listen_port_tls_tunnel], :tls_tunnel,
-                                            ::OverSIP::WebSocket::WS_SIP_PROTOCOL,
+                                            configuration[:websocket][:listen_port_tls_tunnel], :wss_tunnel,
                                             configuration[:websocket][:listen_ipv6],
                                             configuration[:websocket][:listen_port_tls]
               ::OverSIP::WebSocket::Launcher.run false, :ipv6, configuration[:websocket][:listen_ipv6],
-                                            configuration[:websocket][:listen_port_tls], :tls,
-                                            ::OverSIP::WebSocket::WS_SIP_PROTOCOL
+                                            configuration[:websocket][:listen_port_tls], :wss
 
               # Spawn a Stud process.
               spawn_stud_process options,
@@ -276,24 +269,6 @@ module OverSIP::Launcher
             end
           end
         end
-
-
-        # TEST: WebSocket Autobahn server.
-        #if configuration[:websocket][:sip_ws]
-        #  if configuration[:websocket][:enable_ipv4]
-        #    ::OverSIP::WebSocket::Launcher.run true, :ipv4, configuration[:websocket][:listen_ipv4],
-        #                                        9001, :tcp,
-        #                                        ::OverSIP::WebSocket::WS_AUTOBAHN_PROTOCOL
-        #  end
-        #end
-        #
-        #if configuration[:websocket][:sip_wss]
-        #  if configuration[:websocket][:enable_ipv4]
-        #    ::OverSIP::WebSocket::Launcher.run true, :ipv4, configuration[:websocket][:listen_ipv4],
-        #                                        9002, :tls,
-        #                                        ::OverSIP::WebSocket::WS_AUTOBAHN_PROTOCOL
-        #  end
-        #end
 
 
         # Change process permissions if requested.
@@ -325,6 +300,7 @@ module OverSIP::Launcher
         end
 
         # Stop writting into standard output/error.
+        # TODO: UNCOMMENT THIS  !!!
         $stdout.reopen("/dev/null")
         $stderr.reopen("/dev/null")
         ::OverSIP.daemonized = true

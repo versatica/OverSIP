@@ -4,11 +4,6 @@ module OverSIP::WebSocket
 
     include ::OverSIP::Logger
 
-    # HTTP related attributes.
-    attr_accessor :transport
-    attr_accessor :source_ip
-    attr_accessor :source_ip_type
-    attr_accessor :source_port
     attr_accessor :connection
 
     # HTTP request attributes.
@@ -30,8 +25,9 @@ module OverSIP::WebSocket
     attr_reader :hdr_sec_websocket_protocol
 
 
+    LOG_ID = "HTTP WS Request"
     def log_id
-      @log_id ||= "HTTP Request #{@connection.connection_log_id}"
+      LOG_ID
     end
 
     def unknown_method?  ;  @is_unknown_method  end
@@ -50,7 +46,7 @@ module OverSIP::WebSocket
       log_system_debug "replying #{status_code} \"#{reason_phrase}\""  if $oversip_debug
 
       if @connection.error?
-        log_system_warn "cannot send response, TCP connection is closed"
+        log_system_warn "cannot send response, connection is closed"
         return false
       end
 
@@ -58,6 +54,6 @@ module OverSIP::WebSocket
       return true
     end
 
-  end  # class HttpRequest
+  end
 
 end

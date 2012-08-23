@@ -5,7 +5,7 @@ module OverSIP::SIP
     TLS_HANDSHAKE_MAX_TIME = 4
 
 
-    attr_writer :tls_validation
+    attr_writer :callback_on_server_tls_handshake
 
 
     def initialize ip, port
@@ -19,7 +19,7 @@ module OverSIP::SIP
       @server_last_pem = false
 
       start_tls({
-        :verify_peer => @tls_validation,
+        :verify_peer => @callback_on_server_tls_handshake,
         :cert_chain_file => ::OverSIP.tls_public_cert,
         :private_key_file => ::OverSIP.tls_private_cert
       })
@@ -37,7 +37,7 @@ module OverSIP::SIP
 
 
     # Called for every certificate provided by the peer.
-    # This is just called in case @tls_validation is true.
+    # This is just called in case @callback_on_server_tls_handshake is true.
     def ssl_verify_peer pem
       # TODO: Dirty workaround for bug https://github.com/eventmachine/eventmachine/issues/194.
       return true  if @server_last_pem == pem
@@ -61,20 +61,23 @@ module OverSIP::SIP
       @connected = true
       @timer_tls_handshake.cancel  if @timer_tls_handshake
 
-      if @tls_validation
-        validated, cert, tls_error, tls_error_string = ::OverSIP::TLS.validate @server_pems.pop, @server_pems
-        if validated
-          log_system_info "server provides a valid TLS certificate"
-          sip_identities = ::OverSIP::TLS.get_sip_identities(cert)
-          log_system_debug "SIP identities in peer cert: #{sip_identities}"  if $oversip_debug
-        else
-          log_system_notice "server's TLS certificate validation failed (TLS error: #{tls_error.inspect}, description: #{tls_error_string.inspect})"
+      if @callback_on_server_tls_handshake
+        begin
+          ::OverSIP::SipEvents.on_server_tls_handshake self, @server_pems
+        rescue ::Exception => e
+          log_system_error "error calling OverSIP::SipEvents.on_server_tls_handshake():"
+          log_system_error e
+          close_connection
+        end
+
+        # If the user has closed the connection in the on_server_tls_handshake() callback
+        # then @local_closed is true, so notify pending transactions.
+        if @local_closed
           @pending_client_transactions.each do |client_transaction|
             client_transaction.tls_validation_failed
           end
           @pending_client_transactions.clear
           @pending_messages.clear
-          close_connection
           @state = :ignore
           return
         end

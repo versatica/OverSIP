@@ -110,14 +110,22 @@ module OverSIP::SIP
   end
 
   # This is never used since it's not a reliable connection, but it's required not to fail.
-  class UdpReactor
+  class UdpConnection
     attr_accessor :asserted_user
   end
 end  # OverSIP::SIP
 
 
 module OverSIP::WebSocket
-  class WsSipApp
+  class WsServer
+    attr_accessor :asserted_user
+  end
+
+  class WssServer
+    attr_accessor :asserted_user
+  end
+
+  class WssTunnelServer
     attr_accessor :asserted_user
   end
 end  # OverSIP::WebSocket

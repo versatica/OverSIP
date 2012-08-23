@@ -1,6 +1,6 @@
 module OverSIP::SIP
 
-  class UdpReactor < Reactor
+  class UdpConnection < Connection
 
     def receive_data data
       @buffer << data
@@ -63,7 +63,7 @@ module OverSIP::SIP
           @buffer.clear
           @state = :init
           return false
-        end          
+        end
 
       # Parse the currently buffered data. If parsing fails @parser_nbytes gets nil value.
       unless @parser_nbytes = @parser.execute(buffer_str, @parser_nbytes)
@@ -129,7 +129,7 @@ module OverSIP::SIP
       @msg.source_port = source_port
       @msg.source_ip_type = self.class.ip_type
 
-      unless valid_message?
+      unless valid_message? @parser
         @buffer.clear
         @state = :init
         return false
@@ -208,7 +208,7 @@ module OverSIP::SIP
       end
     end
 
-  end  # class UdpReactor
+  end
 
 end
 

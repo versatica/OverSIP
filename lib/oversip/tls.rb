@@ -86,18 +86,21 @@ module OverSIP
 
 
     # Return an array with the result of the TLS certificate validation as follows:
-    #   validated, cert, tls_error, tls_error_string
+    #   cert, validated, tls_error, tls_error_string
     # where:
+    # - cert:      the ::OpenSSL::X509::Certificate instance of the first PEM provided by
+    #              the peer, nil otherwise.
     # - validated: true if the given certificate(s) have been validated, false otherwise
     #              and nil if no certificate is provided by peer or no CA's were configured
     #              for TLS validation.
-    # - cert:      the ::OpenSSL::X509::Certificate instance of the first PEM provided by
-    #              the peer, nil otherwise.
     # - tls_error: OpenSSL validation error code (Fixnum) in case of validation error.
     # - tls_error_string: OpenSSL validation error string in case of validation error.
-    def self.validate pem, intermediate_pems=nil
+    def self.validate pems
       return nil, nil, nil, "no CAs provided, validation disabled"  unless @store
-      return nil, nil, nil, "no certificate provided by peer"  unless pem
+      return nil, nil, nil, "no certificate provided by peer"  unless pems.any?
+
+      pem = pems.pop
+      intermediate_pems = pems
 
       begin
         cert = ::OpenSSL::X509::Certificate.new pem
@@ -112,19 +115,21 @@ module OverSIP
         end
 
         if @store.verify cert, intermediate_certs
-          return true, cert
+          return cert, true
         else
-          return false, cert, @store.error, @store.error_string
+          return cert, false, @store.error, @store.error_string
         end
 
       rescue => e
         log_system_error "exception validating a certificate: #{e.class}: #{e.message}"
-        return false, nil, e.class, e.message
+        return nil, false, e.class, e.message
       end
     end  # def self.validate
 
 
     def self.get_sip_identities cert
+      return []  unless cert
+
       verify_subjectAltName_DNS = true
       verify_CN = true
       subjectAltName_URI_sip_entries = []

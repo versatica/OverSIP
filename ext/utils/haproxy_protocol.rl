@@ -75,11 +75,14 @@ struct_haproxy_protocol struct_haproxy_protocol_parser_execute(const char *str, 
   %% write init;
   %% write exec;
 
-  if(finished && len == p-str)
+  /* if(finished && len == p-str) */
+  if(finished)
     haproxy_protocol.valid = 1;
 
   /* Write the number of read bytes so the HAProxy Protocol line can be removed. */
   haproxy_protocol.total_len = (int)(p - str);
+
+  printf("**** haproxy_protocol.total_len = %i\n", haproxy_protocol.total_len);
 
   return haproxy_protocol;
 }

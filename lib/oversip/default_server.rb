@@ -27,6 +27,14 @@ module OverSIP
       log_system_notice "on_request() callback is not defined"
     end
 
+    def self.on_client_tls_handshake connection, pems
+      log_system_notice "on_client_tls_handshake() callback is not defined"
+    end
+
+    def self.on_server_tls_handshake connection, pems
+      log_system_notice "on_server_tls_handshake() callback is not defined"
+    end
+
   end
 
   module WebSocketEvents
@@ -39,6 +47,10 @@ module OverSIP
 
     def self.on_disconnection connection, client_closed
       log_system_notice "on_disconnection() callback is not defined"
+    end
+
+    def self.on_client_tls_handshake connection, pems
+      log_system_notice "on_client_tls_handshake() callback is not defined"
     end
 
   end

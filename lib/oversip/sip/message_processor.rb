@@ -10,11 +10,11 @@ module OverSIP::SIP
     }
 
 
-    def valid_message?
-      if header = @parser.missing_core_header?
+    def valid_message? parser
+      if header = parser.missing_core_header?
         log_system_notice "ignoring #{MSG_TYPE[@msg.class]} missing #{header} header"
         return false
-      elsif header = @parser.duplicated_core_header?
+      elsif header = parser.duplicated_core_header?
         log_system_notice "ignoring #{MSG_TYPE[@msg.class]} with duplicated #{header} header"
         return false
       end
@@ -76,20 +76,20 @@ module OverSIP::SIP
       # Run the user provided OverSIP::SipEvents.on_request() callback (unless the request
       # it's a retransmission, a CANCEL or an ACK for a final non-2XX response).
       unless check_transaction
+        # Create the antiloop identifier for this request.
+        @msg.antiloop_id = ::OverSIP::SIP::Tags.create_antiloop_id(@msg)
+
+        # Check loops.
+        if @msg.antiloop_id == @msg.via_branch_id[-32..-1]
+          @msg.reply 482, "Loop Detected"
+          return
+        end
+
+        # Initialize some attributes for the request.
+        @msg.tvars = {}
+        @msg.cvars = @msg.connection.cvars
+
         begin
-          # Create the antiloop identifier for this request.
-          @msg.antiloop_id = ::OverSIP::SIP::Tags.create_antiloop_id(@msg)
-
-          # Check loops.
-          if @msg.antiloop_id == @msg.via_branch_id[-32..-1]
-            @msg.reply 482, "Loop Detected"
-            return
-          end
-
-          # Initialize some attributes for the request.
-          @msg.tvars = {}
-          @msg.cvars = @cvars
-
           # Run the callback.
           ::OverSIP::SipEvents.on_request @msg
         rescue ::Exception => e
@@ -109,18 +109,18 @@ module OverSIP::SIP
         ### TODO: Esto va a petar cuando tenga una clase que hereda de, p.ej, IPv4TcpServer que se llame xxxClient,
         # ya que en ella no existirá @invite_client_transactions. Tengo que hacer que su @invite_client_transactions
         # se rellene al de la clase padre al hacer el load de las clases.
-        if client_transaction = self.class.invite_client_transactions[@msg.via_branch_id]
+        if client_transaction = @msg.connection.class.invite_client_transactions[@msg.via_branch_id]
           client_transaction.receive_response(@msg)
           return
         end
       when :ACK
       when :CANCEL
-        if client_transaction = self.class.invite_client_transactions[@msg.via_branch_id]
+        if client_transaction = @msg.connection.class.invite_client_transactions[@msg.via_branch_id]
           client_transaction.receive_response_to_cancel(@msg)
           return
         end
       else
-        if client_transaction = self.class.non_invite_client_transactions[@msg.via_branch_id]
+        if client_transaction = @msg.connection.class.non_invite_client_transactions[@msg.via_branch_id]
           client_transaction.receive_response(@msg)
           return
         end

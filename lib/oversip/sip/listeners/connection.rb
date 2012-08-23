@@ -1,6 +1,6 @@
 module OverSIP::SIP
 
-  class Reactor < ::EM::Connection
+  class Connection < ::EM::Connection
 
     include ::OverSIP::Logger
     include ::OverSIP::SIP::MessageProcessor
@@ -19,6 +19,9 @@ module OverSIP::SIP
       end
     end
 
+
+    attr_reader :cvars
+
     def initialize
       @parser = ::OverSIP::SIP::MessageParser.new
       @buffer = ::IO::Buffer.new
@@ -33,7 +36,17 @@ module OverSIP::SIP
       log_system_error "Socket sending error: #{error.inspect}, #{data.inspect}"
     end
 
-  end  # class Reactor
+    def transport
+      self.class.transport
+    end
+
+    def open?
+      ! error?
+    end
+
+    # close() method causes @local_closed = true.
+    alias close close_connection_after_writing
+  end
 
 end
 

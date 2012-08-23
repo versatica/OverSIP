@@ -55,7 +55,7 @@ module OverSIP::SIP
             end
           end
 
-        @connection = ::OverSIP::SIP::TransportManager.get_connection @server_klass, @ip, @port, self, transaction_conf[:tls_validation]
+        @connection = ::OverSIP::SIP::TransportManager.get_connection @server_klass, @ip, @port, self, transaction_conf[:callback_on_server_tls_handshake]
       end
 
       # Ensure the request has Content-Length. Add it otherwise.

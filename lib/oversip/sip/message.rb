@@ -65,7 +65,7 @@ module OverSIP::SIP
     def tcp?               ; @transport == :tcp          end
     def tls?               ; @transport == :tls          end
     def ws?                ; @transport == :ws           end
-    def tls?               ; @transport == :wss          end
+    def wss?               ; @transport == :wss          end
 
     def websocket?         ; @transport == :ws || @transport == :wss  end
 

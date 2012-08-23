@@ -1,9 +1,9 @@
 module OverSIP::WebSocket
 
-  class IPv6WssSipApp < WsSipApp
+  class IPv4WsServer < WsServer
 
-    @ip_type = :ipv6
-    @transport = :wss
+    @ip_type = :ipv4
+    @transport = :ws
     @connections = {}
     @invite_server_transactions = {}
     @non_invite_server_transactions = {}
@@ -11,7 +11,7 @@ module OverSIP::WebSocket
     @non_invite_client_transactions = {}
     @is_reliable_transport_listener = true
 
-    LOG_ID = "WSS IPv6 SIP app"
+    LOG_ID = "SIP WS IPv4 server"
     def log_id
       LOG_ID
     end
@@ -19,4 +19,3 @@ module OverSIP::WebSocket
   end
 
 end
-

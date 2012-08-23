@@ -15,7 +15,7 @@ module OverSIP::SIP
     # the client transaction is stored in the @pending_client_transactions of the client
     # connection.
     # This method always returns a connection object, never nil or false.
-    def self.get_connection klass, ip, port, client_transaction=nil, tls_validation=false
+    def self.get_connection klass, ip, port, client_transaction=nil, callback_on_server_tls_handshake=false
       # A normal connection (so we arrive here after RFC 3263 procedures).
       case klass.transport
 
@@ -28,13 +28,13 @@ module OverSIP::SIP
       when :tcp
         case klass.ip_type
           when :ipv4
-            conn = klass.connections["#{ip}_#{port}"] || ::EM.oversip_connect_tcp_server(::OverSIP::SIP.local_ipv4, ip, port, IPv4TcpClient, ip, port)
+            conn = klass.connections["#{ip}_#{port}"] || ::EM.oversip_connect_tcp_server(::OverSIP::SIP.local_ipv4, ip, port, ::OverSIP::SIP::IPv4TcpClient, ip, port)
 
             if conn.is_a? ::OverSIP::SIP::IPv4TcpClient and not conn.connected
               conn.pending_client_transactions << client_transaction
             end
           when :ipv6
-            conn = klass.connections["#{::OverSIP::Utils.normalize_ipv6 ip}_#{port}"] || ::EM.oversip_connect_tcp_server(::OverSIP::SIP.local_ipv6, ip, port, IPv6TcpClient, ip, port)
+            conn = klass.connections["#{::OverSIP::Utils.normalize_ipv6 ip}_#{port}"] || ::EM.oversip_connect_tcp_server(::OverSIP::SIP.local_ipv6, ip, port, ::OverSIP::SIP::IPv6TcpClient, ip, port)
 
             if conn.is_a? ::OverSIP::SIP::IPv6TcpClient and not conn.connected
               conn.pending_client_transactions << client_transaction
@@ -44,17 +44,17 @@ module OverSIP::SIP
       when :tls
         case klass.ip_type
           when :ipv4
-            conn = klass.connections["#{ip}_#{port}"] || ::EM.oversip_connect_tcp_server(::OverSIP::SIP.local_ipv4, ip, port, IPv4TlsClient, ip, port)
+            conn = klass.connections["#{ip}_#{port}"] || ::EM.oversip_connect_tcp_server(::OverSIP::SIP.local_ipv4, ip, port, ::OverSIP::SIP::IPv4TlsClient, ip, port)
 
             if conn.is_a? ::OverSIP::SIP::IPv4TlsClient and not conn.connected
-              conn.tls_validation = tls_validation
+              conn.callback_on_server_tls_handshake = callback_on_server_tls_handshake
               conn.pending_client_transactions << client_transaction
             end
           when :ipv6
-            conn = klass.connections["#{::OverSIP::Utils.normalize_ipv6 ip}_#{port}"] || ::EM.oversip_connect_tcp_server(::OverSIP::SIP.local_ipv6, ip, port, IPv6TlsClient, ip, port)
+            conn = klass.connections["#{::OverSIP::Utils.normalize_ipv6 ip}_#{port}"] || ::EM.oversip_connect_tcp_server(::OverSIP::SIP.local_ipv6, ip, port, ::OverSIP::SIP::IPv6TlsClient, ip, port)
 
             if conn.is_a? ::OverSIP::SIP::IPv6TlsClient and not conn.connected
-              conn.tls_validation = tls_validation
+              conn.callback_on_server_tls_handshake = callback_on_server_tls_handshake
               conn.pending_client_transactions << client_transaction
             end
           end
@@ -105,7 +105,7 @@ module OverSIP::SIP
             return false
           end
 
-      # It not, the flow token has been generated for a TCP/TLS/WS connection so let's lookup
+      # It not, the flow token has been generated for a TCP/TLS/WS/WSS connection so let's lookup
       # it into the Outbound connection collection and return nil for IP and port.
       else
         @outbound_connections[flow_token]

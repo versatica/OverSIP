@@ -1,16 +1,10 @@
 module OverSIP::WebSocket
 
-  class TlsTunnelServer < TcpServer
-
-    def initialize
-      @http_parser = ::OverSIP::WebSocket::HttpRequestParser.new
-      @buffer = ::IO::Buffer.new
-      @state = :init
-    end
-
+  class WssTunnelServer < WsServer
 
     def post_connection
       begin
+        # Temporal @remote_ip and @remote_port until the HAProxy protocol line is parsed.
         @remote_port, @remote_ip = ::Socket.unpack_sockaddr_in(get_peername)
       rescue => e
         log_system_error "error obtaining remote IP/port (#{e.class}: #{e.message}), closing connection"
@@ -18,9 +12,40 @@ module OverSIP::WebSocket
         @state = :ignore
         return
       end
-      @connection_log_id = ::SecureRandom.hex(4)
 
-      log_system_info "connection from the TLS tunnel " << remote_desc
+      # Create an Outbound (RFC 5626) flow token for this connection.
+      @outbound_flow_token = ::OverSIP::SIP::TransportManager.add_outbound_connection self
+
+      log_system_debug ("connection from the TLS tunnel " << remote_desc)  if $oversip_debug
+    end
+
+
+    def unbind cause=nil
+      @state = :ignore
+
+      # Remove the connection.
+      self.class.connections.delete @connection_id  if @connection_id
+
+      # Remove the Outbound token flow.
+      ::OverSIP::SIP::TransportManager.delete_outbound_connection @outbound_flow_token
+
+      @local_closed = true  if cause == ::Errno::ETIMEDOUT
+
+      if $oversip_debug
+        log_msg = "connection from the TLS tunnel #{remote_desc} "
+        log_msg << ( @local_closed ? "locally closed" : "remotely closed" )
+        log_msg << " (cause: #{cause.inspect})"  if cause
+        log_system_debug log_msg
+      end unless $!
+
+      if @state == :websocket
+        begin
+          ::OverSIP::WebSocketEvents.on_disconnection self, !@local_closed
+        rescue ::Exception => e
+          log_system_error "error calling OverSIP::WebSocketEvents.on_disconnection():"
+          log_system_error e
+        end
+      end unless $!
     end
 
 
@@ -30,6 +55,7 @@ module OverSIP::WebSocket
 
       while (case @state
         when :init
+          @http_parser = ::OverSIP::WebSocket::HttpRequestParser.new
           @http_request = ::OverSIP::WebSocket::HttpRequest.new
           @http_parser.reset
           @http_parser_nbytes = 0

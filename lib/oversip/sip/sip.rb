@@ -49,6 +49,8 @@ module OverSIP::SIP
     ws_local_ips.each do |ip|
       @local_aliases[ip] = true  if conf[:websocket][:listen_port] == 80 or conf[:websocket][:listen_port_tls] == 443
     end
+
+    @callback_on_client_tls_handshake = conf[:sip][:callback_on_client_tls_handshake]
   end
 
   def self.local_aliases
@@ -65,6 +67,10 @@ module OverSIP::SIP
 
   def self.local_ipv6
     @local_ipv6
+  end
+
+  def self.callback_on_client_tls_handshake
+    @callback_on_client_tls_handshake
   end
 
 end

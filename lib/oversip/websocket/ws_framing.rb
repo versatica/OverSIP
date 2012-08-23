@@ -20,16 +20,17 @@ module OverSIP::WebSocket
     KEEPALIVE_PING_FRAME = keepalive_ping_frame
 
 
-    attr_writer :ws_app
-
-
     def self.class_init
       @@max_frame_size = ::OverSIP.configuration[:websocket][:max_ws_frame_size]
     end
 
 
+    attr_writer :ws_app
+
+
+    LOG_ID = "WsFraming"
     def log_id
-      @log_id ||= "WsFramming #{@connection.connection_log_id}"
+      LOG_ID
     end
 
 
@@ -43,7 +44,7 @@ module OverSIP::WebSocket
 
     def do_keep_alive interval
       @keep_alive_timer = ::EM::PeriodicTimer.new(interval) do
-        log_system_debug "sending keep-alive ping frame: payload_length=10"  if $oversip_debug
+        log_system_debug "sending keep-alive ping frame"  if $oversip_debug
         @connection.send_data KEEPALIVE_PING_FRAME
       end
     end
@@ -67,21 +68,21 @@ module OverSIP::WebSocket
 
           if @rsv1 or @rsv2 or @rsv3
             log_system_notice "frame has RSV bits set, clossing the connection"
-            send_close_frame 1002, "RSV bit set not supported"
+            @connection.close 1002, "RSV bit set not supported"
             return false
           end
 
           # opcode are bits 4-7.
           @opcode = byte1 & 0b00001111
           unless (@sym_opcode = OPCODE[@opcode])
-            send_close_frame 1002, "unknown opcode=#{@opcode}"
+            @connection.close 1002, "unknown opcode=#{@opcode}"
             return false
           end
 
           # MASK is bit 8.
           @mask = (byte2 & 0b10000000) == 0b10000000
           unless @mask
-            send_close_frame 1002, "MASK bit not set"
+            @connection.close 1002, "MASK bit not set"
             return false
           end
 
@@ -124,7 +125,7 @@ module OverSIP::WebSocket
 
           if @buffer.read(4).unpack('N').first != 0
             log_system_notice "frame size bigger than 4 GB, rejected"
-            send_close_frame 1008
+            @connection.close 1008
             return false
           end
 
@@ -148,13 +149,13 @@ module OverSIP::WebSocket
           # less and MUST NOT be fragmented.
           if control_frame? and @payload_length > 125
             log_system_notice "received invalid control frame (payload_length > 125), sending close frame"
-            send_close_frame 1002
+            @connection.close 1002
             return false
           end
 
           if control_frame? and not @fin
             log_system_notice "received invalid control frame (FIN=0), sending close frame"
-            send_close_frame 1002, "forbidden FIN=0 in control frame"
+            @connection.close 1002, "forbidden FIN=0 in control frame"
             return false
           end
 
@@ -162,7 +163,7 @@ module OverSIP::WebSocket
           # arrived with FIN=0.
           if continuation_frame? and not @msg_sym_opcode
             log_system_notice "invalid continuation frame received (no previous unfinished message), sending close frame"
-            send_close_frame 1002, "invalid continuation frame received"
+            @connection.close 1002, "invalid continuation frame received"
             return false
           end
 
@@ -170,13 +171,13 @@ module OverSIP::WebSocket
           # a new frame with opcode=text/binary.
           if @msg_sym_opcode and text_or_binary_frame?
             log_system_notice "invalid text/binary frame received (expecting a continuation frame), sending close frame"
-            send_close_frame 1002, "expected a continuation frame"
+            @connection.close 1002, "expected a continuation frame"
             return false
           end
 
           # Check max frame size.
           if @payload_length > @@max_frame_size
-            send_close_frame 1009, "frame too big"
+            @connection.close 1009, "frame too big"
             return false
           end
 
@@ -214,17 +215,22 @@ module OverSIP::WebSocket
             if @payload
               if (valid_utf8 = @utf8_validator.validate(@payload)) == false
                 log_system_notice "received single text frame contains invalid UTF-8, closing the connection"
-                send_close_frame 1007, "single text frame contains invalid UTF-8"
+                @connection.close 1007, "single text frame contains invalid UTF-8"
                 return false
               end
 
               if @fin and not valid_utf8
                 log_system_notice "received single text frame contains incomplete UTF-8, closing the connection"
-                send_close_frame 1007, "single text frame contains incomplete UTF-8"
+                @connection.close 1007, "single text frame contains incomplete UTF-8"
                 return false
               end
 
-              return false  unless @ws_app.receive_payload_data @payload
+              # If @ws_app.receive_payload_data returns false it means that total
+              # message size is too big.
+              unless @ws_app.receive_payload_data @payload
+                @connection.close 1009, "message too big"
+                return false
+              end
             end
 
             # If message is finished tell it to the WS application.
@@ -241,7 +247,12 @@ module OverSIP::WebSocket
             @msg_sym_opcode = @sym_opcode
 
             if @payload
-              return false  unless @ws_app.receive_payload_data @payload
+              # If @ws_app.receive_payload_data returns false it means that total
+              # message size is too big.
+              unless @ws_app.receive_payload_data @payload
+                @connection.close 1009, "message too big"
+                return false
+              end
             end
 
             # If message is finished tell it to the WS application.
@@ -257,13 +268,13 @@ module OverSIP::WebSocket
               if @msg_sym_opcode == :text
                 if (valid_utf8 = @utf8_validator.validate(@payload)) == false
                   log_system_notice "received continuation text frame contains invalid UTF-8, closing the connection"
-                  send_close_frame 1007, "continuation text frame contains invalid UTF-8"
+                  @connection.close 1007, "continuation text frame contains invalid UTF-8"
                   return false
                 end
 
                 if @fin and not valid_utf8
                   log_system_notice "received continuation final text frame contains incomplete UTF-8, closing the connection"
-                  send_close_frame 1007, "continuation final text frame contains incomplete UTF-8"
+                  @connection.close 1007, "continuation final text frame contains incomplete UTF-8"
                   return false
                 end
               end
@@ -293,7 +304,7 @@ module OverSIP::WebSocket
                 # So it must be true for the close frame reason.
                 unless @utf8_validator.validate(reason)
                   log_system_notice "received close frame with invalid UTF-8 data in the reason: status=#{status.inspect}"
-                  send_close_frame 1007, "close frame reason contains incomplete UTF-8"
+                  @connection.close 1007, "close frame reason contains incomplete UTF-8"
                   return false
                 end
               end
@@ -316,7 +327,8 @@ module OverSIP::WebSocket
               log_system_debug "received close frame: status=#{status.inspect}, reason=#{reason.inspect}"  if $oversip_debug
             end
 
-            send_close_frame nil, nil, true
+            @connection.client_closed = true
+            @connection.close nil, nil
             return false
 
           when :ping
@@ -329,13 +341,6 @@ module OverSIP::WebSocket
           end
 
           true
-
-        when :ws_closed
-          false
-
-        when :tcp_closed
-          false
-
         end)
       end # while
 
@@ -359,14 +364,6 @@ module OverSIP::WebSocket
 
     # NOTE: A WS message is always set in a single WS frame.
     def send_text_frame message
-      case @state
-      when :ws_closed
-        log_system_debug "cannot send text frame, WebSocket session is closed"  if $oversip_debug
-        return false
-      when :tcp_closed
-        log_system_debug "cannot send text frame, TCP session is closed"  if $oversip_debug
-        return false
-      end
       log_system_debug "sending text frame: payload_length=#{message.bytesize}"  if $oversip_debug
 
       frame = "".encode ::Encoding::BINARY
@@ -401,14 +398,6 @@ module OverSIP::WebSocket
 
 
     def send_binary_frame message
-      case @state
-      when :ws_closed
-        log_system_debug "cannot send binary frame, WebSocket session is closed"  if $oversip_debug
-        return false
-      when :tcp_closed
-        log_system_debug "cannot send binary frame, TCP session is closed"  if $oversip_debug
-        return false
-      end
       log_system_debug "sending binary frame: payload_length=#{message.bytesize}"  if $oversip_debug
 
       frame = "".encode ::Encoding::BINARY
@@ -443,14 +432,6 @@ module OverSIP::WebSocket
 
 
     def send_ping_frame data=nil
-      case @state
-      when :ws_closed
-        log_system_debug "cannot send ping frame, WebSocket session is closed"  if $oversip_debug
-        return false
-      when :tcp_closed
-        log_system_debug "cannot send ping frame, TCP session is closed"  if $oversip_debug
-        return false
-      end
       if data
         log_system_debug "sending ping frame: payload_length=#{data.bytesize}"  if $oversip_debug
       else
@@ -483,14 +464,6 @@ module OverSIP::WebSocket
 
 
     def send_pong_frame data=nil
-      case @state
-      when :ws_closed
-        log_system_debug "cannot send pong frame, WebSocket session is closed"  if $oversip_debug
-        return false
-      when :tcp_closed
-        log_system_debug "cannot send pong frame, TCP session is closed"  if $oversip_debug
-        return false
-      end
       if data
         log_system_debug "sending pong frame: payload_length=#{data.bytesize}"  if $oversip_debug
       else
@@ -525,22 +498,12 @@ module OverSIP::WebSocket
     def send_close_frame status=nil, reason=nil, in_reply_to_close=nil
       @keep_alive_timer.cancel  if @keep_alive_timer
 
-      case @state
-      when :ws_closed
-        log_system_debug "cannot send close frame, WebSocket session is closed"  if $oversip_debug
-        return false
-      when :tcp_closed
-        log_system_debug "cannot send close frame, TCP session is closed"  if $oversip_debug
-        return false
-      end
-
       unless in_reply_to_close
         log_system_debug "sending close frame: status=#{status.inspect}, reason=#{reason.inspect}"  if $oversip_debug
       else
         log_system_debug "sending reply close frame: status=#{status.inspect}, reason=#{reason.inspect}"  if $oversip_debug
       end
 
-      @state = :ws_closed
       @buffer.clear
 
       frame = "".encode ::Encoding::BINARY
@@ -569,35 +532,10 @@ module OverSIP::WebSocket
         end
       end
 
-      @connection.ignore_incoming_data
       @connection.send_data frame
-
-      # NOTE: Don't do it since it "seems" that the connection has been closed
-      # by the client.
-      #unless in_reply_to_close
-        # Let's some time for the client to send us a close frame (it will
-        # be ignored anyway) before closing the TCP connection.
-        # NOTE: Don't do it since it "seems" that the connection has been closed
-        # by the client.
-        #::EM.add_timer(0.2) do
-          #@connection.close_connection_after_writing
-        #end
-      #else
-        #@connection.close_connection_after_writing
-      #end
-
-      @connection.close_connection_after_writing
       true
     end
 
-
-    def tcp_closed
-      @keep_alive_timer.cancel  if @keep_alive_timer
-      @state = :tcp_closed
-      # Tell it to the WS application.
-      @ws_app.tcp_closed rescue nil
-    end
-
-  end  # class WsFraming
+  end
 
 end

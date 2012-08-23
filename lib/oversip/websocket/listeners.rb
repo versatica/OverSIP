@@ -1,13 +1,13 @@
 # OverSIP files
 
-require "oversip/websocket/connection"
-require "oversip/websocket/listeners/tcp_server"
-require "oversip/websocket/listeners/tls_server"
-require "oversip/websocket/listeners/tls_tunnel_server"
+require "oversip/websocket/listeners/connection"
+require "oversip/websocket/listeners/ws_server"
+require "oversip/websocket/listeners/wss_server"
+require "oversip/websocket/listeners/wss_tunnel_server"
 
-require "oversip/websocket/listeners/ipv4_tcp_server"
-require "oversip/websocket/listeners/ipv6_tcp_server"
-require "oversip/websocket/listeners/ipv4_tls_server"
-require "oversip/websocket/listeners/ipv6_tls_server"
-require "oversip/websocket/listeners/ipv4_tls_tunnel_server"
-require "oversip/websocket/listeners/ipv6_tls_tunnel_server"
+require "oversip/websocket/listeners/ipv4_ws_server"
+require "oversip/websocket/listeners/ipv6_ws_server"
+require "oversip/websocket/listeners/ipv4_wss_server"
+require "oversip/websocket/listeners/ipv6_wss_server"
+require "oversip/websocket/listeners/ipv4_wss_tunnel_server"
+require "oversip/websocket/listeners/ipv6_wss_tunnel_server"
