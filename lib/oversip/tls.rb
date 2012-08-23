@@ -96,8 +96,8 @@ module OverSIP
     # - tls_error: OpenSSL validation error code (Fixnum) in case of validation error.
     # - tls_error_string: OpenSSL validation error string in case of validation error.
     def self.validate pems
-      return nil, nil, nil, "no CAs provided, validation disabled"  unless @store
-      return nil, nil, nil, "no certificate provided by peer"  unless pems.any?
+      return nil, false, nil, "no CAs provided, validation disabled"  unless @store
+      return nil, false, nil, "no certificate provided by peer"  unless pems.any?
 
       pem = pems.pop
       intermediate_pems = pems
