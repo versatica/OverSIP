@@ -48,6 +48,12 @@ Max-Forwards: 87\r
 _i: esc01.239409asdfakjkn23onasd0-3234\r
 CSeq: 234234 INVITE\r
 C: application/sdp\r
+Require: AAA, Bbb\r
+Require: ccc\r
+Proxy-Require: AAA, Bbb\r
+Proxy-Require: ccc\r
+Supported: AAA, Bbb\r
+k: ccc\r
 Contact:\r
  <sip:cal%6Cer@host5.example.net;%6C%72;n%61me=v%61lue%25%34%31>\r
 Content-Length: 150\r
@@ -134,6 +140,10 @@ END
     assert_equal :ipv6_reference, msg.routes[1].host_type
     assert_equal 6666, msg.routes[1].port
     assert_true msg.routes[1].lr_param?
+
+    assert_equal ["aaa", "bbb", "ccc"], msg.require
+    assert_equal ["aaa", "bbb", "ccc"], msg.proxy_require
+    assert_equal ["aaa", "bbb", "ccc"], msg.supported
   end
 
 end
