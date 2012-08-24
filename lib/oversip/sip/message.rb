@@ -167,7 +167,7 @@ module OverSIP::SIP
     # received.
     def close_connection
       return false  if @transport == :udp
-      @connection.close_connection
+      @connection.close
       true
     end
 
