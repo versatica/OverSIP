@@ -39,6 +39,7 @@ class TestSipParser < OverSIPTest
     parser, msg = parse <<-END
 INVITE sip:sips%3Auser%40example.com@example.NET.;transport=tcp;FOO=baz?Subject=lalala SIP/2.0\r
 via: SIP/2.0/UDP host5.example.net;branch=z9hG4bKkdjuw ; Rport\r
+v: SIP/2.0/TCP 1.2.3.4;branch=z9hG4bKkdjuw\r
 To: <tel:+(34)-94-499-44-22;lalala=lololo>\r
 from: <sips:I%20have%20spaces@[2001:123:Ab:0:0::123]:9999> ;\r
   tag=938\r
@@ -55,7 +56,7 @@ Proxy-Require: ccc\r
 Supported: AAA, Bbb\r
 k: ccc\r
 Contact:\r
- <sip:cal%6Cer@host5.example.net;%6C%72;n%61me=v%61lue%25%34%31>\r
+ <sip:cal%6Cer@host5.example.net;%6C%72;n%61me=v%61lue%25%34%31>;p1=foo;P2=BAR\r
 Content-Length: 150\r
 \r
 v=0\r
@@ -76,13 +77,14 @@ END
     assert_false parser.duplicated_core_header?
     assert_equal parser.missing_core_header?, "Call-ID"
 
-    assert_equal msg.num_vias, 1
+    assert_equal msg.num_vias, 2
     assert_equal msg.via_sent_by_host, "host5.example.net"
     assert_nil msg.via_sent_by_port
     assert_nil msg.via_received
     assert_true msg.via_rport?
     assert_equal msg.via_core_value, "SIP/2.0/UDP host5.example.net"
     assert_nil msg.via_params
+    assert_equal ["SIP/2.0/UDP host5.example.net;branch=z9hG4bKkdjuw ; Rport", "SIP/2.0/TCP 1.2.3.4;branch=z9hG4bKkdjuw"], msg.hdr_via
 
     assert_equal msg.cseq, 234234
     assert_equal msg.max_forwards, 87
@@ -121,6 +123,7 @@ END
     assert_equal :domain, msg.contact.host_type
     assert_nil msg.contact.port
     assert_equal({"%6c%72" => nil, "n%61me" => "v%61lue%25%34%31"}, msg.contact.params)
+    assert_equal ";p1=foo;P2=BAR", msg.contact_params
 
     assert_equal 2, msg.routes.size
 
