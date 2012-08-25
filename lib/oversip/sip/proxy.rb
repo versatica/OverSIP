@@ -4,9 +4,9 @@ module OverSIP::SIP
 
     include ::OverSIP::Logger
 
-    def initialize proxy_name=:default_proxy
-      unless (@proxy_conf = ::OverSIP.proxies[proxy_name.to_sym])
-        raise ::OverSIP::RuntimeError, "proxy '#{proxy_name}' is not defined in Proxies Configuration file"
+    def initialize proxy_profile=:default_proxy
+      unless (@proxy_conf = ::OverSIP.proxies[proxy_profile.to_sym])
+        raise ::OverSIP::RuntimeError, "proxy '#{proxy_profile}' is not defined in Proxies Configuration file"
       end
     end
 
