@@ -187,9 +187,6 @@ module OverSIP::SIP
       # Set server transaction variables to the response.
       response.tvars = @request.tvars
 
-      # Set original request's connection variables to the response.
-      response.cvars = @request.cvars
-
       # Provisional response
       if response.status_code < 200
         case @state
@@ -505,9 +502,6 @@ module OverSIP::SIP
 
       # Set server transaction variables to the response.
       response.tvars = @request.tvars
-
-      # Set original request's connection variables to the response.
-      response.cvars = @request.cvars
 
       # Provisional response
       if response.status_code < 200

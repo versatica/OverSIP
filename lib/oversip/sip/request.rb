@@ -17,6 +17,8 @@ module OverSIP::SIP
     # or Path.
     attr_accessor :in_rr
 
+    attr_accessor :cvars  # Connection variables (a hash).
+
 
     def log_id
       @log_id ||= "SIP Request #{@via_branch_id}"
