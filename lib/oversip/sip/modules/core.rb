@@ -5,13 +5,19 @@ module OverSIP::SIP
 
       # Create a server transaction for the incoming request.
       def create_transaction
+        return false  if @server_transaction
+
         case @sip_method
         when :INVITE
           ::OverSIP::SIP::InviteServerTransaction.new self
+          return true
         when :ACK
+          return nil
         when :CANCEL
+          return nil
         else
           ::OverSIP::SIP::NonInviteServerTransaction.new self
+          return true
         end
       end
 
