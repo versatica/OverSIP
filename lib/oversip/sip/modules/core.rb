@@ -112,7 +112,7 @@ module OverSIP::SIP
         end
         @routes.empty? and @routes = nil
 
-        # Return true if it is an in-dialog request and at least one top Route pointed to us.
+        # Return true if it is an in-dialog request and the top Route pointed to us.
         # False otherwise as we shouldn't receive an in-dialog request with a top Route non
         # pointing to us.
         if in_dialog?
@@ -127,8 +127,9 @@ module OverSIP::SIP
       end
 
 
-      # Mira si el RURI es local. Se supone que antes se ha validado el Route y que el script
-      # no permite pre-loaded Route a otro destino.
+      # Checks whether the RURI points to a local domain or address.
+      # Typically, prior to using this method the user has verified the return value of loose_route()
+      # in case it's an initial request (if it's _true_ then the request has pre-loaded Route).
       def destination_myself?
         return true if @destination_myself
         return false if @destination_myself == false

@@ -60,6 +60,7 @@ module OverSIP::SIP
             # Remove posible P-Asserted-Identity header!
             log_system_debug "user asserted but P-Preferred-Identity header present, P-Asserted-Identity not added for #{request.log_id}"  if $oversip_debug
             request.headers.delete "P-Asserted-Identity"
+            return nil
           end
 
         # Otherwise ensure the request has no spoofed P-Asserted-Identity headers!
