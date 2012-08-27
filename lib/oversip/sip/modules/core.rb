@@ -123,7 +123,7 @@ module OverSIP::SIP
 
 
       # Mira si el RURI es local. Se supone que antes se ha validado el Route y que el script
-      # no permite pre-loaded Route a otro destino..
+      # no permite pre-loaded Route a otro destino.
       def destination_myself?
         return true if @destination_myself
         return false if @destination_myself == false

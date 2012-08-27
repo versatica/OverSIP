@@ -63,6 +63,28 @@ module OverSIP::SIP
       false
     end
 
+    def transport_param= value
+      return nil  unless @scheme == :sip or @scheme == :sips
+      if value
+        @transport_param = value.to_sym
+        set_param "transport", value.to_s
+      else
+        @transport_param = nil
+        del_param "transport"
+      end
+    end
+
+    def phone_context_param= value
+      return nil  unless @scheme == :tel
+      if value
+        @phone_context_param = value.to_sym
+        set_param "phone-context", value.to_s
+      else
+        @phone_context_param = nil
+        del_param "phone-context"
+      end
+    end
+
     def lr_param?
       @lr_param ? true : false
     end
