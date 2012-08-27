@@ -15,12 +15,21 @@ module OverSIP::WebSocket
     attr_writer :ws_established, :client_closed
 
 
-    def initialize
-      @buffer = ::IO::Buffer.new
-      @state = :init
-      @cvars = {}
+    def remote_ip_type
+      @remote_ip_type || self.class.ip_type
     end
 
+    def remote_ip
+      @remote_ip
+    end
+
+    def remote_port
+      @remote_port
+    end
+
+    def transport
+      self.class.transport
+    end
 
     def post_connection
       begin
@@ -36,9 +45,6 @@ module OverSIP::WebSocket
 
       # Create an Outbound (RFC 5626) flow token for this connection.
       @outbound_flow_token = ::OverSIP::SIP::TransportManager.add_outbound_connection self
-
-      # Initialize @cvars.
-      @cvars = {}
 
       log_system_debug("connection opened from " << remote_desc)  if $oversip_debug
     end

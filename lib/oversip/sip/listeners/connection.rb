@@ -26,6 +26,7 @@ module OverSIP::SIP
       @parser = ::OverSIP::SIP::MessageParser.new
       @buffer = ::IO::Buffer.new
       @state = :init
+      @cvars = {}
 
       # Set the socket sending error handling to report the error:
       # :ERRORHANDLING_KILL, :ERRORHANDLING_IGNORE, :ERRORHANDLING_REPORT

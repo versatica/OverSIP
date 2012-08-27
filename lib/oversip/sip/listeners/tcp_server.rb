@@ -28,9 +28,6 @@ module OverSIP::SIP
         set_sock_opt Socket::SOL_TCP, Socket::TCP_KEEPINTVL, ::OverSIP::SIP.tcp_keepalive_interval  # Interval between TCP pings.
       end
 
-      # Initialize @cvars.
-      @cvars = {}
-
       log_system_info "connection opened from " << remote_desc
     end
 

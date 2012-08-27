@@ -22,6 +22,12 @@ module OverSIP::WebSocket
 
     attr_reader :cvars
 
+    def initialize
+      @buffer = ::IO::Buffer.new
+      @state = :init
+      @cvars = {}
+    end
+
     def open?
       ! error?
     end
@@ -35,22 +41,6 @@ module OverSIP::WebSocket
 
       close_connection_after_writing
       @state = :ignore
-    end
-
-    def remote_ip_type
-      @remote_ip_type || self.class.ip_type
-    end
-
-    def remote_ip
-      @remote_ip
-    end
-
-    def remote_port
-      @remote_port
-    end
-
-    def transport
-      self.class.transport
     end
   end
 
