@@ -50,7 +50,6 @@ module OverSIP::SIP
               num_removes += 1
             else
               if local_uri? route
-                log_system_debug "removing pre-loaded Route pointing to this server"  if $oversip_debug
                 has_preloaded_route_with_ob_param = true  if route.ob_param?
                 num_removes += 1
               else
