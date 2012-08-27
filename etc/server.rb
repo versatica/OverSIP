@@ -171,6 +171,10 @@ def (OverSIP::SipEvents).on_request request
       log_notice "on_error: #{status} '#{reason}'"
     end
 
+    proxy.on_invite_timeout do
+      log_notice "INVITE timeout, no final response before Timer C expires."
+    end
+
     proxy.route request
     return
 
