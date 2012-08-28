@@ -15,4 +15,4 @@ OverSIP is a powerful and flexible SIP proxy & server:
 * Full support for IPv4, IPv6 and DNS resolution (NAPTR, SRV, A, AAAA)
 * The perfect Outbound Edge Proxy
 
-Visit [www.oversip.net](http://www.oversip.net)!
+**Get it at [www.oversip.net](http://www.oversip.net) !**
