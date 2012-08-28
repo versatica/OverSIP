@@ -70,11 +70,12 @@ module OverSIP::SIP
         #
         if (
               initial? and (
-              @force_outgoing_outbound or (
-                @num_vias == 1 and
-                outbound_aware? and (
-                  ( has_preloaded_route_with_ob_param or (@contact and @contact.ob_param?) ) or
-                  ( @sip_method == :REGISTER and contact_reg_id?)
+                @force_outgoing_outbound or (
+                  @num_vias == 1 and
+                  outbound_aware? and (
+                    ( has_preloaded_route_with_ob_param or (@contact and @contact.ob_param?) ) or
+                    ( @sip_method == :REGISTER and contact_reg_id?)
+                  )
                 )
               )
             )
