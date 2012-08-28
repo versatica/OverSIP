@@ -27,12 +27,13 @@
   Call_ID                     = ( "Call-ID"i | "i"i ) >write_hdr_value >start_hdr_field %write_hdr_field
                                 HCOLON >new_call_id call_id_value >start_hdr_value %store_hdr_value;
 
-  ### Contact (just for the case in which Contact contains a single AoR).
+  ### Contact (just for the case in which Contact contains a single SIP URI).
   #   Contact: "Alice Ñ€€€" <sip:alice@1.2.3.4:5060;transport=udp>
   #contact_param               = token >start_header_param_key %header_param_key_len
   #                              ( EQUAL header_param_gen_value >start_header_param_value %header_param_value_len )? %write_contact_param;
   contact_param               = token ( EQUAL header_param_gen_value )?;
-  contact_params              = ( SEMI contact_param )* >mark %contact_params;
+  contact_reg_id_param        = "reg-id"i  %contact_has_reg_id_param ( "=" token )?;
+  contact_params              = ( SEMI ( contact_reg_id_param | contact_param ) )* >mark %contact_params;
   contact_value               = ( ( name_addr_sip | ( SIP_URI -- ( "," | "?" | ";" ) ) ) contact_params )
                                 >start_hdr_value >do_contact_uri %contact_is_valid %store_hdr_value;
   Contact                     = ( "Contact"i | "m"i ) >write_hdr_value >start_hdr_field %write_hdr_field HCOLON

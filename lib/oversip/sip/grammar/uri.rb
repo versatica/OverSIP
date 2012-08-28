@@ -1,7 +1,7 @@
 module OverSIP::SIP
 
   class Uri
-    attr_reader :scheme, :user, :host, :host_type, :port, :params, :transport_param, :ovid_param, :phone_context_param, :headers
+    attr_reader :scheme, :user, :host, :host_type, :port, :params, :transport_param, :phone_context_param, :ovid_param, :headers
     attr_accessor :uri_modified
 
     def scheme= value

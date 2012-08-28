@@ -50,6 +50,7 @@ static ID id_to_tag;
 static ID id_routes;
 static ID id_contact;
 static ID id_contact_params;
+static ID id_contact_has_reg_id;
 static ID id_require;
 static ID id_proxy_require;
 static ID id_supported;
@@ -362,7 +363,7 @@ static void msg_via_has_rport(VALUE parsed)
 static void msg_via_has_alias(VALUE parsed)
 {
   TRACE();
-  
+
   rb_ivar_set(parsed, id_via_has_alias, Qtrue);
 }
 
@@ -588,7 +589,7 @@ static void uri_has_param(VALUE parsed, enum uri_owner owner, enum uri_param_nam
   TRACE();
 
   VALUE p;
-  
+
   switch(param_name) {
     case uri_param_lr:  p = id_uri_lr_param;  break;
     case uri_param_ob:  p = id_uri_ob_param;  break;
@@ -680,6 +681,14 @@ static void msg_contact_params(VALUE parsed, const char *at, size_t length)
 
   v = RB_STR_UTF8_NEW(at, length);
   rb_ivar_set(parsed, id_contact_params, v);
+}
+
+
+static void msg_contact_has_reg_id(VALUE parsed)
+{
+  TRACE();
+
+  rb_ivar_set(parsed, id_contact_has_reg_id, Qtrue);
 }
 
 
@@ -786,6 +795,7 @@ VALUE SipMessageParser_alloc(VALUE klass)
   parser->message.from_tag            = msg_from_tag;
   parser->message.to_tag              = msg_to_tag;
   parser->message.contact_params      = msg_contact_params;
+  parser->message.contact_has_reg_id  = msg_contact_has_reg_id;
   parser->message.header_core_value   = header_core_value;
   parser->message.header_param        = header_param;
   parser->message.option_tag          = option_tag;
@@ -1178,9 +1188,9 @@ void Init_sip_parser()
   rb_define_method(cSIPMessageParser, "duplicated_core_header?", SipMessageParser_has_duplicated_core_header,0);
   rb_define_method(cSIPMessageParser, "missing_core_header?", SipMessageParser_has_missing_core_header,0);
   rb_define_method(cSIPMessageParser, "post_parsing", SipMessageParser_post_parsing,0);
-  
+
   rb_define_module_function(cSIPMessageParser, "headerize", SipMessageParser_Class_headerize,1);
-  
+
   init_common_headers();
   init_short_headers();
 
@@ -1213,6 +1223,7 @@ void Init_sip_parser()
   id_routes = rb_intern("@routes");
   id_contact = rb_intern("@contact");
   id_contact_params = rb_intern("@contact_params");
+  id_contact_has_reg_id = rb_intern("@contact_has_reg_id");
   id_require = rb_intern("@require");
   id_proxy_require = rb_intern("@proxy_require");
   id_supported = rb_intern("@supported");

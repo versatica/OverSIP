@@ -128,6 +128,7 @@ typedef struct struct_message {
   msg_element_cb              from_tag;
   msg_element_cb              to_tag;
   msg_element_cb              contact_params;
+  msg_has_param_cb            contact_has_reg_id;
   /* Header value without header params. */
   header_core_value_cb        header_core_value;
   header_param_cb             header_param;

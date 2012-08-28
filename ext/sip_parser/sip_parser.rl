@@ -538,6 +538,11 @@
       parser->message.contact_params(parser->parsed, PTR_TO(mark), LEN(mark, fpc));
   }
 
+  action contact_has_reg_id_param {
+    if (parser->num_contact == 1)
+      parser->message.contact_has_reg_id(parser->parsed);
+  }
+
   action contact_is_valid {
     parser->contact_is_valid = 1;
   }

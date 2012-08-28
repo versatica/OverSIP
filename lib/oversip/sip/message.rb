@@ -74,6 +74,8 @@ module OverSIP::SIP
 
     def via_alias?         ; @via_has_alias              end
 
+    def contact_reg_id?    ; @contact_has_reg_id         end
+
     def dialog_forming?
       DIALOG_FORMING_METHODS[@sip_method]
     end

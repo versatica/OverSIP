@@ -68,14 +68,15 @@ module OverSIP::SIP
         # - Has a preloaded top Route with ;ob param pointing to us, or has Contact with ;ob, or
         #   it's a REGISTER with ;+sip.instance.
         #
-        # TODO: and (has_preloaded_route_with_ob_param or @request.contact.ob_param?).
-        # TODO: For REGISTER check also ;+sip.instance Contact param.
         if (
               @force_outgoing_outbound or (
                 initial? and
                 @num_vias == 1 and
                 outbound_aware? and
-                has_preloaded_route_with_ob_param
+                (
+                  ( has_preloaded_route_with_ob_param or (@contact and @contact.ob_param?) ) or
+                  ( @sip_method == :REGISTER and contact_reg_id?)
+                )
               )
             )
           @outgoing_outbound_requested = true

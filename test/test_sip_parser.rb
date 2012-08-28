@@ -56,7 +56,7 @@ Proxy-Require: ccc\r
 Supported: AAA, Bbb\r
 k: ccc\r
 Contact:\r
- <sip:cal%6Cer@host5.example.net;%6C%72;n%61me=v%61lue%25%34%31>;p1=foo;P2=BAR\r
+ <sip:cal%6Cer@host5.example.net;%6C%72;n%61me=v%61lue%25%34%31;ob>;p1=foo;P2=BAR;+sip-instance=qweqwe;reg-id=1\r
 Content-Length: 150\r
 \r
 v=0\r
@@ -122,8 +122,10 @@ END
     assert_equal "host5.example.net", msg.contact.host
     assert_equal :domain, msg.contact.host_type
     assert_nil msg.contact.port
-    assert_equal({"%6c%72" => nil, "n%61me" => "v%61lue%25%34%31"}, msg.contact.params)
-    assert_equal ";p1=foo;P2=BAR", msg.contact_params
+    assert_true msg.contact.ob_param?
+    assert_equal({"%6c%72" => nil, "n%61me" => "v%61lue%25%34%31", "ob" => nil}, msg.contact.params)
+    assert_equal ";p1=foo;P2=BAR;+sip-instance=qweqwe;reg-id=1", msg.contact_params
+    assert_true msg.contact_reg_id?
 
     assert_equal 2, msg.routes.size
 
