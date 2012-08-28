@@ -20,7 +20,7 @@ OverSIP is build on top of EventMachine-LE async library which follows the React
 _END_
 
   spec.required_ruby_version = "~> 1.9.2"
-  spec.add_dependency "eventmachine-le", ">= 1.1.2"
+  spec.add_dependency "eventmachine-le", ">= 1.1.3"
   spec.add_dependency "iobuffer", ">= 1.1.2"
   spec.add_dependency "em-posixmq", ">= 0.2.3"
   spec.add_dependency "em-udns", ">= 0.3.6"
