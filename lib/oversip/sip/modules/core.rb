@@ -69,11 +69,10 @@ module OverSIP::SIP
         #   it's a REGISTER with ;+sip.instance.
         #
         if (
+              initial? and (
               @force_outgoing_outbound or (
-                initial? and
                 @num_vias == 1 and
-                outbound_aware? and
-                (
+                outbound_aware? and (
                   ( has_preloaded_route_with_ob_param or (@contact and @contact.ob_param?) ) or
                   ( @sip_method == :REGISTER and contact_reg_id?)
                 )
