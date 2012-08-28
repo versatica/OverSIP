@@ -155,8 +155,6 @@ module OverSIP::SIP
       end
 
 
-      # TODO: It must be true if top Route or Contact has ;ob param, or also if the Contact
-      # has +sip.instance.
       def outgoing_outbound_requested?       ; @outgoing_outbound_requested  end
 
       def incoming_outbound_requested?       ; @incoming_outbound_requested  end
