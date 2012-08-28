@@ -92,8 +92,8 @@ module OverSIP::WebSocket
       @msg.source_ip_type = @connection.remote_ip_type
 
       return  unless valid_message? @parser
-      # TODO
-      add_via_received_rport  if @msg.request?
+      # TODO: Make it configurable:
+      #add_via_received_rport  if @msg.request?
       return  unless check_via_branch
 
       # Get the body.
