@@ -12,7 +12,8 @@ module OverSIP::WebSocket
       start_tls({
         :verify_peer => true,
         :cert_chain_file => ::OverSIP.tls_public_cert,
-        :private_key_file => ::OverSIP.tls_private_cert
+        :private_key_file => ::OverSIP.tls_private_cert,
+        :use_tls => false  # USE SSL instead of TLS. TODO: yes?
       })
 
       # If the remote client does never send us a TLS certificate

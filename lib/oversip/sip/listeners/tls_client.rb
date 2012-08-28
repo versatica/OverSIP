@@ -21,7 +21,8 @@ module OverSIP::SIP
       start_tls({
         :verify_peer => @callback_on_server_tls_handshake,
         :cert_chain_file => ::OverSIP.tls_public_cert,
-        :private_key_file => ::OverSIP.tls_private_cert
+        :private_key_file => ::OverSIP.tls_private_cert,
+        :use_tls => true
       })
 
       # If the remote server does never send us a TLS certificate

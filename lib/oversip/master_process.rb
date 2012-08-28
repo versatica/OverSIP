@@ -10,7 +10,7 @@ require "openssl"
 
 # Ruby external gems.
 
-gem "eventmachine-le", ">= 1.1.2"
+gem "eventmachine-le", ">= 1.1.3"
 require "eventmachine-le"
 gem "iobuffer", ">= 1.1.2"
 require "iobuffer"
