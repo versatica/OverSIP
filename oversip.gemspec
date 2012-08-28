@@ -28,7 +28,6 @@ _END_
   spec.add_dependency "term-ansicolor"
   spec.add_dependency "posix-spawn", ">= 0.3.6"
   spec.add_development_dependency "rake", "~> 0.9.2"
-  spec.add_development_dependency "rake-compiler", "~> 0.8.1"
 
   spec.files = ::Dir.glob %w{
     lib/oversip.rb
