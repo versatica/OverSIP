@@ -2,7 +2,7 @@
 
 [![Build Status](https://secure.travis-ci.org/versatica/OverSIP.png?branch=master)](http://travis-ci.org/versatica/OverSIP)
 
-### Homepage and documentation: [www.oversip.net](http://www.oversip.net)
+### Website and documentation: [www.oversip.net](http://www.oversip.net)
 
 ## Overview
 
