@@ -14,6 +14,9 @@ Version 1.1.3.beta1
   changes are applied for the outgoing request and reverted when sending responses upstream.
    - [Commit](https://github.com/versatica/OverSIP/commit/f7eefd6d8e02d30e61fd219f4426e6e63ea7f2a8)
 
+- If request.contact NameAddr fields are modified then changes are applied in the forwarded request.
+   - [Commit](https://github.com/versatica/OverSIP/commit/0f9d3ec9da96c51197535bcd5f0c65e5749ec855)
+
 
 Version 1.1.2
 -------------
