@@ -22,6 +22,10 @@ module OverSIP::SIP
     end
     alias :inspect :to_s
 
+    def modified?
+      @uri_modified or @name_addr_modified
+    end
+
   end
 
 end

@@ -2,7 +2,6 @@ module OverSIP::SIP
 
   class Uri
     attr_reader :scheme, :user, :host, :host_type, :port, :params, :transport_param, :phone_context_param, :ovid_param, :headers
-    attr_accessor :uri_modified
 
     def scheme= value
       return nil  if unknown_scheme?
@@ -132,6 +131,10 @@ module OverSIP::SIP
     end
     alias :to_s :uri
     alias :inspect :uri
+
+    def modified?
+      @uri_modified
+    end
 
   end  # class Uri
 

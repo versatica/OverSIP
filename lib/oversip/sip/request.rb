@@ -9,9 +9,9 @@ module OverSIP::SIP
     attr_reader :new_max_forwards
     attr_accessor :antiloop_id
     attr_accessor :route_outbound_flow_token
-
     attr_writer :outgoing_outbound_requested, :incoming_outbound_requested
     attr_accessor :proxied   # If true it means that this request has been already proxied.
+    attr_reader :from_was_modified, :to_was_modified  # Set to true if the From / To has been modified prior to routing the request.
 
     # Used for internal purposes when doing proxy and adding the first Record-Route
     # or Path.
@@ -113,6 +113,16 @@ module OverSIP::SIP
 
     def to_s
       msg = "#{@sip_method.to_s} #{self.ruri.uri} SIP/2.0\r\n"
+
+      # Update From/To headers if modified.
+      if from.modified?
+        @headers["From"] = [ @from.to_s << (@from_tag ? ";tag=#{@from_tag}" : "") ]
+        @from_was_modified = true
+      end
+      if to.modified?
+        @headers["To"] = [ @to.to_s << (@to_tag ? ";tag=#{@to_tag}" : "") ]
+        @to_was_modified = true
+      end
 
       @headers.each do |key, values|
         values.each do |value|
