@@ -31,7 +31,7 @@ module OverSIP::SIP
 
       buffer_str = @buffer.to_str
 
-      # Quikly ignore single CRLF (widely used by SIP UDP clients as keep-alive.
+      # Quikly ignore single CRLF (widely used by SIP UDP clients as keep-alive).
       if buffer_str == CRLF
         @buffer.clear
         @state = :init
@@ -57,7 +57,7 @@ module OverSIP::SIP
           @state = :init
           return false
         # A valid STUN Binding Request so we get a response to be sent.
-        when String
+        when ::String
           log_system_debug "STUN Binding Request received, replying to it"  if $oversip_debug
           send_data stun_res
           @buffer.clear
