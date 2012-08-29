@@ -54,7 +54,7 @@ static VALUE mStun;
 VALUE Stun_parse_request(VALUE self, VALUE rb_stun_request, VALUE rb_source_ip, VALUE rb_source_port)
 {
   TRACE();
-  
+
   char *request = NULL;
   size_t request_len = 0;
   char *source_ip = NULL;
@@ -228,7 +228,8 @@ VALUE Stun_parse_request(VALUE self, VALUE rb_stun_request, VALUE rb_source_ip, 
       break;
     /* Not valid INET family, hummmm. */
     case -1:
-      rb_raise(rb_eTypeError, "Family AF_INET (IPv4) not supported");
+      LOG("ERROR: Family AF_INET (IPv4) not supported\n");
+      return Qfalse;
       break;
     /* Let's check with IPv6. */
     case 0:
@@ -239,11 +240,13 @@ VALUE Stun_parse_request(VALUE self, VALUE rb_stun_request, VALUE rb_source_ip, 
           break;
           /* Not valid INET family, hummmm. */
         case -1:
-          rb_raise(rb_eTypeError, "Family AF_INET6 (IPv6) not supported");
+          LOG("ERROR: Family AF_INET6 (IPv6) not supported\n");
+          return Qfalse;
           break;
         /* The string is neither an IPv4 or IPv6. */
         case 0:
-          rb_raise(rb_eTypeError, "Given IP string is neither IPv4 or IPv6");
+          LOG("ERROR: Unknown Address Family\n");
+          return Qfalse;
           break;
       }
   }
