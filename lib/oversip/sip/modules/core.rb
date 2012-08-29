@@ -177,6 +177,7 @@ module OverSIP::SIP
 
 
       def local_uri? uri
+        return false  unless uri.scheme == :sip or uri.scheme == :sips
         # NOTE: uri.host has been normalized during parsing in case it's an IPv6 and it's
         # an :ipv6_reference.
         ( uri.port and ::OverSIP::SIP.local_aliases["#{uri.host}:#{uri.port}"] ) or
