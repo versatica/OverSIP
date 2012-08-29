@@ -1,0 +1,20 @@
+CHANGELOG
+=========
+
+
+Version 1.1.3.beta1
+-------------------
+
+2012-08-30
+
+- Don't raise an exception if the received STUN request contains an invalid IP address (vulnerability!).
+
+
+Version 1.1.2
+-------------
+
+2012-08-29
+
+- Require EventMachine-LE >= 1.1.3 which includes the :use_tls option for selecting TLSv1 or SSLv23.
+  Fixes https://github.com/versatica/OverSIP/issues/12 "Need to use TLS1.0 in outbound TLS connection".
+
