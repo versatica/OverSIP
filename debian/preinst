@@ -4,10 +4,10 @@
 
 #DEBHELPER#
 
-# Get the latest 1.X oversip Gem (but minor than 2.0).
+# Get the latest 1.1.X oversip Gem (but minor than 1.2.0).
 #   Doc: http://rubygems.rubyforge.org/rubygems-update/Gem/Version.html
 #
-OVERSIP_GEM_VERSION="~>1.0"
+OVERSIP_GEM_VERSION="~>1.1.0"
 
 set -e
 
