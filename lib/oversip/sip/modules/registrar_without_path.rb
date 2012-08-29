@@ -19,10 +19,6 @@ module OverSIP::SIP
 
           # Add the ;ov-ob param to the Contact URI.
           request.contact.set_param "ov-ob", request.connection_outbound_flow_token
-          # NOTE: request.contact_params is a String with the original Contact URI params
-          # so they are added at the end of the new URI with the added ;ov-ob param.
-          # TODO: This should be done automatically, right?
-          request.set_header "Contact", "#{request.contact.to_s}#{request.contact_params}"
           return true
         else
           return false

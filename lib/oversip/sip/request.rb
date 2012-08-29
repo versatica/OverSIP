@@ -114,14 +114,17 @@ module OverSIP::SIP
     def to_s
       msg = "#{@sip_method.to_s} #{self.ruri.uri} SIP/2.0\r\n"
 
-      # Update From/To headers if modified.
-      if from.modified?
+      # Update From/To/Contact headers if modified.
+      if @from.modified?
         @headers["From"] = [ @from.to_s << (@from_tag ? ";tag=#{@from_tag}" : "") ]
         @from_was_modified = true
       end
-      if to.modified?
+      if @to.modified?
         @headers["To"] = [ @to.to_s << (@to_tag ? ";tag=#{@to_tag}" : "") ]
         @to_was_modified = true
+      end
+      if @contact and @contact.modified?
+        @headers["Contact"] = [ @contact.to_s << (@contact_params ? @contact_params : "") ]
       end
 
       @headers.each do |key, values|
