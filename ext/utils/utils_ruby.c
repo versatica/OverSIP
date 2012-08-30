@@ -228,6 +228,8 @@ VALUE Utils_normalize_ipv6(int argc, VALUE *argv, VALUE self)
  * - Second argument is the type of host (:ipv4, :ipv6, :ipv6_reference or :domain).
  * - Third argument is optional. If true, returned value is a pure IPv6 even
  *   if the first argument is a IPv6 reference.
+ *
+ * TODO: Not in use and seems really ugly!
  */
 VALUE Utils_normalize_host(int argc, VALUE *argv, VALUE self)
 {
@@ -259,6 +261,8 @@ VALUE Utils_normalize_host(int argc, VALUE *argv, VALUE self)
 /*
  * If the given argument is a IPV6 reference it returns a new string with the pure IPv6.
  * In any other case, return the given argument.
+ *
+ * TODO: Not documented in the API (seems ugly).
  */
 VALUE Utils_to_pure_ip(VALUE self, VALUE string)
 {
@@ -271,6 +275,11 @@ VALUE Utils_to_pure_ip(VALUE self, VALUE string)
   else
     return string;
 }
+
+
+/*
+ * TODO: We lack a simple "normalice_host(ip)" method that parses the given ip and so on...
+ */
 
 
 /*
