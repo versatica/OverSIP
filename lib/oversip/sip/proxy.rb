@@ -35,11 +35,21 @@ module OverSIP::SIP
       @on_error_block = block
     end
 
+    def on_target &block
+      @on_target_block = block
+    end
+
     # If called, current response within the called callback won't be forwarded.
     def drop_response
       @drop_response = true
     end
 
+    # It must only be called within the on_target() callback. By calling this method,
+    # the request routing is aborted, no more DNS targets are tryed, a local 403 response
+    # is generated and on_error() callback is called with status 403.
+    def abort_routing
+      @aborted = true
+    end
 
     def route request, dst_host=nil, dst_port=nil, dst_transport=nil
       unless (@request = request).is_a? ::OverSIP::SIP::Request
@@ -346,8 +356,6 @@ module OverSIP::SIP
 
 
     def rfc3263_succeeded result
-      #log_system_debug "RFC3263 result: #{result.class}: #{result.inspect}"  if $oversip_debug
-
       # After RFC 3263 (DNS) resolution we get N targets.
       @num_target = 0  # First target is 0 (rather than 1).
 
@@ -364,10 +372,6 @@ module OverSIP::SIP
       when RFC3263::MultiTargets
         log_system_debug "result is MultiTargets => flatting:"  if $oversip_debug
         @targets = result.flatten  # Array of Targets.
-
-      # NOTE: Should never happen.
-      else
-        raise "rfc3263_succeeded returns a #{result.class}: #{result.inspect}"
 
       end
 
@@ -416,6 +420,18 @@ module OverSIP::SIP
 
 
     def use_target target
+      # Call the on_target() callback if set by the user.
+      @on_target_block && @on_target_block.call(target.ip_type, target.ip, target.port, target.transport)
+
+      # If the user has called to proxy.abort_routing() then stop next targets
+      # and call to on_error() callback.
+      if @aborted
+        log_system_notice "routing aborted for target #{target}"
+        @aborted = @target = @targets = nil
+        try_next_target 403, "Destination Not Allowed"
+        return
+      end
+
       @client_transaction = (::OverSIP::SIP::ClientTransaction.get_class @request).new self, @request, @proxy_conf, target.transport, target.ip, target.ip_type, target.port
       add_routing_headers
       @client_transaction.send_request
