@@ -5,6 +5,11 @@ CHANGELOG
 Version 1.1.3.beta1
 -------------------
 
+2012-08-30
+
+- Added on_target() and abort_routing() methods for Proxy class.
+   - [Commit](https://github.com/versatica/OverSIP/commit/c9216872ccd43c3977b8816551f33d9d0c178899)
+
 2012-08-29
 
 - Don't raise an exception if the received STUN request contains an invalid IP family (vulnerability!).
