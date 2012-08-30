@@ -2,7 +2,7 @@ CHANGELOG
 =========
 
 
-Version 1.1.3.beta1
+Version 1.2.0.beta1
 -------------------
 
 2012-08-30

@@ -11,7 +11,7 @@ case "$1" in
     deluser --quiet --remove-home oversip &>/dev/null || true
 
     # Remove the Ruby gem.
-    echo "uninstalling 'oversip' Ruby Gem..."
+    echo "uninstalling 'oversip' Ruby Gem(s)..."
     gem1.9.1 uninstall oversip -a -x
     ;;
 

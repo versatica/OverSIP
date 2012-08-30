@@ -1,3 +1,7 @@
+oversip (1.2.0) stable; urgency=low
+  * Package for OverSIP Ruby Gem 1.2.X.
+ -- Iñaki Baz Castillo <ibc@aliax.net>  Fri, 30 Aug 2012 19:15:00 +0100
+
 oversip (1.1.0) stable; urgency=low
   * New events interface.
  -- Iñaki Baz Castillo <ibc@aliax.net>  Fri, 03 Aug 2012 17:53:00 +0100
