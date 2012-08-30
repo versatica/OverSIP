@@ -13,12 +13,16 @@ module OverSIP
     # This avoid "invalid byte sequence in UTF-8" when the directly doing:
     #   string =~ /EXPRESSION/
     # and string has invalid UTF-8 bytes secuence.
-    # NOTE: expression argument must be a Regexp expression (with / symbols at the
-    # begining and at the end).
+    # Also avoids "incompatible encoding regexp match (UTF-8 regexp with ASCII-8BIT string)"
+    # NOTE: expression argument must be a String or a Regexp.
     def self.regexp_compare string, expression
-      string = string.to_s
-      return false  unless string.valid_encoding?
-      string.force_encoding(::Encoding::BINARY) =~ expression
+      string = string.to_s.force_encoding(::Encoding::BINARY)
+      if expression.is_a? ::Regexp
+        expression = /#{expression.source.force_encoding(::Encoding::BINARY)}/
+      else
+        expression = /#{expression.to_s.force_encoding(::Encoding::BINARY)}/
+      end
+      string =~ expression
     end
 
   end
