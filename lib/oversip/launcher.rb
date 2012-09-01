@@ -279,15 +279,6 @@ module OverSIP::Launcher
 
         log_system_info "reactor running"
 
-        # Run the user provided on_started method.
-        log_system_info "calling OverSIP::SystemEvents.on_started() method..."
-        begin
-          ::OverSIP::SystemEvents.on_started
-        rescue ::Exception => e
-          log_system_crit "error calling OverSIP::SystemEvents.on_started():"
-          log_system_crit e
-        end
-
         # Run the on_started provided callbacks.
         log_system_info "executing OverSIP::SystemCallbacks.on_started_callbacks..."
         ::OverSIP::SystemCallbacks.on_started_callbacks.each do |cb|
@@ -297,6 +288,15 @@ module OverSIP::Launcher
             log_system_crit "error executing a callback in OverSIP::SystemCallbacks.on_started_callbacks:"
             log_system_crit e
           end
+        end
+
+        # Run the user provided on_started method.
+        log_system_info "calling OverSIP::SystemEvents.on_started() method..."
+        begin
+          ::OverSIP::SystemEvents.on_started
+        rescue ::Exception => e
+          log_system_crit "error calling OverSIP::SystemEvents.on_started():"
+          log_system_crit e
         end
 
         log_system_info "master process (PID #{$$}) ready"
@@ -470,15 +470,6 @@ module OverSIP::Launcher
 
   def self.terminate error=false, fatal=false
     unless fatal
-      # Run the user provided on_terminated method.
-      log_system_info "calling OverSIP::SystemEvents.on_terminated() method..."
-      begin
-        ::OverSIP::SystemEvents.on_terminated error
-      rescue ::Exception => e
-        log_system_crit "error calling OverSIP::SystemEvents.on_terminated():"
-        log_system_crit e
-      end
-
       # Run the on_terminated provided callbacks.
       log_system_info "executing OverSIP::SystemCallbacks.on_terminated_callbacks..."
       ::OverSIP::SystemCallbacks.on_terminated_callbacks.each do |cb|
@@ -488,6 +479,15 @@ module OverSIP::Launcher
           log_system_crit "error executing a callback in OverSIP::SystemCallbacks.on_terminated_callbacks:"
           log_system_crit e
         end
+      end
+
+      # Run the user provided on_terminated method.
+      log_system_info "calling OverSIP::SystemEvents.on_terminated() method..."
+      begin
+        ::OverSIP::SystemEvents.on_terminated error
+      rescue ::Exception => e
+        log_system_crit "error calling OverSIP::SystemEvents.on_terminated():"
+        log_system_crit e
       end
     end
 
