@@ -279,13 +279,24 @@ module OverSIP::Launcher
 
         log_system_info "reactor running"
 
-        # Run the user provided on_started callback.
-        log_system_info "calling OverSIP::SystemEvents.on_started()..."
+        # Run the user provided on_started method.
+        log_system_info "calling OverSIP::SystemEvents.on_started() method..."
         begin
           ::OverSIP::SystemEvents.on_started
         rescue ::Exception => e
           log_system_crit "error calling OverSIP::SystemEvents.on_started():"
-          fatal e
+          log_system_crit e
+        end
+
+        # Run the on_started provided callbacks.
+        log_system_info "executing OverSIP::SystemCallbacks.on_started_callbacks..."
+        ::OverSIP::SystemCallbacks.on_started_callbacks.each do |cb|
+          begin
+            cb.call
+          rescue ::Exception => e
+            log_system_crit "error executing a callback in OverSIP::SystemCallbacks.on_started_callbacks:"
+            log_system_crit e
+          end
         end
 
         log_system_info "master process (PID #{$$}) ready"
@@ -424,11 +435,22 @@ module OverSIP::Launcher
     trap :HUP do
       log_system_notice "HUP signal received, reloading configuration files..."
       ::OverSIP::Config.system_reload
+
+      # Run the on_reload provided callbacks.
+      log_system_info "executing OverSIP::SystemCallbacks.on_reload_callbacks..."
+      ::OverSIP::SystemCallbacks.on_reload_callbacks.each do |cb|
+        begin
+          cb.call
+        rescue ::Exception => e
+          log_system_crit "error executing a callback in OverSIP::SystemCallbacks.on_reload_callbacks:"
+          log_system_crit e
+        end
+      end
     end
 
     # Signal USR1 reloads custom code provided by the user.
     trap :USR1 do
-      log_system_notice "USR1 signal received, calling OverSIP::SystemEvents.on_user_reload()..."
+      log_system_notice "USR1 signal received, calling OverSIP::SystemEvents.on_user_reload() method..."
       # Run the user provided on_started callback.
       begin
         ::OverSIP::SystemEvents.on_user_reload
@@ -448,13 +470,24 @@ module OverSIP::Launcher
 
   def self.terminate error=false, fatal=false
     unless fatal
-      # Run the user provided on_terminated callback.
-      log_system_info "calling OverSIP::SystemEvents.on_terminated()..."
+      # Run the user provided on_terminated method.
+      log_system_info "calling OverSIP::SystemEvents.on_terminated() method..."
       begin
         ::OverSIP::SystemEvents.on_terminated error
       rescue ::Exception => e
         log_system_crit "error calling OverSIP::SystemEvents.on_terminated():"
         log_system_crit e
+      end
+
+      # Run the on_terminated provided callbacks.
+      log_system_info "executing OverSIP::SystemCallbacks.on_terminated_callbacks..."
+      ::OverSIP::SystemCallbacks.on_terminated_callbacks.each do |cb|
+        begin
+          cb.call error
+        rescue ::Exception => e
+          log_system_crit "error executing a callback in OverSIP::SystemCallbacks.on_terminated_callbacks:"
+          log_system_crit e
+        end
       end
     end
 

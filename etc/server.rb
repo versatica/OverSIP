@@ -34,14 +34,14 @@ end
 ### OverSIP System Events:
 
 
-# This callback is called once the OverSIP reactor has been started.
+# This method is called once the OverSIP reactor has been started.
 #
 # def (OverSIP::SystemEvents).on_started
 #   [...]
 # end
 
 
-# This callback is called when a USR1 signal is received by OverSIP main
+# This method is called when a USR1 signal is received by OverSIP main
 # process and allows the user to set custom code to be executed
 # or reloaded.
 #
@@ -50,7 +50,7 @@ end
 # end
 
 
-# This callback is called after OverSIP has been terminated. It's called
+# This method is called after OverSIP has been terminated. It's called
 # with argument "error" which is _true_ in case OverSIP has died in an
 # unexpected way.
 #
@@ -64,7 +64,7 @@ end
 ### OverSIP SIP Events:
 
 
-# This callback is called when a SIP request is received.
+# This method is called when a SIP request is received.
 #
 def (OverSIP::SipEvents).on_request request
 
@@ -223,7 +223,7 @@ def (OverSIP::SipEvents).on_request request
 end
 
 
-# This callback is called when a client initiates a SIP TLS handshake.
+# This method is called when a client initiates a SIP TLS handshake.
 def (OverSIP::SipEvents).on_client_tls_handshake connection, pems
 
   log_info "validating TLS connection from IP #{connection.remote_ip} and port #{connection.remote_port}"
@@ -241,7 +241,7 @@ def (OverSIP::SipEvents).on_client_tls_handshake connection, pems
 end
 
 
-# This callback is called when conntacting a SIP TLS server and the TLS handshake takes place.
+# This method is called when conntacting a SIP TLS server and the TLS handshake takes place.
 def (OverSIP::SipEvents).on_server_tls_handshake connection, pems
 
   log_info "validating TLS connection to IP #{connection.remote_ip} and port #{connection.remote_port}"
@@ -264,7 +264,7 @@ end
 ### OverSIP WebSocket Events:
 
 
-# This callback is called when a new WebSocket connection is being requested.
+# This method is called when a new WebSocket connection is being requested.
 # Here you can inspect the connection and the HTTP GET request. If you
 # decide not to accept this connection then call to:
 #
@@ -279,7 +279,7 @@ end
 # end
 
 
-# This callback is called when a WebSocket connection is closed. The connection
+# This method is called when a WebSocket connection is closed. The connection
 # is given as first argument along with a second argument "client_closed" which
 # is _true_ in case the WebSocket connection was closed by the client.
 #
@@ -288,7 +288,7 @@ end
 # end
 
 
-# This callback is called when a client initiates a WebSocket TLS handshake.
+# This method is called when a client initiates a WebSocket TLS handshake.
 def (OverSIP::WebSocketEvents).on_client_tls_handshake connection, pems
 
   log_info "validating TLS connection from IP #{connection.remote_ip} and port #{connection.remote_port}"

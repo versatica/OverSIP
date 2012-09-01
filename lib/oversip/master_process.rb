@@ -57,7 +57,6 @@ require "oversip/sip/modules/core.rb"
 require "oversip/sip/modules/user_assertion.rb"
 require "oversip/sip/modules/registrar_without_path.rb"
 
-require "oversip/default_server.rb"
 require "oversip/fiber_pool.rb"
 require "oversip/tls.rb"
 require "oversip/stun.so"
