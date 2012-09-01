@@ -286,7 +286,7 @@ module OverSIP::Launcher
             cb.call
           rescue ::Exception => e
             log_system_crit "error executing a callback in OverSIP::SystemCallbacks.on_started_callbacks:"
-            log_system_crit e
+            fatal e
           end
         end
 
@@ -296,7 +296,7 @@ module OverSIP::Launcher
           ::OverSIP::SystemEvents.on_started
         rescue ::Exception => e
           log_system_crit "error calling OverSIP::SystemEvents.on_started():"
-          log_system_crit e
+          fatal e
         end
 
         log_system_info "master process (PID #{$$}) ready"
