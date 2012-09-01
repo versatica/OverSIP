@@ -8,9 +8,9 @@ module OverSIP
     extend ::OverSIP::Logger
     extend ::OverSIP::Config::Validators
 
-    DEFAULT_CONFIG_DIR = "/etc/oversip/"
-    DEFAULT_TLS_DIR = "tls/"
-    DEFAULT_TLS_CA_DIR = "tls/ca/"
+    DEFAULT_CONFIG_DIR = "/etc/oversip"
+    DEFAULT_TLS_DIR = "tls"
+    DEFAULT_TLS_CA_DIR = "tls/ca"
     DEFAULT_CONFIG_FILE = "oversip.conf"
     PROXIES_FILE = "proxies.conf"
     SERVER_FILE = "server.rb"
@@ -127,6 +127,7 @@ module OverSIP
       @proxies_file = ::File.join(@config_dir, PROXIES_FILE)
       @server_file = ::File.join(@config_dir, SERVER_FILE)
 
+      # Load the oversip.conf YAML file.
       begin
         conf_yaml = ::YAML.load_file @config_file
       rescue ::Exception => e
@@ -134,6 +135,7 @@ module OverSIP
         fatal e
       end
 
+      # Load the proxies.conf YAML file.
       begin
         proxies_yaml = ::YAML.load_file @proxies_file
       rescue ::Exception => e
@@ -141,6 +143,7 @@ module OverSIP
         fatal e
       end
 
+      # Load the server.rb file.
       begin
         ::Kernel.load @server_file
       rescue ::Exception => e
@@ -148,6 +151,7 @@ module OverSIP
         fatal e
       end
 
+      # Process the oversip.conf file.
       begin
         pre_check(conf_yaml)
 
@@ -209,6 +213,7 @@ module OverSIP
 
       ::OverSIP.configuration = @configuration
 
+      # Process the proxies.conf file.
       begin
         ::OverSIP::ProxiesConfig.load proxies_yaml
       rescue ::OverSIP::ConfigurationError => e
@@ -216,6 +221,17 @@ module OverSIP
       rescue ::Exception => e
         log_system_crit "error loading Proxies Configuration file '#{@proxies_file}':"
         fatal e
+      end
+
+      # Load all the Ruby files within @config_dir/modules_conf/ directory.
+      Dir["#{@config_dir}/modules_conf/*.rb"].each do |file|
+        log_system_info "loading '#{file}'..."
+        begin
+          require file
+        rescue ::Exception => e
+          log_system_crit "error loading '#{file}':"
+          fatal e
+        end
       end
     end
 
@@ -551,6 +567,7 @@ module OverSIP
     def self.system_reload
       log_system_notice "reloading OverSIP..."
 
+      # Load and process the proxies.conf file.
       begin
         proxies_yaml = ::YAML.load_file @proxies_file
         ::OverSIP::ProxiesConfig.load proxies_yaml, reload=true
@@ -562,6 +579,7 @@ module OverSIP
         log_system_crit e
       end
 
+      # Load the server.rb file.
       begin
         ::Kernel.load @server_file
         log_system_notice "Server file '#{@server_file}' reloaded"

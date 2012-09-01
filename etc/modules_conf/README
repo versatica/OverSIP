@@ -1,0 +1,42 @@
+OverSIP Modules Configuration Directory: /etc/oversip/modules_conf/
+===================================================================
+
+3rd party OverSIP modules must provide a single configuration file (a Ruby .rb file) to be set by the user and stored in this directory. Every Ruby file in this directory is loaded when OverSIP is started, but before OverSIP executes the OverSIP::SystemCallbacks.on_started_callbacks callbacks set by 3rd party modules and the OverSIP::SystemEvents.on_started() method provided by the user (in server.rb).
+
+Typically a Ruby file in this directory belongs to a 3rd party OverSIP module, for example "oversip-mod-database". This file should include code for the user to set module specific parameters. For example:
+
+
+/etc/oversip/modules_conf/oversip-mod-database-conf.rb:
+-----------------------------------------
+OverSIP::Modules::Database::Connection.new({
+  :name => :local_mysql,
+  :db_type => "mysql",
+  :db_host => "localhost",
+  :db_user => "xxxxxx",
+  :db_pass => "xxxxxx"
+  :db_name => "my_oversip"
+})
+-----------------------------------------
+
+
+In /etc/oversip/server.rb the user loads the "oversip-mod-database" library at the top of the file:
+------------------------------------------
+require "oversip-mod-database"
+
+[...]
+-------------------------------------------
+
+
+When OverSIP is started:
+
+- It loads main files under /etc/oversip/ (oversip.conf, proxies.conf and server.rb).
+
+- When loading server.rb it will load the library "oversip-mod-database". Such a library will set a callback via OverSIP::SystemCallbacks.on_started() to perform the DB connection(s).
+
+- Then OverSIP will load files under /etc/oversip/modules_conf/ directory (oversip-mod-database-conf.rb above). In this file the user creates some DB connections.
+
+- OverSIP will then run the OverSIP::SystemCallbacks.on_started_callbacks. One of those callbacks (the one set by "oversip-mod-database" library) will then inspect the DB connections created by the user and will perform the corresponding DB connections.
+
+- After that OverSIP will run the OverSIP::SystemEvents.on_started() method provided by the user (in server.rb). There the user can access to the DB by using any of the created connections.
+
+- OverSIP will then run the loop. Any code within server.rb (including SIP and WebSocket events) can make use of the DB connections.
