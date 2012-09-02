@@ -17,6 +17,8 @@ Version 1.2.0 (dev)
 
 - Added /etc/oversip/modules_conf/ for 3rd party OverSIP modules user configuration [(fb1cdec)](https://github.com/versatica/OverSIP/commit/0da18d477cbfce251fd8f004f1c6a2b22fb1cdec) (feature [#15](https://github.com/versatica/OverSIP/issues/15)).
 
+- Added `OverSIP::SIP::Uri#aor()`method which returns "sip(s):user@domain" for a SIP URI (no port or params) and "tel:number" for a TEL URI (no params) [(683c3da)](https://github.com/versatica/OverSIP/commit/9d310d6678ee79c47d17b5aab010a49b8683c3da).
+
 
 Version 1.1.2
 -------------
