@@ -1,7 +1,5 @@
 # Ruby external gems.
 
-gem "eventmachine-le", ">= 1.1.3"
-require "eventmachine-le"
 gem "em-posixmq", ">= 0.2.3"
 require "em-posixmq"
 

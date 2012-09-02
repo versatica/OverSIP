@@ -27,10 +27,10 @@ module OverSIP
         ::POSIX_MQ.unlink mq_name
       rescue ::Errno::ENOENT
       rescue ::Errno::EACCES => e
-        fatal "queue already exists and cannot remove it due file permissions"
+        ::OverSIP::Launcher.fatal "queue already exists and cannot remove it due file permissions"
       # Kernel has no support for posix message queues.
       rescue ::Errno::ENOSYS => e
-        fatal "the kernel has no support for posix messages queues, enable it (#{e.class}: #{e.message})"
+        ::OverSIP::Launcher.fatal "the kernel has no support for posix messages queues, enable it (#{e.class}: #{e.message})"
       end
 
       # Set the UMASK in a way that the group has permission to delete the queue.
@@ -61,7 +61,7 @@ module OverSIP
         begin
           ::Process.setrlimit(12, mq_size)
         rescue ::Errno::EPERM
-          fatal "current user has no permissions to increase rlimits to #{mq_size} bytes (ulimit -q)"
+          ::OverSIP::Launcher.fatal "current user has no permissions to increase rlimits to #{mq_size} bytes (ulimit -q)"
         end
       else
         log_system_info "rlimits for Posix Message Queues is #{current_rlimit} bytes (>= #{mq_size}), no need to increase it"
@@ -79,7 +79,7 @@ module OverSIP
 
       # Kernel has no support for posix message queues.
       rescue ::Errno::ENOSYS => e
-        fatal "the kernel has no support for posix messages queues, enable it (#{e.class}: #{e.message})"
+        ::OverSIP::Launcher.fatal "the kernel has no support for posix messages queues, enable it (#{e.class}: #{e.message})"
 
       # http://linux.die.net/man/3/mq_open
       #
@@ -93,13 +93,13 @@ module OverSIP
         log_system_warn "cannot set queue attributes due to user permissions, using system default values"
         mq = ::POSIX_MQ.new mq_name, mq_mode | ::IO::CREAT | ::IO::NONBLOCK, 00660
       rescue ::Errno::ENOMEM => e
-        fatal "insufficient memory (#{e.class}: #{e.message})"
+        ::OverSIP::Launcher.fatal "insufficient memory (#{e.class}: #{e.message})"
       rescue ::Errno::EMFILE => e
-        fatal "the process already has the maximum number of files and message queues open (#{e.class}: #{e.message})"
+        ::OverSIP::Launcher.fatal "the process already has the maximum number of files and message queues open (#{e.class}: #{e.message})"
       rescue Errno::ENFILE => e
-        fatal "the system limit on the total number of open files and message queues has been reached (#{e.class}: #{e.message})"
+        ::OverSIP::Launcher.fatal "the system limit on the total number of open files and message queues has been reached (#{e.class}: #{e.message})"
       rescue ::Errno::ENOSPC => e
-        fatal "insufficient space for the creation of a new message queue, probably occurred because the queues_max limit was encountered (#{e.class}: #{e.message})"
+        ::OverSIP::Launcher.fatal "insufficient space for the creation of a new message queue, probably occurred because the queues_max limit was encountered (#{e.class}: #{e.message})"
 
       end
 

@@ -13,6 +13,10 @@ require "tempfile"
 require "term/ansicolor"
 require "posix_mq"
 require "syslog"
+# Load EventMachine-LE here to avoid som EM based gem in server.rb to be loaded first
+# (and load eventmachine instead of eventmachine-le).
+gem "eventmachine-le", ">= 1.1.3"
+require "eventmachine-le"
 
 
 # OverSIP files.

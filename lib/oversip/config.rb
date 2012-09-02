@@ -132,7 +132,7 @@ module OverSIP
         conf_yaml = ::YAML.load_file @config_file
       rescue ::Exception => e
         log_system_crit "error loading Main Configuration file '#{@config_file}':"
-        fatal e
+        ::OverSIP::Launcher.fatal e
       end
 
       # Load the proxies.conf YAML file.
@@ -140,7 +140,7 @@ module OverSIP
         proxies_yaml = ::YAML.load_file @proxies_file
       rescue ::Exception => e
         log_system_crit "error loading Proxies Configuration file '#{@proxies_file}':"
-        fatal e
+        ::OverSIP::Launcher.fatal e
       end
 
       # Load the server.rb file.
@@ -148,7 +148,7 @@ module OverSIP
         ::Kernel.load @server_file
       rescue ::Exception => e
         log_system_crit "error loading Server file '#{@server_file}':"
-        fatal e
+        ::OverSIP::Launcher.fatal e
       end
 
       # Process the oversip.conf file.
@@ -162,18 +162,18 @@ module OverSIP
 
             if values == nil
               if validations.include? :required
-                fatal "#{section}[#{parameter}] requires a value"
+                ::OverSIP::Launcher.fatal "#{section}[#{parameter}] requires a value"
               end
               next
             end
 
             if values.is_a? ::Array
               unless validations.include? :multi_value
-                fatal "#{section}[#{parameter}] does not allow multiple values"
+                ::OverSIP::Launcher.fatal "#{section}[#{parameter}] does not allow multiple values"
               end
 
               if validations.include? :non_empty and values.empty?
-                fatal "#{section}[#{parameter}] does not allow empty values"
+                ::OverSIP::Launcher.fatal "#{section}[#{parameter}] does not allow empty values"
               end
             end
 
@@ -192,7 +192,7 @@ module OverSIP
                 next if [:required, :multi_value, :non_empty].include? validation
 
                 unless send validation, value, *args
-                  fatal "#{section}[#{parameter}] has invalid value '#{humanize_value value}' (does not satisfy '#{validation}' validation requirement)"
+                  ::OverSIP::Launcher.fatal "#{section}[#{parameter}] has invalid value '#{humanize_value value}' (does not satisfy '#{validation}' validation requirement)"
                 end
               end
 
@@ -206,9 +206,9 @@ module OverSIP
         post_check
 
       rescue ::OverSIP::ConfigurationError => e
-        fatal "configuration error: #{e.message}"
+        ::OverSIP::Launcher.fatal "configuration error: #{e.message}"
       rescue => e
-        fatal e
+        ::OverSIP::Launcher.fatal e
       end
 
       ::OverSIP.configuration = @configuration
@@ -217,10 +217,10 @@ module OverSIP
       begin
         ::OverSIP::ProxiesConfig.load proxies_yaml
       rescue ::OverSIP::ConfigurationError => e
-        fatal "error loading Proxies Configuration file '#{@proxies_file}':  #{e.message}"
+        ::OverSIP::Launcher.fatal "error loading Proxies Configuration file '#{@proxies_file}':  #{e.message}"
       rescue ::Exception => e
         log_system_crit "error loading Proxies Configuration file '#{@proxies_file}':"
-        fatal e
+        ::OverSIP::Launcher.fatal e
       end
 
       # Load all the Ruby files within @config_dir/modules_conf/ directory.
@@ -230,7 +230,7 @@ module OverSIP
           require file
         rescue ::Exception => e
           log_system_crit "error loading '#{file}':"
-          fatal e
+          ::OverSIP::Launcher.fatal e
         end
       end
     end

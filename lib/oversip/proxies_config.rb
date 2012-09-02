@@ -109,7 +109,7 @@ module OverSIP
 
       rescue ::Exception => e
         unless reload
-          fatal e.message
+          ::OverSIP::Launcher.fatal e.message
         else
           raise ::OverSIP::ConfigurationError, e.message
         end

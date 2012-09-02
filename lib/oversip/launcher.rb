@@ -2,7 +2,7 @@ module OverSIP::Launcher
 
   extend ::OverSIP::Logger
 
-  READY_PIPE_TIMEOUT = 6
+  READY_PIPE_TIMEOUT = 8
 
   @log_id = "launcher"
 
@@ -54,6 +54,7 @@ module OverSIP::Launcher
           master_ok = (rd.read(2) rescue nil)
         end
       rescue ::Timeout::Error
+        log_system_crit "master process is not ready within #{READY_PIPE_TIMEOUT/2} seconds, killing it..."
         begin
           ::Process.kill(:TERM, master_pid)
           10.times do |i|
@@ -65,7 +66,7 @@ module OverSIP::Launcher
           ::Process.kill(:KILL, master_pid) rescue nil
         rescue ::Errno::ESRCH
         end
-        fatal "master process is not ready within #{READY_PIPE_TIMEOUT/2} seconds, killing it"
+        fatal "master process killed"
       end
       unless master_ok == "ok"
         fatal "master process failed to start"
@@ -334,6 +335,14 @@ module OverSIP::Launcher
   end # def self.run
 
 
+  def self.fatal msg
+    log_system_crit msg
+    log_system_crit "exiting with error status"
+
+    terminate error=true, fatal=true
+  end
+
+
   def self.create_pid_file(path)
     # Check that the PID file is accesible.
     begin
@@ -469,6 +478,10 @@ module OverSIP::Launcher
 
 
   def self.terminate error=false, fatal=false
+    # Trap TERM/QUIT signals (we are already exiting).
+    trap(:TERM) {}
+    trap(:QUIT) {}
+
     unless fatal
       # Run the on_terminated provided callbacks.
       log_system_info "executing OverSIP::SystemCallbacks.on_terminated_callbacks..."

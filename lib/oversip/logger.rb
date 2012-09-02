@@ -108,15 +108,6 @@ module OverSIP
         end
 
       end  # .each
-
-      # A convenient method to ensure that fatal logs are properly logged and program
-      # exited with error status.
-      def fatal msg
-        log_system_crit msg
-        log_system_crit "exiting with error status"
-
-        ::OverSIP::Launcher.terminate error=true, fatal=true
-      end
     end
 
     # Generate nice log messages. It accepst three parameters:
