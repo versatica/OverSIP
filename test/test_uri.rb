@@ -6,11 +6,11 @@ require "oversip_test_helper"
 class TestUri < OverSIPTest
 
   def test_sip_uri
-    full_uri = "sip:i%C3%B1aki@aliax.net:5060;transport=tcp;foo=123;baz?X-Header-1=qwe&X-Header-2=asd"
+    full_uri = "sips:i%C3%B1aki@aliax.net:5060;transport=tcp;foo=123;baz?X-Header-1=qwe&X-Header-2=asd"
     aor = "sip:i%C3%B1aki@aliax.net"
 
     uri = ::OverSIP::SIP::Uri.new
-    uri.instance_variable_set :@scheme, :sip
+    uri.instance_variable_set :@scheme, :sips
     uri.user = "iñaki"
     uri.host = "aliax.net"
     uri.host_type = :domain

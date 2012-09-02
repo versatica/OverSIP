@@ -133,14 +133,14 @@ module OverSIP::SIP
     alias :inspect :uri
 
     # Returns a String with the AoR of the URI:
-    # - SIP URI: sip(s):user@domain.
+    # - SIP URI: sip:user@domain.
     # - TEL URI: tel:number
     # - Others: nil
     #
     def aor
       case @scheme
         when :sip, :sips
-          aor = @scheme.to_s << ":"
+          aor = "sip:"
           ( aor << ::EscapeUtils.escape_uri(@user) << "@" )  if @user
           aor << @host
 
