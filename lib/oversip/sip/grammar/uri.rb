@@ -132,6 +132,27 @@ module OverSIP::SIP
     alias :to_s :uri
     alias :inspect :uri
 
+    # Returns a String with the AoR of the URI:
+    # - SIP URI: sip(s):user@domain.
+    # - TEL URI: tel:number
+    # - Others: nil
+    #
+    def aor
+      case @scheme
+        when :sip, :sips
+          aor = @scheme.to_s << ":"
+          ( aor << ::EscapeUtils.escape_uri(@user) << "@" )  if @user
+          aor << @host
+
+        when :tel
+          aor = "tel:"
+          aor << @user
+
+        end
+
+      aor
+    end
+
     def modified?
       @uri_modified
     end
