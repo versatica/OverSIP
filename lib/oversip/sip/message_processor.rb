@@ -93,7 +93,7 @@ module OverSIP::SIP
           # Run the callback.
           ::OverSIP::SipEvents.on_request @msg
         rescue ::Exception => e
-          log_system_error "error calling OverSIP::WebSocketEvents.on_request() => 500:"
+          log_system_error "error calling OverSIP::SipEvents.on_request() => 500:"
           log_system_error e
           @msg.reply 500, "Internal Error", ["Content-Type: text/plain"], "#{e.class}: #{e.message}"
         end
