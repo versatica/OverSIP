@@ -26,6 +26,7 @@ install: build
 	mkdir -p $(CURDIR)/debian/oversip/etc/oversip/tls/
 	mkdir -p $(CURDIR)/debian/oversip/etc/oversip/tls/ca/
 	mkdir -p $(CURDIR)/debian/oversip/etc/oversip/tls/utils/
+	mkdir -p $(CURDIR)/debian/oversip/etc/oversip/modules_conf/
 	mkdir -p $(CURDIR)/debian/oversip/etc/security/limits.d/
 	
 	install -m 644 etc/oversip.conf debian/oversip/etc/oversip/
@@ -36,6 +37,7 @@ install: build
 	install -m 600 etc/tls/demo-tls.oversip.net.key debian/oversip/etc/oversip/tls/
 	install -m 644 etc/tls/ca/* debian/oversip/etc/oversip/tls/ca/
 	install -m 755 etc/tls/utils/* debian/oversip/etc/oversip/tls/utils/
+	install -m 644 etc/modules_conf/README debian/oversip/etc/oversip/modules_conf/
 	install -m 644 debian/oversip.limits debian/oversip/etc/security/limits.d/oversip.conf
 
 # Build architecture-dependent files here.
