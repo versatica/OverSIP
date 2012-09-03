@@ -34,6 +34,15 @@ end
 ### OverSIP System Events:
 
 
+# This method is called when the main configuration files have been loaded.
+# Place here 3rd party modules initializer code.
+# This method is not executed again when OverSIP is reloaded (HUP signal).
+#
+# def (OverSIP::SystemEvents).on_configuration
+#   [...]
+# end
+
+
 # This method is called once the OverSIP reactor has been started.
 #
 # def (OverSIP::SystemEvents).on_started

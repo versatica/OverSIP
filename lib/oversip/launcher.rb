@@ -280,6 +280,15 @@ module OverSIP::Launcher
 
         log_system_info "reactor running"
 
+        # Run the user provided on_configuration method.
+        log_system_info "calling OverSIP::SystemEvents.on_configuration() method..."
+        begin
+          ::OverSIP::SystemEvents.on_configuration
+        rescue ::Exception => e
+          log_system_crit "error calling OverSIP::SystemEvents.on_configuration():"
+          fatal e
+        end
+
         # Run the on_started provided callbacks.
         log_system_info "executing OverSIP::SystemCallbacks.on_started_callbacks..."
         ::OverSIP::SystemCallbacks.on_started_callbacks.each do |cb|
