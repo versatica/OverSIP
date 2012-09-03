@@ -2,6 +2,8 @@ module OverSIP::SIP
 
   class Request < Message
 
+    include Core
+
     SECURE_TRANSPORTS = { :tls=>true, :wss=>true }
 
     attr_accessor :server_transaction
