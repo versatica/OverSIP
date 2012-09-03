@@ -1,12 +1,12 @@
 module OverSIP::SIP
 
   module Modules
-    module RegistrarWithoutPath
+    module OutboundMangling
 
       extend ::OverSIP::Logger
 
       def self.log_id
-        @@log_id ||= "RegistrarWithoutPath module"
+        @@log_id ||= "OutboundMangling module"
       end
 
       def self.add_outbound_to_contact request
@@ -58,7 +58,7 @@ module OverSIP::SIP
         end
       end
 
-    end  # module RegistrarWithoutPath
+    end  # module OutboundMangling
   end  # module Modules
 
 end  # module OverSIP::SIP

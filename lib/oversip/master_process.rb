@@ -53,7 +53,7 @@ require "oversip/websocket/ws_sip_app.rb"
 
 require "oversip/sip/modules/core.rb"
 require "oversip/sip/modules/user_assertion.rb"
-require "oversip/sip/modules/registrar_without_path.rb"
+require "oversip/sip/modules/outbound_mangling.rb"
 
 require "oversip/fiber_pool.rb"
 require "oversip/tls.rb"
