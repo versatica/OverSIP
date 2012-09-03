@@ -38,7 +38,7 @@ end
 # Place here 3rd party modules initializer code.
 # This method is not executed again when OverSIP is reloaded (HUP signal).
 #
-# def (OverSIP::SystemEvents).on_configuration
+# def (OverSIP::SystemEvents).on_initialize
 #   [...]
 # end
 

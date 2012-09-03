@@ -280,12 +280,12 @@ module OverSIP::Launcher
 
         log_system_info "reactor running"
 
-        # Run the user provided on_configuration method.
-        log_system_info "calling OverSIP::SystemEvents.on_configuration() method..."
+        # Run the user provided on_initialize method.
+        log_system_info "calling OverSIP::SystemEvents.on_initialize() method..."
         begin
-          ::OverSIP::SystemEvents.on_configuration
+          ::OverSIP::SystemEvents.on_initialize
         rescue ::Exception => e
-          log_system_crit "error calling OverSIP::SystemEvents.on_configuration():"
+          log_system_crit "error calling OverSIP::SystemEvents.on_initialize():"
           fatal e
         end
 
