@@ -145,7 +145,7 @@ module OverSIP
 
       # Load the server.rb file.
       begin
-        ::Kernel.load @server_file
+        ::Kernel.require @server_file
       rescue ::Exception => e
         log_system_crit "error loading Server file '#{@server_file}':"
         ::OverSIP::Launcher.fatal e
@@ -221,17 +221,6 @@ module OverSIP
       rescue ::Exception => e
         log_system_crit "error loading Proxies Configuration file '#{@proxies_file}':"
         ::OverSIP::Launcher.fatal e
-      end
-
-      # Load all the Ruby files within @config_dir/modules_conf/ directory.
-      Dir["#{@config_dir}/modules_conf/*.rb"].each do |file|
-        log_system_info "loading '#{file}'..."
-        begin
-          require file
-        rescue ::Exception => e
-          log_system_crit "error loading '#{file}':"
-          ::OverSIP::Launcher.fatal e
-        end
       end
     end
 
