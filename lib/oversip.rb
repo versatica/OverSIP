@@ -66,4 +66,7 @@ module OverSIP
   module WebSocket ; end
   module Modules ; end
 
+  # Allow OverSIP::M::MODULE_NAME usage.
+  M = Modules
+
 end
