@@ -21,6 +21,8 @@ Version 1.2.0 (dev)
 
 - `OverSIP::SIP::Modules::RegistrarWithoutPath` renamed to `OverSIP::SIP::Modules::OutboundMangling` [(aac4bad)](https://github.com/versatica/OverSIP/commit/aac4badafd924cdbd3344a6636fa9588d0b84c79).
 
+- `OverSIP::SIP::Modules::Core` moved to `OverSIP::SIP::Core` [(ce48977)](https://github.com/versatica/OverSIP/commit/ce48977ca786def6d9c9f8af8d743da7c105dcf6).
+
 
 Version 1.1.2
 -------------
