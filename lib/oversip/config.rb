@@ -145,7 +145,7 @@ module OverSIP
 
       # Load the server.rb file.
       begin
-        ::Kernel.load @server_file
+        require @server_file
       rescue ::Exception => e
         log_system_crit "error loading Server file '#{@server_file}':"
         ::OverSIP::Launcher.fatal e
