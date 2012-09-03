@@ -19,6 +19,8 @@ Version 1.2.0 (dev)
 
 - Added a new method `OverSIP::SystemEvents.on_initialize()` useful for 3rd party modules configuration by the user [(56e099b)](https://github.com/versatica/OverSIP/commit/56e099bb0500e6cda221750ade7848fda614b522).
 
+- `OverSIP::SIP::Modules::RegistrarWithoutPath` renamed to `OverSIP::SIP::Modules::OutboundMangling` [(aac4bad)](https://github.com/versatica/OverSIP/commit/aac4badafd924cdbd3344a6636fa9588d0b84c79).
+
 
 Version 1.1.2
 -------------
