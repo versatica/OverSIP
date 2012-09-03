@@ -17,6 +17,8 @@ Version 1.2.0 (dev)
 
 - Added `OverSIP::SIP::Uri#aor()`method which returns "sip:user@domain" for a SIP/SIPS URI (no port or params) and "tel:number" for a TEL URI (no params) [(683c3da)](https://github.com/versatica/OverSIP/commit/9d310d6678ee79c47d17b5aab010a49b8683c3da).
 
+- Added a new method `OverSIP::SystemEvents.on_configuration()` useful for 3rd party modules configuration by the user [(c881fc9)](https://github.com/versatica/OverSIP/commit/c8cffa337268d66093b25d3d04fc09083c881fc9).
+
 
 Version 1.1.2
 -------------
