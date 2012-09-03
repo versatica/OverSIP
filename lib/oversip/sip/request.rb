@@ -2,7 +2,7 @@ module OverSIP::SIP
 
   class Request < Message
 
-    include Core
+    include ::OverSIP::SIP::Core
 
     SECURE_TRANSPORTS = { :tls=>true, :wss=>true }
 
