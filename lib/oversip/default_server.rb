@@ -4,6 +4,10 @@ module OverSIP
 
     extend ::OverSIP::Logger
 
+    def self.on_configuration
+      log_system_notice "on_configuration() method is not defined"
+    end
+
     def self.on_started
       log_system_notice "on_started() method is not defined"
     end
