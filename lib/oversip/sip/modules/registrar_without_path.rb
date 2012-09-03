@@ -10,10 +10,6 @@ module OverSIP::SIP
       end
 
       def self.add_outbound_to_contact request
-        unless request.sip_method == :REGISTER
-          raise ::OverSIP::RuntimeError, "request must be a REGISTER"
-        end
-
         if request.contact and request.connection_outbound_flow_token
           log_system_debug "performing Contact mangling (adding ;ov-ob Outbound param) for #{request.log_id}"  if $oversip_debug
 
