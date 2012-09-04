@@ -278,8 +278,6 @@ module OverSIP::Launcher
         # Create PID file.
         create_pid_file(options[:pid_file])
 
-        log_system_info "reactor running"
-
         # Run the user provided on_initialize method.
         log_system_info "calling OverSIP::SystemEvents.on_initialize() method..."
         begin

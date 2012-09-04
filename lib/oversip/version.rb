@@ -5,8 +5,8 @@ module OverSIP
   module Version
     MAJOR = 1
     MINOR = 2
-    TINY  = 0
-    DEVEL = nil  # Set to nil for stable releases.
+    TINY  = 1
+    DEVEL = "dev1"  # Set to nil for stable releases.
   end
 
   PROGRAM_NAME     = "OverSIP"
