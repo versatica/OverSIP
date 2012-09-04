@@ -2,8 +2,8 @@ CHANGELOG
 =========
 
 
-Version 1.2.0 (dev)
--------------------
+Version 1.2.0 (released in 2012-09-04)
+--------------------------------------
 
 - Added `on_target()` and `abort_routing()` methods for `Proxy` class [(c921687)](https://github.com/versatica/OverSIP/commit/c9216872ccd43c3977b8816551f33d9d0c178899).
 
@@ -26,7 +26,7 @@ Version 1.2.0 (dev)
 - `OverSIP::SIP::Modules` moved to `OverSIP::Modules` [(98e5308)](https://github.com/versatica/OverSIP/commit/98e530869e57150778327b29e5a977b2f6985f8d).
 
 
-Version 1.1.2
--------------
+Version 1.1.2 (released in 2012-08-28)
+--------------------------------------
 
 - Require EventMachine-LE >= 1.1.3 which includes the `:use_tls` option for selecting TLSv1 or SSLv23 [(d91d2e4)](https://github.com/versatica/OverSIP/commit/d91d2e4899a777dd7dd101e83fe36a1bca744398) (fixes [#12](https://github.com/versatica/OverSIP/issues/12)).
