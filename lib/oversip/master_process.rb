@@ -52,11 +52,11 @@ require "oversip/websocket/ws_framing_utils.so"
 require "oversip/websocket/ws_framing.rb"
 require "oversip/websocket/ws_sip_app.rb"
 
-require "oversip/sip/modules/user_assertion.rb"
-require "oversip/sip/modules/outbound_mangling.rb"
-
 require "oversip/fiber_pool.rb"
 require "oversip/tls.rb"
 require "oversip/stun.so"
+
+require "oversip/modules/user_assertion.rb"
+require "oversip/modules/outbound_mangling.rb"
 
 require "oversip/ruby_ext/eventmachine.rb"

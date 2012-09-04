@@ -37,11 +37,11 @@ _END_
     lib/oversip/sip/*.rb
     lib/oversip/sip/listeners/*.rb
     lib/oversip/sip/grammar/*.rb
-    lib/oversip/sip/modules/*.rb
 
     lib/oversip/websocket/*.rb
     lib/oversip/websocket/listeners/*.rb
-    lib/oversip/websocket/ws_apps/*.rb
+
+    lib/oversip/modules/*.rb
 
     ext/common/*.h
 

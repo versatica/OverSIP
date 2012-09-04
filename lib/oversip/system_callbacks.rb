@@ -7,6 +7,8 @@ module OverSIP
 
     extend ::OverSIP::Logger
 
+    @log_id = "SystemCallbacks"
+
     class << self
       attr_reader :on_started_callbacks
       attr_reader :on_terminated_callbacks

@@ -10,9 +10,7 @@ module OverSIP::WebSocket
     }
 
 
-    def self.log_id
-      @log_id ||= "WebSocket launcher"
-    end
+    @log_id = "WebSocket launcher"
 
 
     def self.run enabled, ip_type, ip, port, transport, virtual_ip=nil, virtual_port=nil

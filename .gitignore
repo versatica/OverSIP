@@ -9,6 +9,7 @@
 Makefile
 mkmf.log
 bin/oversip_stud
+OLD
 
 # Custom scripts or files
 create-deb.sh

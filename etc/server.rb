@@ -19,14 +19,14 @@ module MyExampleApp
   # Custom configuration options:
 
   # Set this to _true_ if the SIP registrar behind OverSIP does not support Path.
-  # OverSIP::SIP::Modules::OutboundMangling methods will be used.
+  # OverSIP::Modules::OutboundMangling methods will be used.
   DO_OUTBOUND_MANGLING = true
 
   # Set this to _true_ if the SIP proxy/server behind OverSIP performing the authentication
   # is ready to accept a P-Asserted-Identity header from OverSIP indicating the already
   # asserted SIP user of the client's connection (this avoids authenticating all the requests
   # but the first one).
-  # OverSIP::SIP::Modules::UserAssertion methods will be used.
+  # OverSIP::Modules::UserAssertion methods will be used.
   DO_USER_ASSERTION = true
 end
 
@@ -120,7 +120,7 @@ def (OverSIP::SipEvents).on_request request
 
   if MyExampleApp::DO_OUTBOUND_MANGLING
     # Extract the Outbound flow token from the RURI.
-    ::OverSIP::SIP::Modules::OutboundMangling.extract_outbound_from_ruri request
+    ::OverSIP::Modules::OutboundMangling.extract_outbound_from_ruri request
   end
 
   # The request goes to a client using Outbound through OverSIP.
@@ -161,7 +161,7 @@ def (OverSIP::SipEvents).on_request request
   when :INVITE, :MESSAGE, :OPTIONS, :SUBSCRIBE, :PUBLISH, :REFER
 
     if MyExampleApp::DO_USER_ASSERTION
-      ::OverSIP::SIP::Modules::UserAssertion.add_pai request
+      ::OverSIP::Modules::UserAssertion.add_pai request
     end
 
     proxy = ::OverSIP::SIP::Proxy.new :proxy_out
@@ -193,7 +193,7 @@ def (OverSIP::SipEvents).on_request request
 
     if MyExampleApp::DO_OUTBOUND_MANGLING
       # Contact mangling for the case in which the registrar does not support Path.
-      ::OverSIP::SIP::Modules::OutboundMangling.add_outbound_to_contact request
+      ::OverSIP::Modules::OutboundMangling.add_outbound_to_contact request
     end
 
     proxy = ::OverSIP::SIP::Proxy.new :proxy_out
@@ -202,13 +202,13 @@ def (OverSIP::SipEvents).on_request request
       if MyExampleApp::DO_OUTBOUND_MANGLING
         # Undo changes done to the Contact header provided by the client, so it receives
         # the same value in the 200 response from the registrar.
-        ::OverSIP::SIP::Modules::OutboundMangling.remove_outbound_from_contact response
+        ::OverSIP::Modules::OutboundMangling.remove_outbound_from_contact response
       end
 
       if MyExampleApp::DO_USER_ASSERTION
         # The registrar replies 200 after a REGISTER with credentials so let's assert
         # the current SIP user to this connection.
-        ::OverSIP::SIP::Modules::UserAssertion.assert_connection response
+        ::OverSIP::Modules::UserAssertion.assert_connection response
       end
     end
 
@@ -216,7 +216,7 @@ def (OverSIP::SipEvents).on_request request
       if MyExampleApp::DO_USER_ASSERTION
         # We don't add PAI for re-REGISTER, so 401 will be replied, and after it let's
         # revoke the current user assertion (will be re-added upon REGISTER with credentials).
-        ::OverSIP::SIP::Modules::UserAssertion.revoke_assertion response
+        ::OverSIP::Modules::UserAssertion.revoke_assertion response
       end
     end
 

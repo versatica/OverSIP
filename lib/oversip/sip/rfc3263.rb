@@ -126,6 +126,8 @@ module OverSIP::SIP
         @uri_port = uri_port
         @uri_transport = uri_transport
 
+        @log_id ||= ("RFC3263" << " " << @id)
+
         @use_dns = dns_conf[:use_dns]
         @transport_preference = dns_conf[:transport_preference]
 
@@ -142,10 +144,6 @@ module OverSIP::SIP
           @use_naptr = dns_conf[:use_naptr]
           @use_srv = dns_conf[:use_srv]
         end
-      end
-
-      def log_id
-        @log_id ||= ("RFC3263" << " " << @id)
       end
 
       def callback &block

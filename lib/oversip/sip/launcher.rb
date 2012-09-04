@@ -9,10 +9,7 @@ module OverSIP::SIP
       :ipv6 => "IPv6"
     }
 
-
-    def self.log_id
-      @log_id ||= "SIP launcher"
-    end
+    @log_id = "SIP launcher"
 
 
     def self.run enabled, ip_type, ip, port, transport, virtual_ip=nil, virtual_port=nil

@@ -6,10 +6,7 @@ module OverSIP
 
     TLS_PEM_CHAIN_REGEXP = /-{5}BEGIN CERTIFICATE-{5}\n.*?-{5}END CERTIFICATE-{5}\n/m
 
-
-    def self.log_id
-      @log_id ||= "TLS"
-    end
+    @log_id = "TLS"
 
 
     def self.module_init
