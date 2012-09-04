@@ -23,6 +23,8 @@ Version 1.2.0 (dev)
 
 - `OverSIP::SIP::Modules::Core` moved to `OverSIP::SIP::Core` [(ce48977)](https://github.com/versatica/OverSIP/commit/ce48977ca786def6d9c9f8af8d743da7c105dcf6).
 
+- `OverSIP::SIP::Modules` moved to `OverSIP::Modules` [(98e5308)](https://github.com/versatica/OverSIP/commit/98e530869e57150778327b29e5a977b2f6985f8d).
+
 
 Version 1.1.2
 -------------
