@@ -18,7 +18,7 @@ module OverSIP::SIP
       @headers["From"] = [ request.hdr_from ]  if request.from_was_modified
       if request.to_was_modified
         hdr_to = @to_tag ? "#{request.hdr_to};tag=#{@to_tag}" : request.hdr_to
-        @headers["To"] = [ hdr_to ]  if request.to_was_modified
+        @headers["To"] = [ hdr_to ]
       end
 
       @headers.each do |key, values|
