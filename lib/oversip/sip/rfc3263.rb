@@ -415,7 +415,7 @@ module OverSIP::SIP
 
           end
 
-        end
+        end  # @@fiber_pool.spawn
 
         nil
       end

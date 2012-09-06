@@ -2,7 +2,7 @@ module OverSIP::WebSocket
 
   module Launcher
 
-    extend OverSIP::Logger
+    extend ::OverSIP::Logger
 
     IP_TYPE = {
       :ipv4 => "IPv4",
@@ -29,18 +29,18 @@ module OverSIP::WebSocket
       klass = case transport
         when :ws
           case ip_type
-            when :ipv4 ; OverSIP::WebSocket::IPv4WsServer
-            when :ipv6 ; OverSIP::WebSocket::IPv6WsServer
+            when :ipv4 ; ::OverSIP::WebSocket::IPv4WsServer
+            when :ipv6 ; ::OverSIP::WebSocket::IPv6WsServer
             end
         when :wss
           case ip_type
-            when :ipv4 ; OverSIP::WebSocket::IPv4WssServer
-            when :ipv6 ; OverSIP::WebSocket::IPv6WssServer
+            when :ipv4 ; ::OverSIP::WebSocket::IPv4WssServer
+            when :ipv6 ; ::OverSIP::WebSocket::IPv6WssServer
             end
         when :wss_tunnel
           case ip_type
-            when :ipv4 ; OverSIP::WebSocket::IPv4WssTunnelServer
-            when :ipv6 ; OverSIP::WebSocket::IPv6WssTunnelServer
+            when :ipv4 ; ::OverSIP::WebSocket::IPv4WssTunnelServer
+            when :ipv6 ; ::OverSIP::WebSocket::IPv6WssTunnelServer
             end
         end
 
@@ -49,33 +49,33 @@ module OverSIP::WebSocket
 
       case
 
-        when klass == OverSIP::WebSocket::IPv4WsServer
+        when klass == ::OverSIP::WebSocket::IPv4WsServer
           klass.via_core = "SIP/2.0/WS #{uri_ip}:#{port}"
           klass.record_route = "<sip:#{uri_ip}:#{port};transport=ws;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
           klass.outbound_record_route_fragment = "@#{uri_ip}:#{port};transport=ws;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
           klass.outbound_path_fragment = "@#{uri_ip}:#{port};transport=ws;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid};ob>"
 
           if enabled
-            EM.start_server(ip, port, klass) do |conn|
+            ::EM.start_server(ip, port, klass) do |conn|
               conn.post_connection
-              conn.set_comm_inactivity_timeout 3600  # TODO
+              conn.set_comm_inactivity_timeout 300
             end
           end
 
-        when klass == OverSIP::WebSocket::IPv6WsServer
+        when klass == ::OverSIP::WebSocket::IPv6WsServer
           klass.via_core = "SIP/2.0/WS #{uri_ip}:#{port}"
           klass.record_route = "<sip:#{uri_ip}:#{port};transport=ws;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
           klass.outbound_record_route_fragment = "@#{uri_ip}:#{port};transport=ws;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
           klass.outbound_path_fragment = "@#{uri_ip}:#{port};transport=ws;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid};ob>"
 
           if enabled
-            EM.start_server(ip, port, klass) do |conn|
+            ::EM.start_server(ip, port, klass) do |conn|
               conn.post_connection
-              conn.set_comm_inactivity_timeout 3600  # TODO
+              conn.set_comm_inactivity_timeout 300
             end
           end
 
-        when klass == OverSIP::WebSocket::IPv4WssServer
+        when klass == ::OverSIP::WebSocket::IPv4WssServer
           klass.via_core = "SIP/2.0/WSS #{uri_ip}:#{port}"
           rr_host = ::OverSIP.configuration[:sip][:record_route_hostname_tls_ipv4] || uri_ip
           klass.record_route = "<sip:#{rr_host}:#{port};transport=wss;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
@@ -83,13 +83,13 @@ module OverSIP::WebSocket
           klass.outbound_path_fragment = "@#{rr_host}:#{port};transport=wss;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid};ob>"
 
           if enabled
-            EM.start_server(ip, port, klass) do |conn|
+            ::EM.start_server(ip, port, klass) do |conn|
               conn.post_connection
-              conn.set_comm_inactivity_timeout 3600  # TODO
+              conn.set_comm_inactivity_timeout 300
             end
           end
 
-        when klass == OverSIP::WebSocket::IPv6WssServer
+        when klass == ::OverSIP::WebSocket::IPv6WssServer
           klass.via_core = "SIP/2.0/WSS #{uri_ip}:#{port}"
           rr_host = ::OverSIP.configuration[:sip][:record_route_hostname_tls_ipv6] || uri_ip
           klass.record_route = "<sips:#{rr_host}:#{port};transport=ws;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
@@ -97,13 +97,13 @@ module OverSIP::WebSocket
           klass.outbound_path_fragment = "@#{rr_host}:#{port};transport=wss;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid};ob>"
 
           if enabled
-            EM.start_server(ip, port, klass) do |conn|
+            ::EM.start_server(ip, port, klass) do |conn|
               conn.post_connection
-              conn.set_comm_inactivity_timeout 3600  # TODO
+              conn.set_comm_inactivity_timeout 300
             end
           end
 
-        when klass == OverSIP::WebSocket::IPv4WssTunnelServer
+        when klass == ::OverSIP::WebSocket::IPv4WssTunnelServer
           klass.via_core = "SIP/2.0/WSS #{uri_virtual_ip}:#{virtual_port}"
           rr_host = ::OverSIP.configuration[:sip][:record_route_hostname_tls_ipv4] || uri_virtual_ip
           klass.record_route = "<sip:#{rr_host}:#{virtual_port};transport=wss;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
@@ -111,13 +111,13 @@ module OverSIP::WebSocket
           klass.outbound_path_fragment = "@#{rr_host}:#{virtual_port};transport=wss;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid};ob>"
 
           if enabled
-            EM.start_server(ip, port, klass) do |conn|
+            ::EM.start_server(ip, port, klass) do |conn|
               conn.post_connection
-              conn.set_comm_inactivity_timeout 3600  # TODO
+              conn.set_comm_inactivity_timeout 300
             end
           end
 
-        when klass == OverSIP::WebSocket::IPv6WssTunnelServer
+        when klass == ::OverSIP::WebSocket::IPv6WssTunnelServer
           klass.via_core = "SIP/2.0/WSS #{uri_virtual_ip}:#{virtual_port}"
           rr_host = ::OverSIP.configuration[:sip][:record_route_hostname_tls_ipv6] || uri_virtual_ip
           klass.record_route = "<sip:#{rr_host}:#{virtual_port};transport=wss;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
@@ -125,9 +125,9 @@ module OverSIP::WebSocket
           klass.outbound_path_fragment = "@#{rr_host}:#{virtual_port};transport=wss;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid};ob>"
 
           if enabled
-            EM.start_server(ip, port, klass) do |conn|
+            ::EM.start_server(ip, port, klass) do |conn|
               conn.post_connection
-              conn.set_comm_inactivity_timeout 3600  # TODO
+              conn.set_comm_inactivity_timeout 300
             end
           end
 

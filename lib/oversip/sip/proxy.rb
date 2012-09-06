@@ -365,12 +365,12 @@ module OverSIP::SIP
         @target = result  # Single Target.
 
       when RFC3263::SrvTargets
-        log_system_debug "result is srv targets => randomizing:"  if $oversip_debug
+        log_system_debug "DNS result has multiple values, randomizing"  if $oversip_debug
         @targets = result.randomize  # Array of Targets.
 
       # This can contain Target and SrvTargets entries.
       when RFC3263::MultiTargets
-        log_system_debug "result is MultiTargets => flatting:"  if $oversip_debug
+        log_system_debug "DNS result has multiple values, randomizing"  if $oversip_debug
         @targets = result.flatten  # Array of Targets.
 
       end
@@ -382,13 +382,13 @@ module OverSIP::SIP
     def try_next_target status=nil, reason=nil, full_response=nil
       # Single target.
       if @target and @num_target == 0
-        log_system_debug "using single target: #{@target}"  if $oversip_debug
+        log_system_debug "trying single target: #{@target}"  if $oversip_debug
         use_target @target
         @num_target = 1
 
       # Multiple targets (so @targets is set).
       elsif @targets and @num_target < @targets.size
-        log_system_debug "using target #{@num_target+1} of #{@targets.size}: #{@targets[@num_target]}"  if $oversip_debug
+        log_system_debug "trying target #{@num_target+1} of #{@targets.size}: #{@targets[@num_target]}"  if $oversip_debug
         use_target @targets[@num_target]
         @num_target += 1
 
