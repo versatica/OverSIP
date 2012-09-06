@@ -18,6 +18,8 @@ gem "escape_utils", ">= 0.2.4"
 require "escape_utils"
 gem "posix-spawn", ">= 0.3.6"
 require "posix-spawn"
+gem "em-synchrony", ">=1.0.2"
+require "em-synchrony"
 
 
 # OverSIP files.

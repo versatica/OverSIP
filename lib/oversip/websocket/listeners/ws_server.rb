@@ -85,12 +85,15 @@ module OverSIP::WebSocket
       end unless $!
 
       if @ws_established
-        begin
-          ::OverSIP::WebSocketEvents.on_disconnection self, !@local_closed
-        rescue ::Exception => e
-          log_system_error "error calling OverSIP::WebSocketEvents.on_disconnection():"
-          log_system_error e
-        end
+        # Run OverSIP::WebSocketEvents.on_disconnection
+        ::Fiber.new do
+          begin
+            ::OverSIP::WebSocketEvents.on_disconnection self, !@local_closed
+          rescue ::Exception => e
+            log_system_error "error calling OverSIP::WebSocketEvents.on_disconnection():"
+            log_system_error e
+          end
+        end.resume
       end unless $!
     end
 
@@ -98,6 +101,14 @@ module OverSIP::WebSocket
     def receive_data data
       @state == :ignore and return
       @buffer << data
+      @state == :waiting_for_on_client_tls_handshake and return
+      @state == :waiting_for_on_connection and return
+
+      process_received_data
+    end
+
+    def process_received_data
+      @state == :ignore and return
 
       while (case @state
         when :init
@@ -113,8 +124,9 @@ module OverSIP::WebSocket
         when :check_http_request
           check_http_request
 
-        when :ws_connection_callback
-          ws_connection_callback
+        when :on_connection_callback
+          do_on_connection_callback
+          false
 
         when :accept_ws_handshake
           accept_ws_handshake
@@ -164,7 +176,6 @@ module OverSIP::WebSocket
 
 
     def check_http_request
-
       # HTTP method must be GET.
       if @http_request.http_method != :GET
         log_system_notice "rejecting HTTP #{@http_request.http_method} request => 405"
@@ -215,29 +226,36 @@ module OverSIP::WebSocket
         end
       end
 
-      @state = :ws_connection_callback
+      @state = :on_connection_callback
       true
     end
 
 
-    def ws_connection_callback
-      begin
-        ::OverSIP::WebSocketEvents.on_connection self, @http_request
-      rescue ::Exception => e
-        log_system_error "error calling OverSIP::WebSocketEvents.on_connection() => 500:"
-        log_system_error e
-        http_reject 500
-        return false
-      end
+    def do_on_connection_callback
+      # Set the state to :waiting_for_on_connection so data received before
+      # user callback validation is just stored.
+      @state = :waiting_for_on_connection
 
-      # The user provided callback could have reject the WS connection, so
-      # check it not to reply a 101 after the reply sent by the user.
-      if @state == :ws_connection_callback
-        @state = :accept_ws_handshake
-        true
-      else
-        false
-      end
+      # Run OverSIP::WebSocketEvents.on_connection.
+      ::Fiber.new do
+        begin
+          log_system_debug "running OverSIP::WebSocketEvents.on_connection()..."  if $oversip_debug
+          ::OverSIP::WebSocketEvents.on_connection self, @http_request
+          # If the user of the peer has not closed the connection then continue.
+          unless @local_closed or error?
+            @state = :accept_ws_handshake
+            # Call process_received_data() to process possible data received in the meanwhile.
+            process_received_data
+          else
+            log_system_debug "connection closed during OverSIP::WebSocketEvents.on_connection(), aborting"  if $oversip_debug
+          end
+
+        rescue ::Exception => e
+          log_system_error "error calling OverSIP::WebSocketEvents.on_connection() => 500:"
+          log_system_error e
+          http_reject 500
+        end
+      end.resume
     end
 
 

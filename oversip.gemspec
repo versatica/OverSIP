@@ -27,6 +27,7 @@ _END_
   spec.add_dependency "escape_utils", ">= 0.2.4"
   spec.add_dependency "term-ansicolor"
   spec.add_dependency "posix-spawn", ">= 0.3.6"
+  spec.add_dependency "em-synchrony", ">=1.0.2"
   spec.add_development_dependency "rake", "~> 0.9.2"
 
   spec.files = ::Dir.glob %w{

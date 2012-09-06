@@ -89,14 +89,16 @@ module OverSIP::SIP
         @msg.tvars = {}
         @msg.cvars = @msg.connection.cvars
 
-        begin
-          # Run the callback.
-          ::OverSIP::SipEvents.on_request @msg
-        rescue ::Exception => e
-          log_system_error "error calling OverSIP::SipEvents.on_request() => 500:"
-          log_system_error e
-          @msg.reply 500, "Internal Error", ["Content-Type: text/plain"], "#{e.class}: #{e.message}"
-        end
+        # Run OverSIP::SipEvents.on_request within a fiber.
+        ::Fiber.new do
+          begin
+            ::OverSIP::SipEvents.on_request @msg
+          rescue ::Exception => e
+            log_system_error "error calling OverSIP::SipEvents.on_request() => 500:"
+            log_system_error e
+            @msg.reply 500, "Internal Error", ["Content-Type: text/plain"], "#{e.class}: #{e.message}"
+          end
+        end.resume
       end
     end
     private :process_request

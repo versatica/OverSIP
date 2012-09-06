@@ -38,6 +38,10 @@ module OverSIP::SIP
 
 
     def reply status_code, reason_phrase=nil, extra_headers=[], body=nil
+      if @sip_method == :ACK
+        log_system_error "attemtp to reply to an ACK aborted"
+        return false
+      end
       return false  unless @server_transaction.receive_response(status_code)  if @server_transaction
 
       reason_phrase ||= REASON_PHARSE[status_code] || REASON_PHARSE_NOT_SET

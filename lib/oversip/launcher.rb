@@ -126,9 +126,9 @@ module OverSIP::Launcher
 
       ::EM.run do
 
-        log_system_info "using Ruby #{RUBY_VERSION}p#{RUBY_PATCHLEVEL} (#{RUBY_RELEASE_DATE} revision #{RUBY_REVISION}) [#{RUBY_PLATFORM}]"
-        log_system_info "using EventMachine-LE #{::EM::VERSION}"
-        log_system_info "starting event reactor..."
+        log_system_notice "using Ruby #{RUBY_VERSION}p#{RUBY_PATCHLEVEL} (#{RUBY_RELEASE_DATE} revision #{RUBY_REVISION}) [#{RUBY_PLATFORM}]"
+        log_system_notice "using EventMachine-LE #{::EM::VERSION}"
+        log_system_notice "starting event reactor..."
 
         # DNS resolver.
         ::OverSIP::SIP::RFC3263.run
@@ -278,60 +278,65 @@ module OverSIP::Launcher
         # Create PID file.
         create_pid_file(options[:pid_file])
 
-        # Run the user provided on_initialize method.
-        log_system_info "calling OverSIP::SystemEvents.on_initialize() method..."
-        begin
-          ::OverSIP::SystemEvents.on_initialize
-        rescue ::Exception => e
-          log_system_crit "error calling OverSIP::SystemEvents.on_initialize():"
-          fatal e
-        end
+        trap_signals
 
-        # Run the on_started provided callbacks.
-        log_system_info "executing OverSIP::SystemCallbacks.on_started_callbacks..."
-        ::OverSIP::SystemCallbacks.on_started_callbacks.each do |cb|
+        # Ensure the code in the next SystemEvents and SystemCallbacks are run serially.
+        ::Fiber.new do
+
+          # Run OverSIP::SystemEvents.on_initialize.
+          log_system_notice "calling OverSIP::SystemEvents.on_initialize() method..."
           begin
-            cb.call
+            ::OverSIP::SystemEvents.on_initialize
           rescue ::Exception => e
-            log_system_crit "error executing a callback in OverSIP::SystemCallbacks.on_started_callbacks:"
+            log_system_crit "error calling OverSIP::SystemEvents.on_initialize():"
             fatal e
           end
-        end
 
-        # Run the user provided on_started method.
-        log_system_info "calling OverSIP::SystemEvents.on_started() method..."
-        begin
-          ::OverSIP::SystemEvents.on_started
-        rescue ::Exception => e
-          log_system_crit "error calling OverSIP::SystemEvents.on_started():"
-          fatal e
-        end
+          # Run all the OverSIP::SystemCallbacks.on_started_callbacks.
+          log_system_notice "executing OverSIP::SystemCallbacks.on_started_callbacks..."
+          ::OverSIP::SystemCallbacks.on_started_callbacks.each do |cb|
+            begin
+              cb.call
+            rescue ::Exception => e
+              log_system_crit "error executing a callback in OverSIP::SystemCallbacks.on_started_callbacks:"
+              fatal e
+            end
+          end
 
-        log_system_info "master process (PID #{$$}) ready"
-        log_system_info "#{::OverSIP::PROGRAM_NAME} #{::OverSIP::VERSION} running in background"
+          # Run OverSIP::SystemEvents.on_started within a fiber.
+          log_system_notice "calling OverSIP::SystemEvents.on_started() method..."
+          begin
+            ::OverSIP::SystemEvents.on_started
+          rescue ::Exception => e
+            log_system_crit "error calling OverSIP::SystemEvents.on_started():"
+            fatal e
+          end
 
-        # Write "ok" into the ready_pipe so grandparent process (launcher)
-        # exits with status 0.
-        if ready_pipe
-          ready_pipe.write("ok")
-          ready_pipe.close rescue nil
-          ready_pipe = nil
-        end
+          log_system_notice "master process (PID #{$$}) ready"
+          log_system_notice "#{::OverSIP::PROGRAM_NAME} #{::OverSIP::VERSION} running in background"
 
-        # Stop writting into standard output/error.
-        $stdout.reopen("/dev/null")
-        $stderr.reopen("/dev/null")
-        ::OverSIP.daemonized = true
-        # So update the logger to write to syslog.
-        ::OverSIP::Logger.load_methods
+          # Write "ok" into the ready_pipe so grandparent process (launcher)
+          # exits with status 0.
+          if ready_pipe
+            ready_pipe.write("ok")
+            ready_pipe.close rescue nil
+            ready_pipe = nil
+          end
 
-        # Set the EventMachine error handler.
-        ::EM.error_handler do |e|
-          log_system_error "error raised during event loop and rescued by EM.error_handler:"
-          log_system_error e
-        end
+          # Stop writting into standard output/error.
+          $stdout.reopen("/dev/null")
+          $stderr.reopen("/dev/null")
+          ::OverSIP.daemonized = true
+          # So update the logger to write to syslog.
+          ::OverSIP::Logger.load_methods
 
-        trap_signals
+          # Set the EventMachine error handler.
+          ::EM.error_handler do |e|
+            log_system_error "error raised during event loop and rescued by EM.error_handler:"
+            log_system_error e
+          end
+
+        end.resume
 
       end  # ::EM.run
 
@@ -452,35 +457,34 @@ module OverSIP::Launcher
       log_system_notice "HUP signal received, reloading configuration files..."
       ::OverSIP::Config.system_reload
 
-      # Run the on_reload provided callbacks.
+      # Run all the OverSIP::SystemCallbacks.on_reload_callbacks.
       log_system_info "executing OverSIP::SystemCallbacks.on_reload_callbacks..."
-      ::OverSIP::SystemCallbacks.on_reload_callbacks.each do |cb|
-        begin
-          cb.call
-        rescue ::Exception => e
-          log_system_crit "error executing a callback in OverSIP::SystemCallbacks.on_reload_callbacks:"
-          log_system_crit e
+      ::Fiber.new do
+        ::OverSIP::SystemCallbacks.on_reload_callbacks.each do |cb|
+          begin
+            cb.call
+          rescue ::Exception => e
+            log_system_crit "error executing a callback in OverSIP::SystemCallbacks.on_reload_callbacks:"
+            log_system_crit e
+          end
         end
-      end
+      end.resume
     end
 
     # Signal USR1 reloads custom code provided by the user.
     trap :USR1 do
       log_system_notice "USR1 signal received, calling OverSIP::SystemEvents.on_user_reload() method..."
-      # Run the user provided on_started callback.
-      begin
-        ::OverSIP::SystemEvents.on_user_reload
-      rescue ::Exception => e
-        log_system_crit "error calling OverSIP::SystemEvents.on_user_reload():"
-        log_system_crit e
-      end
+      # Run OverSIP::SystemEvents.on_user_reload.
+      ::Fiber.new do
+        begin
+          ::OverSIP::SystemEvents.on_user_reload
+        rescue ::Exception => e
+          log_system_crit "error calling OverSIP::SystemEvents.on_user_reload():"
+          log_system_crit e
+        end
+      end.resume
     end
 
-    # Signal CHLD is sent by syslogger process if it dies.
-    trap :CHLD do
-      # NOTE: This won't be logged if the died proces is oversip_syslogger!
-      log_system_crit "CHLD signal received, syslogger process could be death"
-    end
   end
 
 
@@ -490,25 +494,27 @@ module OverSIP::Launcher
     trap(:QUIT) {}
 
     unless fatal
-      # Run the on_terminated provided callbacks.
-      log_system_info "executing OverSIP::SystemCallbacks.on_terminated_callbacks..."
-      ::OverSIP::SystemCallbacks.on_terminated_callbacks.each do |cb|
+      ::Fiber.new do
+        # Run OverSIP::SystemEvents.on_terminated.
+        log_system_info "calling OverSIP::SystemEvents.on_terminated() method..."
         begin
-          cb.call error
+          ::OverSIP::SystemEvents.on_terminated error
         rescue ::Exception => e
-          log_system_crit "error executing a callback in OverSIP::SystemCallbacks.on_terminated_callbacks:"
+          log_system_crit "error calling OverSIP::SystemEvents.on_terminated():"
           log_system_crit e
         end
-      end
 
-      # Run the user provided on_terminated method.
-      log_system_info "calling OverSIP::SystemEvents.on_terminated() method..."
-      begin
-        ::OverSIP::SystemEvents.on_terminated error
-      rescue ::Exception => e
-        log_system_crit "error calling OverSIP::SystemEvents.on_terminated():"
-        log_system_crit e
-      end
+        # Run all the SystemCallbacks.on_terminated_callbacks.
+        log_system_info "executing OverSIP::SystemCallbacks.on_terminated_callbacks..."
+        ::OverSIP::SystemCallbacks.on_terminated_callbacks.each do |cb|
+          begin
+            cb.call error
+          rescue ::Exception => e
+            log_system_crit "error executing a callback in OverSIP::SystemCallbacks.on_terminated_callbacks:"
+            log_system_crit e
+          end
+        end
+      end.resume
     end
 
     unless error
