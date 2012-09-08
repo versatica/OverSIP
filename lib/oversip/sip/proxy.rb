@@ -329,7 +329,13 @@ module OverSIP::SIP
             @request.insert_header "Path", @request.connection.class.record_route
           else
             @request.in_rr = :path
-            @request.insert_header "Path", @request.connection.class.record_route
+            # The request comes via UDP or via a connection made by the client.
+            if @request.connection.class.outbound_listener?
+              @request.insert_header "Path", @request.connection.class.record_route
+            # The request comes via a TCP/TLS connection made by OverSIP.
+            else
+              @request.insert_header "Path", @request.connection.record_route
+            end
           end
 
         # Record-Route for INVITE, SUBSCRIBE, REFER and in-dialog NOTIFY.
@@ -346,7 +352,13 @@ module OverSIP::SIP
             @request.insert_header "Record-Route", @request.connection.class.record_route
           else
             @request.in_rr = :rr
-            @request.insert_header "Record-Route", @request.connection.class.record_route
+            # The request comes via UDP or via a connection made by the client.
+            if @request.connection.class.outbound_listener?
+              @request.insert_header "Record-Route", @request.connection.class.record_route
+            # The request comes via a TCP/TLS connection made by OverSIP.
+            else
+              @request.insert_header "Record-Route", @request.connection.record_route
+            end
           end
 
         end

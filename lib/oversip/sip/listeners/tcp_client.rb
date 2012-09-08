@@ -2,6 +2,10 @@ module OverSIP::SIP
 
   class TcpClient < TcpConnection
 
+    class << self
+      attr_reader :server_class
+    end
+
     attr_reader :connected
     attr_reader :pending_client_transactions
 
@@ -64,6 +68,28 @@ module OverSIP::SIP
       end unless $!
 
       @connected = false
+    end
+
+
+    # For the case in which OverSIP receives a SIP request from a connection open by OverSIP.
+    def record_route
+      @record_route and return @record_route
+
+      server_class = self.class.server_class
+      local_port, local_ip = ::Socket.unpack_sockaddr_in(get_sockname)
+
+      case
+        when server_class == ::OverSIP::SIP::IPv4TcpServer
+          uri_ip = local_ip
+        when server_class == ::OverSIP::SIP::IPv6TcpServer
+          uri_ip = "[#{local_ip}]"
+        when server_class == ::OverSIP::SIP::IPv4TlsServer
+          uri_ip = local_ip
+        when server_class == ::OverSIP::SIP::IPv6TlsServer
+          uri_ip = "[#{local_ip}]"
+        end
+
+      @record_route = "<sip:#{uri_ip}:#{local_port};transport=#{server_class.transport.to_s};lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
     end
 
   end

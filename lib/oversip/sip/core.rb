@@ -63,13 +63,16 @@ module OverSIP::SIP
 
       # Outgoing initial request asking for Outbound. Just valid when:
       # - It's an initial request.
+      # - The request comes via UDP or comes via TCP/TLS/WS/WSS but through a connection
+      #   opened by the peer (and not by OverSIP).
       # - Single Via (so there is no a proxy in front of us).
       # - It's an INVITE, REGISTER, SUBSCRIBE or REFER request.
       # - Has a preloaded top Route with ;ob param pointing to us, or has Contact with ;ob, or
-      #   it's a REGISTER with ;+sip.instance.
+      #   it's a REGISTER with ;+sip.instance..
       #
       if (
-            initial? and (
+            initial? and
+            @connection.class.outbound_listener? and (
               @force_outgoing_outbound or (
                 @num_vias == 1 and
                 outbound_aware? and (
