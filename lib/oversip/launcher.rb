@@ -126,6 +126,9 @@ module OverSIP::Launcher
 
       ::EM.run do
 
+        ::OverSIP.is_ready = false
+        ::OverSIP.status = :loading
+
         log_system_notice "using Ruby #{RUBY_VERSION}p#{RUBY_PATCHLEVEL} (#{RUBY_RELEASE_DATE} revision #{RUBY_REVISION}) [#{RUBY_PLATFORM}]"
         log_system_notice "using EventMachine-LE #{::EM::VERSION}"
         log_system_notice "starting event reactor..."
@@ -199,6 +202,9 @@ module OverSIP::Launcher
             log_system_error "error raised during event loop and rescued by EM.error_handler:"
             log_system_error e
           end
+
+          ::OverSIP.is_ready = true
+          ::OverSIP.status = :running
 
         end.resume
 
@@ -508,6 +514,9 @@ module OverSIP::Launcher
 
 
   def self.terminate error=false, fatal=false
+    ::OverSIP.is_ready = false
+    ::OverSIP.status = :terminating
+
     # Trap TERM/QUIT signals (we are already exiting).
     trap(:TERM) {}
     trap(:QUIT) {}

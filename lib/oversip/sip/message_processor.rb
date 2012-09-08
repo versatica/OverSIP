@@ -76,6 +76,17 @@ module OverSIP::SIP
       # Run the user provided OverSIP::SipEvents.on_request() callback (unless the request
       # it's a retransmission, a CANCEL or an ACK for a final non-2XX response).
       unless check_transaction
+        # Check OverSIP status.
+        unless ::OverSIP.status == :running
+          case ::OverSIP.status
+          when :loading
+            @msg.reply 500, "Server Still Loading", [ "Retry-After: 5" ]
+          when :terminating
+            @msg.reply 500, "Server is Being Stopped"
+          end
+          return
+        end
+
         # Create the antiloop identifier for this request.
         @msg.antiloop_id = ::OverSIP::SIP::Tags.create_antiloop_id(@msg)
 

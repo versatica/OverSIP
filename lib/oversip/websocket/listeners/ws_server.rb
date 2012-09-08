@@ -176,6 +176,17 @@ module OverSIP::WebSocket
 
 
     def check_http_request
+      # Check OverSIP status.
+      unless ::OverSIP.status == :running
+        case ::OverSIP.status
+        when :loading
+          http_reject 500, "Server Still Loading", [ "Retry-After: 5" ]
+        when :terminating
+          http_reject 500, "Server is Being Stopped"
+        end
+        return false
+      end
+
       # HTTP method must be GET.
       if @http_request.http_method != :GET
         log_system_notice "rejecting HTTP #{@http_request.http_method} request => 405"
