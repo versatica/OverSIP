@@ -47,7 +47,7 @@ module OverSIP::SIP
       reason_phrase ||= REASON_PHARSE[status_code] || REASON_PHARSE_NOT_SET
 
       if status_code > 100
-        @internal_to_tag ||= @to_tag || ( @server_transaction ? SecureRandom.hex(6) : OverSIP::SIP::Tags.totag_for_sl_reply )
+        @internal_to_tag ||= @to_tag || ( @server_transaction ? ::SecureRandom.hex(6) : ::OverSIP::SIP::Tags.totag_for_sl_reply )
       end
 
       response = "SIP/2.0 #{status_code} #{reason_phrase}\r\n"

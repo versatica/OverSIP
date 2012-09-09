@@ -110,7 +110,7 @@ module OverSIP::SIP
     def set_header name, value
       @headers[MessageParser.headerize(name)] =
         case value
-        when Array
+        when ::Array
           value
         else
           [ value.to_s ]

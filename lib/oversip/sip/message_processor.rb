@@ -119,9 +119,6 @@ module OverSIP::SIP
     def process_response
       case @msg.sip_method
       when :INVITE
-        ### TODO: Esto va a petar cuando tenga una clase que hereda de, p.ej, IPv4TcpServer que se llame xxxClient,
-        # ya que en ella no existirá @invite_client_transactions. Tengo que hacer que su @invite_client_transactions
-        # se rellene al de la clase padre al hacer el load de las clases.
         if client_transaction = @msg.connection.class.invite_client_transactions[@msg.via_branch_id]
           client_transaction.receive_response(@msg)
           return
@@ -149,7 +146,7 @@ module OverSIP::SIP
 
       when :INVITE
         if server_transaction = @msg.connection.class.invite_server_transactions[@msg.via_branch_id]
-          # If the retranmission arrives via a different connection (for TCP/TLS) then use
+          # If the retranmission arrives via a different connection (for TCP/TLS/WS/WSS) then use
           # the new one.
           if @msg.connection == server_transaction.request.connection
             log_system_debug "INVITE retransmission received"  if $oversip_debug
@@ -168,7 +165,7 @@ module OverSIP::SIP
           server_transaction.receive_ack
           return true
         # Absorb ACK for statelessly generated final responses by us.
-        elsif OverSIP::SIP::Tags.check_totag_for_sl_reply(@msg.to_tag)
+        elsif ::OverSIP::SIP::Tags.check_totag_for_sl_reply(@msg.to_tag)
           log_system_debug "absorving ACK for a stateless final response"  if $oversip_debug
           return true
         else
