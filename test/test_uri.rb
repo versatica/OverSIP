@@ -9,14 +9,10 @@ class TestUri < OverSIPTest
     full_uri = "sips:i%C3%B1aki@aliax.net:5060;transport=tcp;foo=123;baz?X-Header-1=qwe&X-Header-2=asd"
     aor = "sip:i%C3%B1aki@aliax.net"
 
-    uri = ::OverSIP::SIP::Uri.new
-    uri.instance_variable_set :@scheme, :sips
-    uri.user = "iñaki"
-    uri.host = "aliax.net"
-    uri.host_type = :domain
-    uri.port = 5060
+    uri = ::OverSIP::SIP::Uri.new :sips, "iñaki", "aliax.net", 5060
     uri.transport_param = :tcp
-    uri.instance_variable_set :@params, {"transport"=>"tcp", "foo"=>"123", "baz"=>nil}
+    uri.set_param "foo", "123"
+    uri.set_param "baz", nil
     uri.headers = "?X-Header-1=qwe&X-Header-2=asd"
 
     assert_equal "iñaki", uri.user
@@ -28,10 +24,8 @@ class TestUri < OverSIPTest
     full_uri = "tel:944991212;foo=bar;phone-context=+34"
     aor = "tel:944991212"
 
-    uri = ::OverSIP::SIP::Uri.new
-    uri.instance_variable_set :@scheme, :tel
-    uri.user = "944991212"
-    uri.instance_variable_set :@params, {"foo"=>"bar"}
+    uri = ::OverSIP::SIP::Uri.new :tel, "944991212"
+    uri.set_param "foo", "bar"
     uri.phone_context_param = "+34"
 
     assert_equal aor, uri.aor
@@ -42,7 +36,7 @@ class TestUri < OverSIPTest
     full_uri = "http://oversip.net/authors/"
     aor = nil
 
-    uri = ::OverSIP::SIP::Uri.new
+    uri = ::OverSIP::SIP::Uri.allocate
     uri.instance_variable_set :@uri, full_uri
 
     assert_nil uri.aor

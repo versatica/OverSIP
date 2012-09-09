@@ -43,6 +43,8 @@ require "oversip/sip/timers.rb"
 require "oversip/sip/tags.rb"
 require "oversip/sip/rfc3263.rb"
 require "oversip/sip/proxy.rb"
+require "oversip/sip/uac.rb"
+require "oversip/sip/uac_request.rb"
 
 require "oversip/websocket/websocket.rb"
 require "oversip/websocket/ws_http_parser.so"
