@@ -55,6 +55,10 @@ module OverSIP::SIP
       @params ||= {}
     end
 
+    def get_param k
+      params[k.to_s.downcase]
+    end
+
     def set_param k, v
       return nil  if unknown_scheme?
       @params ||= {}

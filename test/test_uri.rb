@@ -11,11 +11,12 @@ class TestUri < OverSIPTest
 
     uri = ::OverSIP::SIP::Uri.new :sips, "iñaki", "aliax.net", 5060
     uri.transport_param = :tcp
-    uri.set_param "foo", "123"
+    uri.set_param "FOO", "123"
     uri.set_param "baz", nil
     uri.headers = "?X-Header-1=qwe&X-Header-2=asd"
 
     assert_equal "iñaki", uri.user
+    assert_equal "123", uri.get_param("Foo")
     assert_equal aor, uri.aor
     assert_equal full_uri, uri.to_s
   end
@@ -25,9 +26,11 @@ class TestUri < OverSIPTest
     aor = "tel:944991212"
 
     uri = ::OverSIP::SIP::Uri.new :tel, "944991212"
-    uri.set_param "foo", "bar"
+    uri.set_param "FOO", "bar"
     uri.phone_context_param = "+34"
 
+    assert_equal "944991212", uri.number
+    assert_equal "bar", uri.get_param("Foo")
     assert_equal aor, uri.aor
     assert_equal full_uri, uri.to_s
   end
