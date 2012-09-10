@@ -43,7 +43,7 @@ module OverSIP::WebSocket
 
 
     def ssl_handshake_completed
-      log_system_info "TLS connection established from " << remote_desc
+      log_system_debug ("TLS connection established from " << remote_desc)  if $oversip_debug
 
       # @connected in WssServer means "TLS connection" rather than
       # just "TCP connection".
@@ -51,20 +51,37 @@ module OverSIP::WebSocket
       @timer_tls_handshake.cancel  if @timer_tls_handshake
 
       if ::OverSIP::WebSocket.callback_on_client_tls_handshake
-        begin
-          ::OverSIP::WebSocketEvents.on_client_tls_handshake self, @client_pems
-        rescue ::Exception => e
-          log_system_error "error calling OverSIP::WebSocketEvents.on_client_tls_handshake():"
-          log_system_error e
-          close_connection
-        end
+        # Set the state to :waiting_for_on_client_tls_handshake so data received after TLS handshake but before
+        # user callback validation is just stored.
+        @state = :waiting_for_on_client_tls_handshake
+
+        # Run OverSIP::WebSocketEvents.on_client_tls_handshake.
+        ::Fiber.new do
+          begin
+            log_system_debug "running OverSIP::SipWebSocketEvents.on_client_tls_handshake()..."  if $oversip_debug
+            ::OverSIP::WebSocketEvents.on_client_tls_handshake self, @client_pems
+            # If the user of the peer has not closed the connection then continue.
+            unless @local_closed or error?
+              @state = :init
+              # Call process_received_data() to process possible data received in the meanwhile.
+              process_received_data
+            else
+              log_system_debug "connection closed during OverSIP::SipWebSocketEvents.on_client_tls_handshake(), aborting"  if $oversip_debug
+            end
+
+          rescue ::Exception => e
+            log_system_error "error calling OverSIP::WebSocketEvents.on_client_tls_handshake():"
+            log_system_error e
+            close_connection
+          end
+        end.resume
       end
     end
 
 
     def unbind cause=nil
-      super
       @timer_tls_handshake.cancel  if @timer_tls_handshake
+      super
     end
 
   end

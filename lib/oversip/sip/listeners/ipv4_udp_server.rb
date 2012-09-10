@@ -9,6 +9,7 @@ module OverSIP::SIP
     @non_invite_server_transactions = {}
     @invite_client_transactions = {}
     @non_invite_client_transactions = {}
+    @is_outbound_listener = true
 
     LOG_ID = "SIP UDP IPv4 server"
     def log_id

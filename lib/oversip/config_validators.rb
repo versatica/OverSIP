@@ -17,11 +17,11 @@ module OverSIP
       end
 
       def string value
-        value.is_a? String
+        value.is_a? ::String
       end
 
       def fixnum value
-        value.is_a? Fixnum
+        value.is_a? ::Fixnum
       end
 
       def port value

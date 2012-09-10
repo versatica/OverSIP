@@ -4,6 +4,17 @@ module OverSIP::SIP
 
     attr_reader :display_name
 
+    def initialize scheme, user=nil, host=nil, port=nil, display_name=nil
+      @display_name = display_name
+      @scheme = scheme.to_sym
+      @user = user
+      @host = host
+      @host_type = ::OverSIP::Utils.ip_type(host) || :domain  if host
+      @port = port
+
+      @name_addr_modified = true
+    end
+
     def display_name= value
       @display_name = value
       @name_addr_modified = true

@@ -30,6 +30,7 @@ module OverSIP::WebSocket
       ::OverSIP::SIP::TransportManager.delete_outbound_connection @outbound_flow_token
 
       @local_closed = true  if cause == ::Errno::ETIMEDOUT
+      @local_closed = false  if @client_closed
 
       if $oversip_debug
         log_msg = "connection from the TLS tunnel #{remote_desc} "
@@ -38,20 +39,22 @@ module OverSIP::WebSocket
         log_system_debug log_msg
       end unless $!
 
-      if @state == :websocket
-        begin
-          ::OverSIP::WebSocketEvents.on_disconnection self, !@local_closed
-        rescue ::Exception => e
-          log_system_error "error calling OverSIP::WebSocketEvents.on_disconnection():"
-          log_system_error e
-        end
+      if @ws_established
+        # Run OverSIP::WebSocketEvents.on_disconnection
+        ::Fiber.new do
+          begin
+            ::OverSIP::WebSocketEvents.on_disconnection self, !@local_closed
+          rescue ::Exception => e
+            log_system_error "error calling OverSIP::WebSocketEvents.on_disconnection():"
+            log_system_error e
+          end
+        end.resume
       end unless $!
     end
 
 
-    def receive_data data
+    def process_received_data
       @state == :ignore and return
-      @buffer << data
 
       while (case @state
         when :init
@@ -77,15 +80,16 @@ module OverSIP::WebSocket
         when :check_http_request
           check_http_request
 
-        when :new_websocket_connection_callback
-          check_new_websocket_connection_callback
+        when :on_connection_callback
+          do_on_connection_callback
+          false
 
         when :accept_ws_handshake
           accept_ws_handshake
 
-        when :websocket_frames
+        when :websocket
+          @ws_established = true
           return false  if @buffer.size.zero?
-
           @ws_framing.receive_data
           false
 

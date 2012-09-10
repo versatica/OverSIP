@@ -2,7 +2,7 @@ module OverSIP::Launcher
 
   extend ::OverSIP::Logger
 
-  READY_PIPE_TIMEOUT = 8
+  READY_PIPE_TIMEOUT = 16
 
   @log_id = "launcher"
 
@@ -126,151 +126,18 @@ module OverSIP::Launcher
 
       ::EM.run do
 
-        log_system_info "using Ruby #{RUBY_VERSION}p#{RUBY_PATCHLEVEL} (#{RUBY_RELEASE_DATE} revision #{RUBY_REVISION}) [#{RUBY_PLATFORM}]"
-        log_system_info "using EventMachine-LE #{::EM::VERSION}"
-        log_system_info "starting event reactor..."
+        ::OverSIP.is_ready = false
+        ::OverSIP.status = :loading
 
-        # DNS resolver.
+        log_system_notice "using Ruby #{RUBY_VERSION}p#{RUBY_PATCHLEVEL} (#{RUBY_RELEASE_DATE} revision #{RUBY_REVISION}) [#{RUBY_PLATFORM}]"
+        log_system_notice "using EventMachine-LE #{::EM::VERSION}"
+        log_system_notice "starting event reactor..."
+
+        # Run SIP and WebSocket servers.
+        run_servers
+
+        # Run DNS resolver.
         ::OverSIP::SIP::RFC3263.run
-
-        if configuration[:sip][:sip_udp]
-          # SIP UDP IPv4 server.
-          if configuration[:sip][:enable_ipv4]
-            ::OverSIP::SIP::Launcher.run true, :ipv4, configuration[:sip][:listen_ipv4],
-                                          configuration[:sip][:listen_port], :udp
-          end
-
-          # SIP IPv6 UDP server.
-          if configuration[:sip][:enable_ipv6]
-            ::OverSIP::SIP::Launcher.run true, :ipv6, configuration[:sip][:listen_ipv6],
-                                          configuration[:sip][:listen_port], :udp
-          end
-        end
-
-        if configuration[:sip][:sip_tcp]
-          # SIP IPv4 TCP server.
-          if configuration[:sip][:enable_ipv4]
-            ::OverSIP::SIP::Launcher.run true, :ipv4, configuration[:sip][:listen_ipv4],
-                                          configuration[:sip][:listen_port], :tcp
-          end
-
-          # SIP IPv6 TCP server.
-          if configuration[:sip][:enable_ipv6]
-            ::OverSIP::SIP::Launcher.run true, :ipv6, configuration[:sip][:listen_ipv6],
-                                          configuration[:sip][:listen_port], :tcp
-          end
-        end
-
-        if configuration[:sip][:sip_tls]
-          unless configuration[:sip][:use_tls_tunnel]
-            # SIP IPv4 TLS server (native).
-            if configuration[:sip][:enable_ipv4]
-              ::OverSIP::SIP::Launcher.run true, :ipv4, configuration[:sip][:listen_ipv4],
-                                            configuration[:sip][:listen_port_tls], :tls
-            end
-
-            # SIP IPv6 TLS server (native).
-            if configuration[:sip][:enable_ipv6]
-              ::OverSIP::SIP::Launcher.run true, :ipv6, configuration[:sip][:listen_ipv6],
-                                            configuration[:sip][:listen_port_tls], :tls
-            end
-          else
-            # SIP IPv4 TLS server (Stud).
-            if configuration[:sip][:enable_ipv4]
-              ::OverSIP::SIP::Launcher.run true, :ipv4, "127.0.0.1",
-                                            configuration[:sip][:listen_port_tls_tunnel], :tls_tunnel,
-                                            configuration[:sip][:listen_ipv4],
-                                            configuration[:sip][:listen_port_tls]
-              ::OverSIP::SIP::Launcher.run false, :ipv4, configuration[:sip][:listen_ipv4],
-                                            configuration[:sip][:listen_port_tls], :tls
-
-              # Spawn a Stud process.
-              spawn_stud_process options,
-                                 configuration[:sip][:listen_ipv4], configuration[:sip][:listen_port_tls],
-                                 "127.0.0.1", configuration[:sip][:listen_port_tls_tunnel],
-                                 ssl = false
-            end
-
-            # SIP IPv6 TLS server (Stud).
-            if configuration[:sip][:enable_ipv6]
-              ::OverSIP::SIP::Launcher.run true, :ipv6, "::1",
-                                            configuration[:sip][:listen_port_tls_tunnel], :tls_tunnel,
-                                            configuration[:sip][:listen_ipv6],
-                                            configuration[:sip][:listen_port_tls]
-              ::OverSIP::SIP::Launcher.run false, :ipv6, configuration[:sip][:listen_ipv6],
-                                            configuration[:sip][:listen_port_tls], :tls
-
-              # Spawn a Stud process.
-              spawn_stud_process options,
-                                 configuration[:sip][:listen_ipv6], configuration[:sip][:listen_port_tls],
-                                 "::1", configuration[:sip][:listen_port_tls_tunnel],
-                                 ssl = false
-            end
-          end
-        end
-
-        if configuration[:websocket][:sip_ws]
-          # WebSocket IPv4 TCP SIP server.
-          if configuration[:websocket][:enable_ipv4]
-            ::OverSIP::WebSocket::Launcher.run true, :ipv4, configuration[:websocket][:listen_ipv4],
-                                                      configuration[:websocket][:listen_port], :ws
-          end
-
-          # WebSocket IPv6 TCP SIP server.
-          if configuration[:websocket][:enable_ipv6]
-            ::OverSIP::WebSocket::Launcher.run true, :ipv6, configuration[:websocket][:listen_ipv6],
-                                                      configuration[:websocket][:listen_port], :ws
-          end
-        end
-
-        if configuration[:websocket][:sip_wss]
-          unless configuration[:websocket][:use_tls_tunnel]
-            # WebSocket IPv4 TLS SIP server (native).
-            if configuration[:websocket][:enable_ipv4]
-              ::OverSIP::WebSocket::Launcher.run true, :ipv4, configuration[:websocket][:listen_ipv4],
-                                            configuration[:websocket][:listen_port_tls], :wss
-            end
-
-            # WebSocket IPv6 TLS SIP server (native).
-            if configuration[:websocket][:enable_ipv6]
-              ::OverSIP::WebSocket::Launcher.run true, :ipv6, configuration[:websocket][:listen_ipv6],
-                                            configuration[:websocket][:listen_port_tls], :wss
-            end
-          else
-            # WebSocket IPv4 TLS SIP server (Stud).
-            if configuration[:websocket][:enable_ipv4]
-              ::OverSIP::WebSocket::Launcher.run true, :ipv4, "127.0.0.1",
-                                            configuration[:websocket][:listen_port_tls_tunnel], :wss_tunnel,
-                                            configuration[:websocket][:listen_ipv4],
-                                            configuration[:websocket][:listen_port_tls]
-              ::OverSIP::WebSocket::Launcher.run false, :ipv4, configuration[:websocket][:listen_ipv4],
-                                            configuration[:websocket][:listen_port_tls], :wss
-
-              # Spawn a Stud process.
-              spawn_stud_process options,
-                                 configuration[:websocket][:listen_ipv4], configuration[:websocket][:listen_port_tls],
-                                 "127.0.0.1", configuration[:websocket][:listen_port_tls_tunnel],
-                                 ssl = true
-            end
-
-            # WebSocket IPv6 TLS SIP server (Stud).
-            if configuration[:sip][:enable_ipv6]
-              ::OverSIP::WebSocket::Launcher.run true, :ipv6, "::1",
-                                            configuration[:websocket][:listen_port_tls_tunnel], :wss_tunnel,
-                                            configuration[:websocket][:listen_ipv6],
-                                            configuration[:websocket][:listen_port_tls]
-              ::OverSIP::WebSocket::Launcher.run false, :ipv6, configuration[:websocket][:listen_ipv6],
-                                            configuration[:websocket][:listen_port_tls], :wss
-
-              # Spawn a Stud process.
-              spawn_stud_process options,
-                                 configuration[:websocket][:listen_ipv6], configuration[:websocket][:listen_port_tls],
-                                 "::1", configuration[:websocket][:listen_port_tls_tunnel],
-                                 ssl = true
-            end
-          end
-        end
-
 
         # Change process permissions if requested.
         set_user_group(options[:user], options[:group])
@@ -278,60 +145,68 @@ module OverSIP::Launcher
         # Create PID file.
         create_pid_file(options[:pid_file])
 
-        # Run the user provided on_initialize method.
-        log_system_info "calling OverSIP::SystemEvents.on_initialize() method..."
-        begin
-          ::OverSIP::SystemEvents.on_initialize
-        rescue ::Exception => e
-          log_system_crit "error calling OverSIP::SystemEvents.on_initialize():"
-          fatal e
-        end
+        trap_signals
 
-        # Run the on_started provided callbacks.
-        log_system_info "executing OverSIP::SystemCallbacks.on_started_callbacks..."
-        ::OverSIP::SystemCallbacks.on_started_callbacks.each do |cb|
+        # Ensure the code in the next SystemEvents and SystemCallbacks are run serially.
+        ::Fiber.new do
+
+          # Run OverSIP::SystemEvents.on_initialize.
+          log_system_notice "calling OverSIP::SystemEvents.on_initialize() method..."
           begin
-            cb.call
+            ::OverSIP::SystemEvents.on_initialize
           rescue ::Exception => e
-            log_system_crit "error executing a callback in OverSIP::SystemCallbacks.on_started_callbacks:"
+            log_system_crit "error calling OverSIP::SystemEvents.on_initialize():"
             fatal e
           end
-        end
 
-        # Run the user provided on_started method.
-        log_system_info "calling OverSIP::SystemEvents.on_started() method..."
-        begin
-          ::OverSIP::SystemEvents.on_started
-        rescue ::Exception => e
-          log_system_crit "error calling OverSIP::SystemEvents.on_started():"
-          fatal e
-        end
+          # Run all the OverSIP::SystemCallbacks.on_started_callbacks.
+          log_system_notice "executing OverSIP::SystemCallbacks.on_started_callbacks..."
+          ::OverSIP::SystemCallbacks.on_started_callbacks.each do |cb|
+            begin
+              cb.call
+            rescue ::Exception => e
+              log_system_crit "error executing a callback in OverSIP::SystemCallbacks.on_started_callbacks:"
+              fatal e
+            end
+          end
 
-        log_system_info "master process (PID #{$$}) ready"
-        log_system_info "#{::OverSIP::PROGRAM_NAME} #{::OverSIP::VERSION} running in background"
+          # Run OverSIP::SystemEvents.on_started within a fiber.
+          log_system_notice "calling OverSIP::SystemEvents.on_started() method..."
+          begin
+            ::OverSIP::SystemEvents.on_started
+          rescue ::Exception => e
+            log_system_crit "error calling OverSIP::SystemEvents.on_started():"
+            fatal e
+          end
 
-        # Write "ok" into the ready_pipe so grandparent process (launcher)
-        # exits with status 0.
-        if ready_pipe
-          ready_pipe.write("ok")
-          ready_pipe.close rescue nil
-          ready_pipe = nil
-        end
+          log_system_notice "master process (PID #{$$}) ready"
+          log_system_notice "#{::OverSIP::PROGRAM_NAME} #{::OverSIP::VERSION} running in background"
 
-        # Stop writting into standard output/error.
-        $stdout.reopen("/dev/null")
-        $stderr.reopen("/dev/null")
-        ::OverSIP.daemonized = true
-        # So update the logger to write to syslog.
-        ::OverSIP::Logger.load_methods
+          # Write "ok" into the ready_pipe so grandparent process (launcher)
+          # exits with status 0.
+          if ready_pipe
+            ready_pipe.write("ok")
+            ready_pipe.close rescue nil
+            ready_pipe = nil
+          end
 
-        # Set the EventMachine error handler.
-        ::EM.error_handler do |e|
-          log_system_error "error raised during event loop and rescued by EM.error_handler:"
-          log_system_error e
-        end
+          # Stop writting into standard output/error.
+          $stdout.reopen("/dev/null")
+          $stderr.reopen("/dev/null")
+          ::OverSIP.daemonized = true
+          # So update the logger to write to syslog.
+          ::OverSIP::Logger.load_methods
 
-        trap_signals
+          # Set the EventMachine error handler.
+          ::EM.error_handler do |e|
+            log_system_error "error raised during event loop and rescued by EM.error_handler:"
+            log_system_error e
+          end
+
+          ::OverSIP.is_ready = true
+          ::OverSIP.status = :running
+
+        end.resume
 
       end  # ::EM.run
 
@@ -408,6 +283,149 @@ module OverSIP::Launcher
   end
 
 
+  def self.run_servers
+    configuration = ::OverSIP.configuration
+
+    if configuration[:sip][:sip_udp]
+      # SIP UDP IPv4 server.
+      if configuration[:sip][:enable_ipv4]
+        ::OverSIP::SIP::Launcher.run true, :ipv4, configuration[:sip][:listen_ipv4],
+                                      configuration[:sip][:listen_port], :udp
+      end
+
+      # SIP IPv6 UDP server.
+      if configuration[:sip][:enable_ipv6]
+        ::OverSIP::SIP::Launcher.run true, :ipv6, configuration[:sip][:listen_ipv6],
+                                      configuration[:sip][:listen_port], :udp
+      end
+    end
+
+    if configuration[:sip][:sip_tcp]
+      # SIP IPv4 TCP server.
+      if configuration[:sip][:enable_ipv4]
+        ::OverSIP::SIP::Launcher.run true, :ipv4, configuration[:sip][:listen_ipv4],
+                                      configuration[:sip][:listen_port], :tcp
+      end
+
+      # SIP IPv6 TCP server.
+      if configuration[:sip][:enable_ipv6]
+        ::OverSIP::SIP::Launcher.run true, :ipv6, configuration[:sip][:listen_ipv6],
+                                      configuration[:sip][:listen_port], :tcp
+      end
+    end
+
+    if configuration[:sip][:sip_tls]
+      unless configuration[:sip][:use_tls_tunnel]
+        # SIP IPv4 TLS server (native).
+        if configuration[:sip][:enable_ipv4]
+          ::OverSIP::SIP::Launcher.run true, :ipv4, configuration[:sip][:listen_ipv4],
+                                        configuration[:sip][:listen_port_tls], :tls
+        end
+
+        # SIP IPv6 TLS server (native).
+        if configuration[:sip][:enable_ipv6]
+          ::OverSIP::SIP::Launcher.run true, :ipv6, configuration[:sip][:listen_ipv6],
+                                        configuration[:sip][:listen_port_tls], :tls
+        end
+      else
+        # SIP IPv4 TLS server (Stud).
+        if configuration[:sip][:enable_ipv4]
+          ::OverSIP::SIP::Launcher.run true, :ipv4, "127.0.0.1",
+                                        configuration[:sip][:listen_port_tls_tunnel], :tls_tunnel,
+                                        configuration[:sip][:listen_ipv4],
+                                        configuration[:sip][:listen_port_tls]
+          ::OverSIP::SIP::Launcher.run false, :ipv4, configuration[:sip][:listen_ipv4],
+                                        configuration[:sip][:listen_port_tls], :tls
+
+          # Spawn a Stud process.
+          spawn_stud_process options,
+                             configuration[:sip][:listen_ipv4], configuration[:sip][:listen_port_tls],
+                             "127.0.0.1", configuration[:sip][:listen_port_tls_tunnel],
+                             ssl = false
+        end
+
+        # SIP IPv6 TLS server (Stud).
+        if configuration[:sip][:enable_ipv6]
+          ::OverSIP::SIP::Launcher.run true, :ipv6, "::1",
+                                        configuration[:sip][:listen_port_tls_tunnel], :tls_tunnel,
+                                        configuration[:sip][:listen_ipv6],
+                                        configuration[:sip][:listen_port_tls]
+          ::OverSIP::SIP::Launcher.run false, :ipv6, configuration[:sip][:listen_ipv6],
+                                        configuration[:sip][:listen_port_tls], :tls
+
+          # Spawn a Stud process.
+          spawn_stud_process options,
+                             configuration[:sip][:listen_ipv6], configuration[:sip][:listen_port_tls],
+                             "::1", configuration[:sip][:listen_port_tls_tunnel],
+                             ssl = false
+        end
+      end
+    end
+
+    if configuration[:websocket][:sip_ws]
+      # WebSocket IPv4 TCP SIP server.
+      if configuration[:websocket][:enable_ipv4]
+        ::OverSIP::WebSocket::Launcher.run true, :ipv4, configuration[:websocket][:listen_ipv4],
+                                                  configuration[:websocket][:listen_port], :ws
+      end
+
+      # WebSocket IPv6 TCP SIP server.
+      if configuration[:websocket][:enable_ipv6]
+        ::OverSIP::WebSocket::Launcher.run true, :ipv6, configuration[:websocket][:listen_ipv6],
+                                                  configuration[:websocket][:listen_port], :ws
+      end
+    end
+
+    if configuration[:websocket][:sip_wss]
+      unless configuration[:websocket][:use_tls_tunnel]
+        # WebSocket IPv4 TLS SIP server (native).
+        if configuration[:websocket][:enable_ipv4]
+          ::OverSIP::WebSocket::Launcher.run true, :ipv4, configuration[:websocket][:listen_ipv4],
+                                        configuration[:websocket][:listen_port_tls], :wss
+        end
+
+        # WebSocket IPv6 TLS SIP server (native).
+        if configuration[:websocket][:enable_ipv6]
+          ::OverSIP::WebSocket::Launcher.run true, :ipv6, configuration[:websocket][:listen_ipv6],
+                                        configuration[:websocket][:listen_port_tls], :wss
+        end
+      else
+        # WebSocket IPv4 TLS SIP server (Stud).
+        if configuration[:websocket][:enable_ipv4]
+          ::OverSIP::WebSocket::Launcher.run true, :ipv4, "127.0.0.1",
+                                        configuration[:websocket][:listen_port_tls_tunnel], :wss_tunnel,
+                                        configuration[:websocket][:listen_ipv4],
+                                        configuration[:websocket][:listen_port_tls]
+          ::OverSIP::WebSocket::Launcher.run false, :ipv4, configuration[:websocket][:listen_ipv4],
+                                        configuration[:websocket][:listen_port_tls], :wss
+
+          # Spawn a Stud process.
+          spawn_stud_process options,
+                             configuration[:websocket][:listen_ipv4], configuration[:websocket][:listen_port_tls],
+                             "127.0.0.1", configuration[:websocket][:listen_port_tls_tunnel],
+                             ssl = true
+        end
+
+        # WebSocket IPv6 TLS SIP server (Stud).
+        if configuration[:sip][:enable_ipv6]
+          ::OverSIP::WebSocket::Launcher.run true, :ipv6, "::1",
+                                        configuration[:websocket][:listen_port_tls_tunnel], :wss_tunnel,
+                                        configuration[:websocket][:listen_ipv6],
+                                        configuration[:websocket][:listen_port_tls]
+          ::OverSIP::WebSocket::Launcher.run false, :ipv6, configuration[:websocket][:listen_ipv6],
+                                        configuration[:websocket][:listen_port_tls], :wss
+
+          # Spawn a Stud process.
+          spawn_stud_process options,
+                             configuration[:websocket][:listen_ipv6], configuration[:websocket][:listen_port_tls],
+                             "::1", configuration[:websocket][:listen_port_tls_tunnel],
+                             ssl = true
+        end
+      end
+    end
+  end
+
+
   def self.trap_signals
     # This should never occur (unless some not trapped signal is received
     # and causes Ruby to exit, or maybe the user called "exit()" within its
@@ -449,87 +467,104 @@ module OverSIP::Launcher
 
     # Signal HUP reloads OverSIP system configuration.
     trap :HUP do
+      # Ignore another HUP signal until this code is finished.
+      original_trap_proc = trap(:HUP){}
+
       log_system_notice "HUP signal received, reloading configuration files..."
       ::OverSIP::Config.system_reload
 
-      # Run the on_reload provided callbacks.
+      # Run all the OverSIP::SystemCallbacks.on_reload_callbacks.
       log_system_info "executing OverSIP::SystemCallbacks.on_reload_callbacks..."
-      ::OverSIP::SystemCallbacks.on_reload_callbacks.each do |cb|
-        begin
-          cb.call
-        rescue ::Exception => e
-          log_system_crit "error executing a callback in OverSIP::SystemCallbacks.on_reload_callbacks:"
-          log_system_crit e
+      ::Fiber.new do
+        ::OverSIP::SystemCallbacks.on_reload_callbacks.each do |cb|
+          begin
+            cb.call
+          rescue ::Exception => e
+            log_system_crit "error executing a callback in OverSIP::SystemCallbacks.on_reload_callbacks:"
+            log_system_crit e
+          end
         end
-      end
+
+        # Reset the signal handler.
+        trap :HUP, original_trap_proc
+      end.resume
     end
 
     # Signal USR1 reloads custom code provided by the user.
     trap :USR1 do
+      # Ignore another HUP signal until this code is finished.
+      original_trap_proc = trap(:USR1){}
+
       log_system_notice "USR1 signal received, calling OverSIP::SystemEvents.on_user_reload() method..."
-      # Run the user provided on_started callback.
-      begin
-        ::OverSIP::SystemEvents.on_user_reload
-      rescue ::Exception => e
-        log_system_crit "error calling OverSIP::SystemEvents.on_user_reload():"
-        log_system_crit e
-      end
+      # Run OverSIP::SystemEvents.on_user_reload.
+      ::Fiber.new do
+        begin
+          ::OverSIP::SystemEvents.on_user_reload
+        rescue ::Exception => e
+          log_system_crit "error calling OverSIP::SystemEvents.on_user_reload():"
+          log_system_crit e
+        end
+
+        # Reset the signal handler.
+        trap :USR1, original_trap_proc
+      end.resume
     end
 
-    # Signal CHLD is sent by syslogger process if it dies.
-    trap :CHLD do
-      # NOTE: This won't be logged if the died proces is oversip_syslogger!
-      log_system_crit "CHLD signal received, syslogger process could be death"
-    end
   end
 
 
   def self.terminate error=false, fatal=false
+    ::OverSIP.is_ready = false
+    ::OverSIP.status = :terminating
+
     # Trap TERM/QUIT signals (we are already exiting).
     trap(:TERM) {}
     trap(:QUIT) {}
 
-    unless fatal
-      # Run the on_terminated provided callbacks.
-      log_system_info "executing OverSIP::SystemCallbacks.on_terminated_callbacks..."
-      ::OverSIP::SystemCallbacks.on_terminated_callbacks.each do |cb|
+    ::Fiber.new do
+
+      unless fatal
+        # Run OverSIP::SystemEvents.on_terminated.
+        log_system_info "calling OverSIP::SystemEvents.on_terminated() method..."
         begin
-          cb.call error
+          ::OverSIP::SystemEvents.on_terminated error
         rescue ::Exception => e
-          log_system_crit "error executing a callback in OverSIP::SystemCallbacks.on_terminated_callbacks:"
+          log_system_crit "error calling OverSIP::SystemEvents.on_terminated():"
           log_system_crit e
+        end
+
+        # Run all the SystemCallbacks.on_terminated_callbacks in reverse order.
+        log_system_info "executing OverSIP::SystemCallbacks.on_terminated_callbacks..."
+        ::OverSIP::SystemCallbacks.on_terminated_callbacks.reverse.each do |cb|
+          begin
+            cb.call error
+          rescue ::Exception => e
+            log_system_crit "error executing a callback in OverSIP::SystemCallbacks.on_terminated_callbacks:"
+            log_system_crit e
+          end
         end
       end
 
-      # Run the user provided on_terminated method.
-      log_system_info "calling OverSIP::SystemEvents.on_terminated() method..."
-      begin
-        ::OverSIP::SystemEvents.on_terminated error
-      rescue ::Exception => e
-        log_system_crit "error calling OverSIP::SystemEvents.on_terminated():"
-        log_system_crit e
+      unless error
+        log_system_info "exiting, thank you for tasting #{::OverSIP::PROGRAM_NAME}"
       end
-    end
 
-    unless error
-      log_system_info "exiting, thank you for tasting #{::OverSIP::PROGRAM_NAME}"
-    end
+      # Kill Stud processes and delete its temporal file with the full certificate.
+      kill_stud_processes
+      ::File.delete ::OverSIP.configuration[:tls][:full_cert]  rescue nil
 
-    # Kill Stud processes and delete its temporal file with the full certificate.
-    kill_stud_processes
-    ::File.delete ::OverSIP.configuration[:tls][:full_cert]  rescue nil
+      # Wait a bit so pending log messages in the Posix MQ can be queued.
+      sleep 0.1
+      ::OverSIP::Logger.close
 
-    # Wait a bit so pending log messages in the Posix MQ can be queued.
-    sleep 0.1
-    ::OverSIP::Logger.close
+      kill_syslogger_process
 
-    # Fill the syslogger process.
-    kill_syslogger_process
+      delete_pid_file
 
-    delete_pid_file
+      # Exit by preventing any exception.
+      exit!( error ? false : true )
 
-    # Exit by preventing any exception.
-    exit!( error ? false : true )
+    end.resume
   end
 
 

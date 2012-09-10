@@ -44,8 +44,12 @@ module OverSIP::WebSocket
 
     def do_keep_alive interval
       @keep_alive_timer = ::EM::PeriodicTimer.new(interval) do
-        log_system_debug "sending keep-alive ping frame"  if $oversip_debug
-        @connection.send_data KEEPALIVE_PING_FRAME
+        unless @connection.error?  # Ensure it.
+          log_system_debug "sending keep-alive ping frame"  if $oversip_debug
+          @connection.send_data KEEPALIVE_PING_FRAME
+        else
+          @keep_alive_timer.cancel
+        end
       end
     end
 

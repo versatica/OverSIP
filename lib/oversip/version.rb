@@ -4,8 +4,8 @@ module OverSIP
 
   module Version
     MAJOR = 1
-    MINOR = 2
-    TINY  = 1
+    MINOR = 3
+    TINY  = 0
     DEVEL = "dev1"  # Set to nil for stable releases.
   end
 

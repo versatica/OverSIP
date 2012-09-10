@@ -21,9 +21,9 @@ module OverSIP::SIP
         @headers["To"] = [ hdr_to ]
       end
 
-      @headers.each do |key, values|
+      @headers.each do |name, values|
         values.each do |value|
-          msg << key << ": #{value}\r\n"
+          msg << name << ": #{value}\r\n"
         end
       end
 

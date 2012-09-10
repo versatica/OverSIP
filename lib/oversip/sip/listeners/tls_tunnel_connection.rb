@@ -6,9 +6,8 @@ module OverSIP::SIP
     # (avoid DoS attacks).
     HEADERS_MAX_SIZE = 16384
 
-    def receive_data data
+    def process_received_data
       @state == :ignore and return
-      @buffer << data
 
       while (case @state
         when :init
@@ -24,9 +23,6 @@ module OverSIP::SIP
 
         when :haproxy_protocol
           parse_haproxy_protocol
-
-        #when :client_pems
-        #  parse_client_pems
 
         when :headers
           parse_headers
@@ -86,25 +82,6 @@ module OverSIP::SIP
         return false
       end
     end
-
-    # TODO: Not terminated yet.
-#     def parse_client_pems
-#       # TODO: Wrong, it could occur that here the last PEMs byte arries.
-#       return false if @buffer.size < 3  # 3 bytes = 0\r\n (minimum data).
-# 
-#       @pems_str ||= ""
-#       @pems_str << @buffer.read(2)
-# 
-#       # No PEMS.
-#       if @pems_str == "\r\n"
-#         @state = :headers
-#         return true
-#       end
-# 
-#       #@pem_size_str = 
-# 
-#       @state = :headers
-#     end
 
   end
 

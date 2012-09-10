@@ -10,6 +10,7 @@ module OverSIP::SIP
     @invite_client_transactions = {}
     @non_invite_client_transactions = {}
     @is_reliable_transport_listener = true
+    @is_outbound_listener = true
 
     LOG_ID = "SIP TLS IPv4 server"
     def log_id

@@ -3,6 +3,16 @@ module OverSIP::SIP
   class Uri
     attr_reader :scheme, :user, :host, :host_type, :port, :params, :transport_param, :phone_context_param, :ovid_param, :headers
 
+    def initialize scheme, user=nil, host=nil, port=nil
+      @scheme = scheme.to_sym
+      @user = user
+      @host = host
+      @host_type = ::OverSIP::Utils.ip_type(host) || :domain  if host
+      @port = port
+
+      @uri_modified = true
+    end
+
     def scheme= value
       return nil  if unknown_scheme?
       @scheme = value
@@ -43,6 +53,10 @@ module OverSIP::SIP
 
     def params
       @params ||= {}
+    end
+
+    def get_param k
+      params[k.to_s.downcase]
     end
 
     def set_param k, v
