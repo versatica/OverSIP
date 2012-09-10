@@ -25,7 +25,7 @@ static const int utils_outbound_udp_flow_token_parser_en_main = 1;
 
 /** exec **/
 /*
- * Expects a string like "1.2.3.4_5060" or "_1af:43::ab_9090" (no "_" at the beginning).
+ * Expects a string like "1.2.3.4_5060" or "1af:43::ab_9090" (no "_" at the beginning).
  */
 struct_outbound_udp_flow_token outbound_udp_flow_token_parser_execute(const char *str, size_t len)
 {
