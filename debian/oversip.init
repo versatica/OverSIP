@@ -51,13 +51,16 @@ fi
 # Check whether OverSIP Ruby Gem is installed and get the executable location.
 DAEMON=$(which oversip)
 if [ $? -ne 0 ] ; then
-  log_failure_msg "$DESC ($NAME): Ruby Gem '$RUBY_GEM' is not installed, exiting."
+  log_failure_msg "$DESC ($NAME): Ruby Gem '$RUBY_GEM' is not installed."
 
   case "$1" in
   status)
     # LSB - 4: program or service status is unknown.
     log_end_msg 4
     exit 4
+    ;;
+  stop)
+    exit 0
     ;;
   *)
     # LSB - 5: program is not installed.
@@ -169,7 +172,8 @@ case "$1" in
       # rlimits and so) so it cannot be deleted by a non root user when
       # stopping the server. This command removes the mqueue when performing
       # the "stop" action.
-      $DAEMON --remove-mqueue "/${NAME}_syslogger"
+      set +e
+      $DAEMON --remove-mqueue "/${NAME}_syslogger"  2> /dev/null
       exit 0
     else
       log_failure_msg "error, failed to stop."
