@@ -306,7 +306,6 @@ VALUE Utils_parser_outbound_udp_flow_token(VALUE self, VALUE string)
   str = RSTRING_PTR(string);
   len = RSTRING_LEN(string);
 
-  /* Remove the leading "_" from the string. */
   outbound_udp_flow_token = outbound_udp_flow_token_parser_execute(str, len);
 
   if (outbound_udp_flow_token.valid == 0)
