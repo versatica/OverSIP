@@ -22,7 +22,7 @@ module OverSIP::SIP
       @transaction_id = ::SecureRandom.hex(4) << @request.antiloop_id
 
       # A client transaction for using an existing Outbound connection.
-      if transport.is_a? String
+      if transport.is_a? ::String
         @connection, @ip, @port = ::OverSIP::SIP::TransportManager.get_outbound_connection transport
         if @connection
           @server_klass = @connection.class
@@ -59,10 +59,13 @@ module OverSIP::SIP
       end
 
       # Ensure the request has Content-Length. Add it otherwise.
-      if @request.body
-        @request.headers["Content-Length"] = [ @request.body.bytesize.to_s ]
-      else
-        @request.headers["Content-Length"] = HDR_ARRAY_CONTENT_LENGTH_0
+      # NOTE: Don't do this for UAcRequest instances!
+      if @request.is_a? ::OverSIP::SIP::Request
+        if @request.body
+          @request.headers["Content-Length"] = [ @request.body.bytesize.to_s ]
+        else
+          @request.headers["Content-Length"] = HDR_ARRAY_CONTENT_LENGTH_0
+        end
       end
 
     end # def initialize
@@ -107,24 +110,20 @@ module OverSIP::SIP
       when :both_outbound_rr
         @out_rr = :rr
         @request.insert_header "Record-Route", "<sip:" << @request.route_outbound_flow_token << @server_klass.outbound_record_route_fragment
-      end
+      end  if @request.in_rr
 
-      @request_leg_b = @request.to_s
-
-      # NOTE: This cannot return false as the connection has been retrieved from the corresponding hash,
-      # and when a connection is terminated its value is automatically deleted from such hash.
-      @connection.send_sip_msg @request_leg_b, @ip, @port
+      @outgoing_request_str = @request.to_s
 
       @request.delete_header_top "Via"
       if @out_rr == :rr
         @request.delete_header_top "Record-Route"
       end
 
+      @connection.send_sip_msg @outgoing_request_str, @ip, @port
+
       start_timer_A  if @transport == :udp
       start_timer_B
       start_timer_C
-
-      true
     end
 
     def start_timer_A
@@ -177,7 +176,7 @@ module OverSIP::SIP
     end
 
     def retransmit_request
-      @connection.send_sip_msg @request_leg_b, @ip, @port
+      @connection.send_sip_msg @outgoing_request_str, @ip, @port
     end
 
     def receive_response response
@@ -284,21 +283,21 @@ module OverSIP::SIP
         @ack << "Via: #{@top_via}\r\n"
 
         @request.hdr_route.each do |route|
-          @ack << "Route: " << route << "\r\n"
+          @ack << "Route: " << route << CRLF
         end  if @request.hdr_route
 
-        @ack << "From: " << @request.hdr_from << "\r\n"
+        @ack << "From: " << @request.hdr_from << CRLF
         @ack << "To: " << @request.hdr_to
         unless @request.to_tag
           @ack << ";tag=#{response.to_tag}"  if response.to_tag
         end
-        @ack << "\r\n"
+        @ack << CRLF
 
-        @ack << "Call-ID: " << @request.call_id << "\r\n"
+        @ack << "Call-ID: " << @request.call_id << CRLF
         @ack << "CSeq: " << @request.cseq.to_s << " ACK\r\n"
         @ack << "Content-Length: 0\r\n"
-        @ack << HDR_USER_AGENT << "\r\n"
-        @ack << "\r\n"
+        @ack << HDR_USER_AGENT << CRLF
+        @ack << CRLF
       end
 
       log_system_debug "sending ACK for [3456]XX response"  if $oversip_debug
@@ -315,21 +314,21 @@ module OverSIP::SIP
       @cancel << "Via: #{@top_via}\r\n"
 
       @request.hdr_route.each do |route|
-        @cancel << "Route: " << route << "\r\n"
+        @cancel << "Route: " << route << CRLF
       end  if @request.hdr_route
 
       # RFC 3326. Copy Reason headers if present in the received CANCEL.
       cancel.header_all("Reason").each do |reason|
-        @cancel << "Reason: " << reason << "\r\n"
+        @cancel << "Reason: " << reason << CRLF
       end  if cancel
 
-      @cancel << "From: " << @request.hdr_from << "\r\n"
-      @cancel << "To: " << @request.hdr_to << "\r\n"
-      @cancel << "Call-ID: " << @request.call_id << "\r\n"
+      @cancel << "From: " << @request.hdr_from << CRLF
+      @cancel << "To: " << @request.hdr_to << CRLF
+      @cancel << "Call-ID: " << @request.call_id << CRLF
       @cancel << "CSeq: " << @request.cseq.to_s << " CANCEL\r\n"
       @cancel << "Content-Length: 0\r\n"
-      @cancel << HDR_USER_AGENT << "\r\n"
-      @cancel << "\r\n"
+      @cancel << HDR_USER_AGENT << CRLF
+      @cancel << CRLF
 
       # Just send the ACK inmediately if the branch has replied a 1XX response.
       send_cancel  if @state == :proceeding
@@ -437,11 +436,9 @@ module OverSIP::SIP
       when :both_outbound_path
         @out_rr = :rr
         @request.insert_header "Path", "<sip:" << @request.route_outbound_flow_token << @server_klass.outbound_path_fragment
-      end
+      end  if @core.is_a? ::OverSIP::SIP::Proxy
 
-      @request_leg_b = @request.to_s
-
-      @connection.send_sip_msg @request_leg_b, @ip, @port
+      @outgoing_request_str = @request.to_s
 
       @request.delete_header_top "Via"
       case @out_rr
@@ -451,10 +448,10 @@ module OverSIP::SIP
         @request.delete_header_top "Path"
       end
 
+      @connection.send_sip_msg @outgoing_request_str, @ip, @port
+
       start_timer_E  if @transport == :udp
       start_timer_F
-
-      true
     end
 
     def start_timer_E
@@ -493,7 +490,7 @@ module OverSIP::SIP
     end
 
     def retransmit_request
-      @connection.send_sip_msg @request_leg_b, @ip, @port
+      @connection.send_sip_msg @outgoing_request_str, @ip, @port
     end
 
     def receive_response response
@@ -570,8 +567,6 @@ module OverSIP::SIP
       @request.insert_header "Via", "#{@server_klass.via_core};branch=z9hG4bK#{@transaction_id}"
 
       @connection.send_sip_msg @request.to_s, @ip, @port
-
-      true
     end
 
     def connection_failed

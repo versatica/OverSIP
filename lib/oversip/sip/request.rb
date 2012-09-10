@@ -38,36 +38,40 @@ module OverSIP::SIP
 
 
     def reply status_code, reason_phrase=nil, extra_headers=[], body=nil
+      if @sip_method == :ACK
+        log_system_error "attemtp to reply to an ACK aborted"
+        return false
+      end
       return false  unless @server_transaction.receive_response(status_code)  if @server_transaction
 
       reason_phrase ||= REASON_PHARSE[status_code] || REASON_PHARSE_NOT_SET
 
       if status_code > 100
-        @internal_to_tag ||= @to_tag || ( @server_transaction ? SecureRandom.hex(6) : OverSIP::SIP::Tags.totag_for_sl_reply )
+        @internal_to_tag ||= @to_tag || ( @server_transaction ? ::SecureRandom.hex(6) : ::OverSIP::SIP::Tags.totag_for_sl_reply )
       end
 
       response = "SIP/2.0 #{status_code} #{reason_phrase}\r\n"
 
       @hdr_via.each do |hdr|
-        response << "Via: " << hdr << "\r\n"
+        response << "Via: " << hdr << CRLF
       end
 
-      response << "From: " << @hdr_from << "\r\n"
+      response << "From: " << @hdr_from << CRLF
 
       response << "To: " << @hdr_to
       response << ";tag=#{@internal_to_tag}"  if @internal_to_tag
-      response << "\r\n"
+      response << CRLF
 
-      response << "Call-ID: " << @call_id << "\r\n"
-      response << "CSeq: " << @cseq.to_s << " " << @sip_method.to_s << "\r\n"
+      response << "Call-ID: " << @call_id << CRLF
+      response << "CSeq: " << @cseq.to_s << " " << @sip_method.to_s << CRLF
       response << "Content-Length: #{body ? body.bytesize : "0"}\r\n"
 
       extra_headers.each do |header|
-        response << header.to_s << "\r\n"
+        response << header.to_s << CRLF
       end  if extra_headers
 
-      response << HDR_SERVER << "\r\n"
-      response << "\r\n"
+      response << HDR_SERVER << CRLF
+      response << CRLF
 
       response << body  if body
 
@@ -129,9 +133,9 @@ module OverSIP::SIP
         @headers["Contact"] = [ @contact.to_s << (@contact_params ? @contact_params : "") ]
       end
 
-      @headers.each do |key, values|
+      @headers.each do |name, values|
         values.each do |value|
-          msg << key << ": #{value}\r\n"
+          msg << name << ": #{value}\r\n"
         end
       end
 

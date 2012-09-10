@@ -88,7 +88,7 @@ module OverSIP::SIP
           unless @request.sip_method == :ACK
             log_system_debug "flow failed"  if $oversip_debug
 
-            @on_error_block && @on_error_block.call(430, "Flow Failed")
+            @on_error_block && @on_error_block.call(430, "Flow Failed", :flow_failed)
             unless @drop_response
               @request.reply 430, "Flow Failed"
             else
@@ -240,17 +240,17 @@ module OverSIP::SIP
 
 
     def client_timeout
-      try_next_target 408, "Client Timeout"
+      try_next_target 408, "Client Timeout", nil, :client_timeout
     end
 
 
     def connection_failed
-      try_next_target 500, "Connection Error"
+      try_next_target 500, "Connection Error", nil, :connection_error
     end
 
 
     def tls_validation_failed
-      try_next_target 500, "TLS Validation Failed"
+      try_next_target 500, "TLS Validation Failed", nil, :tls_validation_failed
     end
 
 
@@ -329,7 +329,13 @@ module OverSIP::SIP
             @request.insert_header "Path", @request.connection.class.record_route
           else
             @request.in_rr = :path
-            @request.insert_header "Path", @request.connection.class.record_route
+            # The request comes via UDP or via a connection made by the client.
+            if @request.connection.class.outbound_listener?
+              @request.insert_header "Path", @request.connection.class.record_route
+            # The request comes via a TCP/TLS connection made by OverSIP.
+            else
+              @request.insert_header "Path", @request.connection.record_route
+            end
           end
 
         # Record-Route for INVITE, SUBSCRIBE, REFER and in-dialog NOTIFY.
@@ -346,7 +352,13 @@ module OverSIP::SIP
             @request.insert_header "Record-Route", @request.connection.class.record_route
           else
             @request.in_rr = :rr
-            @request.insert_header "Record-Route", @request.connection.class.record_route
+            # The request comes via UDP or via a connection made by the client.
+            if @request.connection.class.outbound_listener?
+              @request.insert_header "Record-Route", @request.connection.class.record_route
+            # The request comes via a TCP/TLS connection made by OverSIP.
+            else
+              @request.insert_header "Record-Route", @request.connection.record_route
+            end
           end
 
         end
@@ -365,12 +377,12 @@ module OverSIP::SIP
         @target = result  # Single Target.
 
       when RFC3263::SrvTargets
-        log_system_debug "result is srv targets => randomizing:"  if $oversip_debug
+        log_system_debug "DNS result has multiple values, randomizing"  if $oversip_debug
         @targets = result.randomize  # Array of Targets.
 
       # This can contain Target and SrvTargets entries.
       when RFC3263::MultiTargets
-        log_system_debug "result is MultiTargets => flatting:"  if $oversip_debug
+        log_system_debug "DNS result has multiple values, randomizing"  if $oversip_debug
         @targets = result.flatten  # Array of Targets.
 
       end
@@ -379,16 +391,16 @@ module OverSIP::SIP
     end  # rfc3263_succeeded
 
 
-    def try_next_target status=nil, reason=nil, full_response=nil
+    def try_next_target status=nil, reason=nil, full_response=nil, code=nil
       # Single target.
       if @target and @num_target == 0
-        log_system_debug "using single target: #{@target}"  if $oversip_debug
+        log_system_debug "trying single target: #{@target}"  if $oversip_debug
         use_target @target
         @num_target = 1
 
       # Multiple targets (so @targets is set).
       elsif @targets and @num_target < @targets.size
-        log_system_debug "using target #{@num_target+1} of #{@targets.size}: #{@targets[@num_target]}"  if $oversip_debug
+        log_system_debug "trying target #{@num_target+1} of #{@targets.size}: #{@targets[@num_target]}"  if $oversip_debug
         use_target @targets[@num_target]
         @num_target += 1
 
@@ -407,7 +419,7 @@ module OverSIP::SIP
 
         # If not, generate the response according to the given status and reason.
         else
-          @on_error_block && @on_error_block.call(status, reason)
+          @on_error_block && @on_error_block.call(status, reason, code)
           unless @drop_response
             @request.reply status, reason
           else
@@ -428,7 +440,7 @@ module OverSIP::SIP
       if @aborted
         log_system_notice "routing aborted for target #{target}"
         @aborted = @target = @targets = nil
-        try_next_target 403, "Destination Not Allowed"
+        try_next_target 403, "Destination Not Allowed", nil, :destination_not_allowed
         return
       end
 
@@ -440,42 +452,44 @@ module OverSIP::SIP
 
     def rfc3263_failed error
       case error
-        when :rfc3263_domain_not_found
-          log_system_debug "no resolution"  if $oversip_debug
-          status = 404
-          reason = "No DNS Resolution"
-        when :rfc3263_unsupported_scheme
-          log_system_debug "unsupported URI scheme"  if $oversip_debug
-          status = 416
-          reason = "Unsupported URI scheme"
-        when :rfc3263_unsupported_transport
-          log_system_debug "unsupported transport"  if $oversip_debug
-          status = 478
-          reason = "Unsupported Transport"
-        when :rfc3263_wrong_transport
-          log_system_debug "wrong URI transport"  if $oversip_debug
-          status = 478
-          reason = "Wrong URI Transport"
-        when :rfc3263_no_ipv4
-          log_system_debug "destination requires unsupported IPv4"  if $oversip_debug
-          status = 478
-          reason = "Destination Requires Unsupported IPv4"
-        when :rfc3263_no_ipv6
-          log_system_debug "destination requires unsupported IPv6"  if $oversip_debug
-          status = 478
-          reason = "Destination Requires Unsupported IPv6"
-        when :rfc3263_no_dns
-          log_system_debug "destination requires unsupported DNS query"  if $oversip_debug
-          status = 478
-          reason = "Destination Requires Unsupported DNS Query"
-        end
+      when :rfc3263_domain_not_found
+        log_system_debug "no resolution"  if $oversip_debug
+        status = 404
+        reason = "No DNS Resolution"
+        code = :no_dns_resolution
+      when :rfc3263_unsupported_scheme
+        log_system_debug "unsupported URI scheme"  if $oversip_debug
+        status = 416
+        reason = "Unsupported URI scheme"
+        code = :unsupported_uri_scheme
+      when :rfc3263_unsupported_transport
+        log_system_debug "unsupported transport"  if $oversip_debug
+        status = 478
+        reason = "Unsupported Transport"
+        code = :unsupported_transport
+      when :rfc3263_no_ipv4
+        log_system_debug "destination requires unsupported IPv4"  if $oversip_debug
+        status = 478
+        reason = "Destination Requires Unsupported IPv4"
+        code = :no_ipv4
+      when :rfc3263_no_ipv6
+        log_system_debug "destination requires unsupported IPv6"  if $oversip_debug
+        status = 478
+        reason = "Destination Requires Unsupported IPv6"
+        code = :no_ipv6
+      when :rfc3263_no_dns
+        log_system_debug "destination requires unsupported DNS query"  if $oversip_debug
+        status = 478
+        reason = "Destination Requires Unsupported DNS Query"
+        code = :no_dns
+      end
 
-        @on_error_block && @on_error_block.call(status, reason)
-        unless @drop_response
-          @request.reply status, reason  unless @request.sip_method == :ACK
-        else
-          @drop_response = false
-        end
+      @on_error_block && @on_error_block.call(status, reason, code)
+      unless @drop_response
+        @request.reply status, reason  unless @request.sip_method == :ACK
+      else
+        @drop_response = false
+      end
     end  # def rfc3263_failed
 
   end  # class Proxy

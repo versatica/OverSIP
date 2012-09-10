@@ -31,7 +31,7 @@ module OverSIP::SIP
 
     def self.create_antiloop_id request
       # It produces a 32 chars string.
-      ::Digest::MD5.hexdigest "#{ANTILOOP_CONST}#{request.ruri.uri}#{request.call_id}#{request.routes[0].uri if request.routes}"
+      ::Digest::MD5.hexdigest "#{ANTILOOP_CONST}#{request.ruri.to_s}#{request.call_id}#{request.routes[0].uri if request.routes}"
     end
 
   end

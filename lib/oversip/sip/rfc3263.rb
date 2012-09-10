@@ -216,7 +216,7 @@ module OverSIP::SIP
               dns_transport = :udp
             # "sips" is not possible in UDP.
             else
-              return :rfc3263_wrong_transport
+              return :rfc3263_unsupported_transport
             end
           when :tcp
             case (dns_transport = ( @uri_scheme == :sips ? :tls : :tcp ))
@@ -271,7 +271,6 @@ module OverSIP::SIP
           elsif @uri_transport
             if @use_srv
               if (targets = resolve_SRV(@uri_host, @uri_scheme, dns_transport))
-                ### TODO: Esto es nuevo para mejora. Antes devolvía siempre el segundo caso.
                 if targets.size == 1
                   @on_success_block && @on_success_block.call(targets[0])
                 else
@@ -415,7 +414,7 @@ module OverSIP::SIP
 
           end
 
-        end
+        end  # @@fiber_pool.spawn
 
         nil
       end

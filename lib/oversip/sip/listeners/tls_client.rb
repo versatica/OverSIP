@@ -55,40 +55,44 @@ module OverSIP::SIP
 
     # This is called after all the calls to ssl_verify_peer().
     def ssl_handshake_completed
-      log_system_info "TLS connection established to " << remote_desc
+      log_system_debug("TLS connection established to " << remote_desc)  if $oversip_debug
 
       # @connected in TlsClient means "TLS connection" rather than
       # just "TCP connection".
       @connected = true
       @timer_tls_handshake.cancel  if @timer_tls_handshake
 
-      if @callback_on_server_tls_handshake
-        begin
-          ::OverSIP::SipEvents.on_server_tls_handshake self, @server_pems
-        rescue ::Exception => e
-          log_system_error "error calling OverSIP::SipEvents.on_server_tls_handshake():"
-          log_system_error e
-          close_connection
-        end
-
-        # If the user has closed the connection in the on_server_tls_handshake() callback
-        # then @local_closed is true, so notify pending transactions.
-        if @local_closed
-          @pending_client_transactions.each do |client_transaction|
-            client_transaction.tls_validation_failed
+      # Run OverSIP::SipEvents.on_server_tls_handshake.
+      ::Fiber.new do
+        if @callback_on_server_tls_handshake
+          log_system_debug "running OverSIP::SipEvents.on_server_tls_handshake()..."  if $oversip_debug
+          begin
+            ::OverSIP::SipEvents.on_server_tls_handshake self, @server_pems
+          rescue ::Exception => e
+            log_system_error "error calling OverSIP::SipEvents.on_server_tls_handshake():"
+            log_system_error e
+            close_connection
           end
-          @pending_client_transactions.clear
-          @pending_messages.clear
-          @state = :ignore
-          return
-        end
-      end
 
-      @pending_client_transactions.clear
-      @pending_messages.each do |msg|
-        send_data msg
-      end
-      @pending_messages.clear
+          # If the user or peer has closed the connection in the on_server_tls_handshake() callback
+          # then notify pending transactions.
+          if @local_closed or error?
+            log_system_debug "connection closed, aborting"  if $oversip_debug
+            @pending_client_transactions.each do |client_transaction|
+              client_transaction.tls_validation_failed
+            end
+            @pending_client_transactions.clear
+            @pending_messages.clear
+            @state = :ignore
+          end
+        end
+
+        @pending_client_transactions.clear
+        @pending_messages.each do |msg|
+          send_data msg
+        end
+        @pending_messages.clear
+      end.resume
     end
 
     def unbind cause=nil

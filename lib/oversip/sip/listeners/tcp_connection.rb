@@ -21,6 +21,13 @@ module OverSIP::SIP
     def receive_data data
       @state == :ignore and return
       @buffer << data
+      @state == :waiting_for_on_client_tls_handshake and return
+
+      process_received_data
+    end
+
+    def process_received_data
+      @state == :ignore and return
 
       while (case @state
         when :init
@@ -52,7 +59,6 @@ module OverSIP::SIP
           false
         end)
       end  # while
-
     end
 
     def parse_headers

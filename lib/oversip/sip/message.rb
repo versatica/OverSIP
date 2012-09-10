@@ -110,7 +110,7 @@ module OverSIP::SIP
     def set_header name, value
       @headers[MessageParser.headerize(name)] =
         case value
-        when Array
+        when ::Array
           value
         else
           [ value.to_s ]
@@ -135,7 +135,7 @@ module OverSIP::SIP
     # _value_ must be a string.
     def insert_header name, value
       if hdr = @headers[k=MessageParser.headerize(name)]
-        hdr.insert 0, value.to_s
+        hdr.unshift value.to_s
       else
         #@headers[k] = [ value.to_s ]
         # NOTE: If the header name doesn't already exist in the mesage, insert
