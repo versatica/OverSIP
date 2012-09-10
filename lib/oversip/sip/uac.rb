@@ -11,12 +11,20 @@ module OverSIP::SIP
     end
 
 
+    def on_provisional_response &block
+      @on_provisional_response_block = block
+    end
+
     def on_success_response &block
       @on_success_response_block = block
     end
 
     def on_failure_response &block
       @on_failure_response_block = block
+    end
+
+    def on_invite_timeout &block
+      @on_invite_timeout_block = block
     end
 
     def on_error &block
@@ -129,7 +137,7 @@ module OverSIP::SIP
       log_system_debug "received response #{response.status_code}"  if $oversip_debug
 
       if response.status_code < 200
-        log_system_debug "ignoring provisional response"  if $oversip_debug
+        @on_provisional_response_block && @on_provisional_response_block.call(response)
       elsif response.status_code >= 200 && response.status_code <= 299
         @on_success_response_block && @on_success_response_block.call(response)
       elsif response.status_code >= 300
@@ -159,6 +167,12 @@ module OverSIP::SIP
 
     def tls_validation_failed
       try_next_target 500, "TLS Validation Failed", nil, :tls_validation_failed
+    end
+
+
+    # Timer C for INVITE.
+    def invite_timeout
+      @on_invite_timeout_block && @on_invite_timeout_block.call
     end
 
 
@@ -226,55 +240,50 @@ module OverSIP::SIP
       if @aborted
         log_system_notice "sending aborted for target #{target}"
         @aborted = @target = @targets = nil
-        try_next_target 403, "Destination Not Allowed"
+        try_next_target 403, "Destination Not Allowed", nil, :destination_not_allowed
         return
       end
 
-      @client_transaction = ::OverSIP::SIP::NonInviteClientTransaction.new self, @request, @uac_conf, target.transport, target.ip, target.ip_type, target.port
+      @client_transaction = (::OverSIP::SIP::ClientTransaction.get_class @request).new self, @request, @uac_conf, target.transport, target.ip, target.ip_type, target.port
       @client_transaction.send_request
     end
 
 
     def rfc3263_failed error
       case error
-        when :rfc3263_domain_not_found
-          log_system_debug "no resolution"  if $oversip_debug
-          status = 404
-          reason = "No DNS Resolution"
-          code = :no_dns_resolution
-        when :rfc3263_unsupported_scheme
-          log_system_debug "unsupported URI scheme"  if $oversip_debug
-          status = 416
-          reason = "Unsupported URI scheme"
-          code = :unsupported_uri_scheme
-        when :rfc3263_unsupported_transport
-          log_system_debug "unsupported transport"  if $oversip_debug
-          status = 478
-          reason = "Unsupported Transport"
-          code = :unsupported_transport
-        when :rfc3263_no_ipv4
-          log_system_debug "destination requires unsupported IPv4"  if $oversip_debug
-          status = 478
-          reason = "Destination Requires Unsupported IPv4"
-          code = :no_ipv4
-        when :rfc3263_no_ipv6
-          log_system_debug "destination requires unsupported IPv6"  if $oversip_debug
-          status = 478
-          reason = "Destination Requires Unsupported IPv6"
-          code = :no_ipv6
-        when :rfc3263_no_dns
-          log_system_debug "destination requires unsupported DNS query"  if $oversip_debug
-          status = 478
-          reason = "Destination Requires Unsupported DNS Query"
-          code = :no_dns
-        end
+      when :rfc3263_domain_not_found
+        log_system_debug "no resolution"  if $oversip_debug
+        status = 404
+        reason = "No DNS Resolution"
+        code = :no_dns_resolution
+      when :rfc3263_unsupported_scheme
+        log_system_debug "unsupported URI scheme"  if $oversip_debug
+        status = 416
+        reason = "Unsupported URI scheme"
+        code = :unsupported_uri_scheme
+      when :rfc3263_unsupported_transport
+        log_system_debug "unsupported transport"  if $oversip_debug
+        status = 478
+        reason = "Unsupported Transport"
+        code = :unsupported_transport
+      when :rfc3263_no_ipv4
+        log_system_debug "destination requires unsupported IPv4"  if $oversip_debug
+        status = 478
+        reason = "Destination Requires Unsupported IPv4"
+        code = :no_ipv4
+      when :rfc3263_no_ipv6
+        log_system_debug "destination requires unsupported IPv6"  if $oversip_debug
+        status = 478
+        reason = "Destination Requires Unsupported IPv6"
+        code = :no_ipv6
+      when :rfc3263_no_dns
+        log_system_debug "destination requires unsupported DNS query"  if $oversip_debug
+        status = 478
+        reason = "Destination Requires Unsupported DNS Query"
+        code = :no_dns
+      end
 
-        @on_error_block && @on_error_block.call(status, reason, code)
-        unless @drop_response
-          @request.reply status, reason  unless @request.sip_method == :ACK
-        else
-          @drop_response = false
-        end
+      @on_error_block && @on_error_block.call(status, reason, code)
     end  # def rfc3263_failed
 
   end  # class Uac
