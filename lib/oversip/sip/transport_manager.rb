@@ -9,7 +9,7 @@ module OverSIP::SIP
 
 
     # Get an existing connection or create a new one (TCP/TLS).
-    # For UDP it always return the single UDP reactor instance.
+    # For UDP it always returns the single UDP reactor instance.
     # client_transaction is passed when creating a new clien transaction. In case the
     # outgoing connection is a TCP/TLS client connection and it's not connected yet,
     # the client transaction is stored in the @pending_client_transactions of the client
@@ -62,9 +62,10 @@ module OverSIP::SIP
 
       # NOTE: Should never happen.
       unless conn
-        log_system_error "no connection (nil) retrieved from TransportManager.get_connection(), FIXME, it should never occur!!!"
-        raise "no connection (nil) retrieved from TransportManager.get_connection(), FIXME, it should never occur!!!"
+        ::OverSIP::Launcher.fatal "no connection retrieved from TransportManager.get_connection(), FIXME, it should never occur!!!"
       end
+
+      # Return the created/retrieved connection instance.
       conn
     end
 
@@ -92,7 +93,7 @@ module OverSIP::SIP
       if flow_token.getbyte(0) == 95
         # NOTE: Doing Base64.decode64 automatically removes the leading "_".
         # NOTE: Previously when the Outbound flow token was generated, "=" was replaced with "-" so it becomes
-        # valid for a SIP URI param (in case of using Contact mangling if the registrar does not support Path).
+        # valid for a SIP URI param (needed i.e. for the OutboundMangling module).
         ip_type, ip, port = ::OverSIP::Utils.parse_outbound_udp_flow_token(::Base64.decode64 flow_token.gsub(/-/,"="))
 
         case ip_type
@@ -105,7 +106,7 @@ module OverSIP::SIP
             return false
           end
 
-      # It not, the flow token has been generated for a TCP/TLS/WS/WSS connection so let's lookup
+      # If not, the flow token has been generated for a TCP/TLS/WS/WSS connection so let's lookup
       # it into the Outbound connection collection and return nil for IP and port.
       else
         @outbound_connections[flow_token]
