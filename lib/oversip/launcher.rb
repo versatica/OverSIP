@@ -7,7 +7,7 @@ module OverSIP::Launcher
   @log_id = "launcher"
 
 
-  def self.daemonize!(options)
+  def self.daemonize! options
     @log_id = "launcher (daemonize)"
 
     $stdin.reopen("/dev/null")
@@ -82,7 +82,7 @@ module OverSIP::Launcher
   end
 
 
-  def self.run(options)
+  def self.run options
     @log_id = "launcher (run)"
 
     configuration = ::OverSIP.configuration
@@ -134,7 +134,7 @@ module OverSIP::Launcher
         log_system_notice "starting event reactor..."
 
         # Run SIP and WebSocket servers.
-        run_servers
+        run_servers options
 
         # Run DNS resolver.
         ::OverSIP::SIP::RFC3263.run
@@ -225,7 +225,7 @@ module OverSIP::Launcher
   end
 
 
-  def self.create_pid_file(path)
+  def self.create_pid_file path
     # Check that the PID file is accesible.
     begin
       assert_file_is_writable_readable_deletable(path)
@@ -246,7 +246,7 @@ module OverSIP::Launcher
   end
 
 
-  def self.assert_file_is_writable_readable_deletable(path)
+  def self.assert_file_is_writable_readable_deletable path
     # File already exists.
     if ::File.exist?(path)
       if not ::File.file?(path)
@@ -266,7 +266,7 @@ module OverSIP::Launcher
 
   # Returns a PID if a given path contains a non-stale PID file,
   # false otherwise.
-  def self.valid_pid?(path)
+  def self.valid_pid? path
     begin
       wpid = ::File.read(path).to_i
       wpid <= 0 and return false
@@ -283,7 +283,7 @@ module OverSIP::Launcher
   end
 
 
-  def self.run_servers
+  def self.run_servers options
     configuration = ::OverSIP.configuration
 
     if configuration[:sip][:sip_udp]
@@ -592,7 +592,7 @@ module OverSIP::Launcher
   end
 
 
-  def self.set_user_group(user, group)
+  def self.set_user_group user, group
     uid = ::Etc.getpwnam(user).uid  if user
     gid = ::Etc.getgrnam(group).gid  if group
     if uid or gid
@@ -607,7 +607,7 @@ module OverSIP::Launcher
   end
 
 
-  def self.spawn_stud_process(options, listen_ip, listen_port, bg_ip, bg_port, ssl=false)
+  def self.spawn_stud_process options, listen_ip, listen_port, bg_ip, bg_port, ssl=false
     stud_user_group = ""
     stud_user_group << "-u #{options[:user]}" if options[:user]
     stud_user_group << " -g #{options[:group]}" if options[:group]
