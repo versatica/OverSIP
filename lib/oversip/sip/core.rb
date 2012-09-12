@@ -167,8 +167,8 @@ module OverSIP::SIP
     def connection_outbound_flow_token
       @connection_outbound_flow_token ||= if @transport == :udp
         # NOTE: Add "_" so later we can figure that this is for UDP.
-        # NOTE: Replace "=" with "-" so it can be added as a SIP URI param (when Contact mangling is used
-        # if the registrar does not support Path).
+        # NOTE: Replace "=" with "-" so it can be added as a SIP URI param (needed i.e.
+        # for the OutboundMangling module).
         "_" << ::Base64.strict_encode64("#{@source_ip}_#{@source_port}").gsub(/=/,"-")
       else
         @connection.outbound_flow_token
