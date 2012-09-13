@@ -17,6 +17,10 @@ module OverSIP::WebSocket
       def reliable_transport_listener?
         @is_reliable_transport_listener
       end
+
+      def outbound_listener?
+        @is_outbound_listener
+      end
     end
 
 
