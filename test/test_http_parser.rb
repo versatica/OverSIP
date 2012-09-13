@@ -34,7 +34,7 @@ class TestHttpParser < OverSIPTest
 
   def test_parse_http_get
     parser, request = parse <<-END
-GET http://server.example.coM./chat?qwe=QWE&asd=#fragment HTTP/1.1\r
+GET /chat?qwe=QWE&asd=#fragment HTTP/1.1\r
 Host: server.example.Com.\r
 Upgrade: WebSocket\r
 Connection: keep-Alive ,  Upgrade\r
@@ -51,11 +51,11 @@ END
     assert_equal request.http_method, :GET
     assert_equal request.http_version, "HTTP/1.1"
 
-    assert_equal "/chat?qwe=QWE&asd=", request.uri
+    assert_equal "/chat?qwe=QWE&asd=#fragment", request.uri
     assert_equal "/chat", request.uri_path
     assert_equal "qwe=QWE&asd=", request.uri_query
     assert_equal "fragment", request.uri_fragment
-    assert_equal request.uri_scheme, :http
+    assert_equal request.uri_scheme, nil
     assert_equal "server.example.com", request.host
     assert_nil request.port
 

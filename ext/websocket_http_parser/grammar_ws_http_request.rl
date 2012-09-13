@@ -6,17 +6,10 @@
 
   path                  = pchar+ ( "/" pchar* )*;
   query                 = ( uchar | reserved )*;
-  param                 = ( pchar | "/" )*;
-  params                = param ( ";" param )*;
-  rel_path              = path? (";" params)? %request_path ("?" %start_query query %query)?;
+  rel_path              = path? %request_path ("?" %start_query query %query)?;
   absolute_path         = "/"+ rel_path;
-  path_uri              = absolute_path > mark %request_uri;
-  Absolute_URI          = ( "http"i %uri_is_http | "https"i %uri_is_https ) %uri_scheme "://"
-                          userinfo
-                          host >mark %host ( ":" port >mark %port )?
-                          path_uri;
-  Request_URI           = ((absolute_path | "*") >mark %request_uri) | Absolute_URI;
-  Fragment              = ( uchar | reserved )* >mark %fragment;
+  Fragment              = ( uchar | reserved )* >start_fragment %fragment;
+  Request_URI           = (absolute_path ("#" Fragment)?) >mark %request_uri;
 
   Method                = ( "GET"         %method_GET |
                             "POST"        %method_POST |
@@ -26,7 +19,7 @@
   HTTP_Version          = "HTTP"i "/" DIGIT{1,2} "." DIGIT{1,2};
 
   Request_Line          = Method %req_method SP
-                          Request_URI ("#" Fragment)? SP
+                          Request_URI SP
                           HTTP_Version >mark %http_version;
 
   Request               = Request_Line :> CRLF

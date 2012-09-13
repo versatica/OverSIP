@@ -68,8 +68,12 @@
     parser->request.query(parser->data, PTR_TO(query_start), LEN(query_start, fpc));
   }
 
+  action start_fragment {
+    MARK(fragment_start, fpc);
+  }
+
   action fragment {
-    parser->request.fragment(parser->data, PTR_TO(mark), LEN(mark, fpc));
+    parser->request.fragment(parser->data, PTR_TO(fragment_start), LEN(fragment_start, fpc));
   }
 
   action uri_is_http {
@@ -152,6 +156,7 @@ int ws_http_request_parser_init(ws_http_request_parser *parser)
   parser->hdr_value_start = 0;
   parser->hdr_value_len = 0;
   parser->query_start = 0;
+  parser->fragment_start = 0;
 
   parser->method = 0;
   parser->uri_scheme = 0;

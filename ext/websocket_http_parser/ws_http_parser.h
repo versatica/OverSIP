@@ -61,6 +61,7 @@ typedef struct ws_http_request_parser {
   size_t          hdr_value_start;
   size_t          hdr_value_len;
   size_t          query_start;
+  size_t          fragment_start;
 
   /* Request method. */
   enum method     method;
