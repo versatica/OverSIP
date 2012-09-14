@@ -43,6 +43,28 @@ module OverSIP::SIP
     end
     alias :abort_routing :abort_sending
 
+    # Manually insert the last target into the blacklist. Optionally a timeout value can be given
+    # (otherwise the proxy blacklist_time is used). The timeout must be between 2 and 300 seconds.
+    # NOTE: It requires that the Proxy has :use_blacklist set.
+    def add_to_blacklist timeout=nil
+      if @proxy_conf[:use_blacklist]
+        if timeout
+          timeout = timeout.to_i
+          if timeout < 2 or timeout > 300
+            raise ::OverSIP::RuntimeError, "timeout must be between a and 300 seconds"
+          end
+        else
+          timeout = @proxy_conf[:blacklist_time]
+        end
+
+        blacklist_entry = @current_target.to_s
+        @proxy_conf[:blacklist][blacklist_entry] = [403, "Destination Blacklisted", nil, :destination_blacklisted]
+        ::EM.add_timer(timeout) { @proxy_conf[:blacklist].delete blacklist_entry }
+      else
+        raise ::OverSIP::RuntimeError, "the blacklist is not enabled for this proxy profile"
+      end
+    end
+
     def send request, dst_host=nil, dst_port=nil, dst_transport=nil
       unless (@request = request).is_a? ::OverSIP::SIP::UacRequest or @request.is_a? ::OverSIP::SIP::Request
         raise ::OverSIP::RuntimeError, "request must be a OverSIP::SIP::UacRequest or OverSIP::SIP::Request instance"
