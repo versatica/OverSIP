@@ -167,10 +167,10 @@ module OverSIP
         @proxies[proxy][:has_sip_tls] = @proxies[proxy][:transport_preference].include?(:tls)
 
         # Add a hash for the DNS cache.
-        @proxies[proxy][:dns_cache] = {}  if @proxies[proxy][:use_dns_cache]
+        @proxies[proxy][:dns_cache] = {}
 
         # Add a hash for the blacklist.
-        @proxies[proxy][:blacklist] = {}  if @proxies[proxy][:use_blacklist]
+        @proxies[proxy][:blacklist] = {}
       end
     end
 
