@@ -4,6 +4,8 @@ module OverSIP::SIP
 
     include ::OverSIP::Logger
 
+    attr_reader :current_target
+
     def initialize proxy_profile=:default_proxy
       unless (@conf = ::OverSIP.proxies[proxy_profile.to_sym])
         raise ::OverSIP::RuntimeError, "proxy profile '#{proxy_profile}' is not defined"
