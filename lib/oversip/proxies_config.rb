@@ -14,6 +14,8 @@ module OverSIP
       :use_dns                    => true,
       :use_dns_cache              => true,
       :dns_cache_time             => 300,
+      :use_blacklist              => true,
+      :blacklist_time             => 10,
       :use_naptr                  => true,
       :use_srv                    => true,
       :transport_preference       => ["tls", "tcp", "udp"],
@@ -31,6 +33,8 @@ module OverSIP
       :use_dns                    => :boolean, 
       :use_dns_cache              => :boolean,
       :dns_cache_time             => [ :fixnum, [ :greater_equal_than, 300 ] ],
+      :use_blacklist              => :boolean,
+      :blacklist_time             => [ :fixnum, [ :greater_equal_than, 2 ], [ :minor_equal_than, 120 ] ],
       :use_naptr                  => :boolean,
       :use_srv                    => :boolean,
       :transport_preference       => [ [ :choices, %w{tls tcp udp}], :multi_value, :non_empty ],
@@ -164,6 +168,9 @@ module OverSIP
 
         # Add a hash for the DNS cache.
         @proxies[proxy][:dns_cache] = {}  if @proxies[proxy][:use_dns_cache]
+
+        # Add a hash for the blacklist.
+        @proxies[proxy][:blacklist] = {}  if @proxies[proxy][:use_blacklist]
       end
     end
 

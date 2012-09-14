@@ -240,16 +240,37 @@ module OverSIP::SIP
 
 
     def client_timeout
+      # Store the target and error in the blacklist.
+      if @proxy_conf[:use_blacklist]
+        blacklist_entry = @current_target.to_s
+        @proxy_conf[:blacklist][blacklist_entry] = [408, "Client Timeout", nil, :client_timeout]
+        ::EM.add_timer(@proxy_conf[:blacklist_time]) { @proxy_conf[:blacklist].delete blacklist_entry }
+      end
+
       try_next_target 408, "Client Timeout", nil, :client_timeout
     end
 
 
     def connection_failed
+      # Store the target and error in the blacklist.
+      if @proxy_conf[:use_blacklist]
+        blacklist_entry = @current_target.to_s
+        @proxy_conf[:blacklist][blacklist_entry] = [500, "Connection Error", nil, :connection_error]
+        ::EM.add_timer(@proxy_conf[:blacklist_time]) { @proxy_conf[:blacklist].delete blacklist_entry }
+      end
+
       try_next_target 500, "Connection Error", nil, :connection_error
     end
 
 
     def tls_validation_failed
+      # Store the target and error in the blacklist.
+      if @proxy_conf[:use_blacklist]
+        blacklist_entry = @current_target.to_s
+        @proxy_conf[:blacklist][blacklist_entry] = [500, "TLS Validation Failed", nil, :tls_validation_failed]
+        ::EM.add_timer(@proxy_conf[:blacklist_time]) { @proxy_conf[:blacklist].delete blacklist_entry }
+      end
+
       try_next_target 500, "TLS Validation Failed", nil, :tls_validation_failed
     end
 
@@ -370,6 +391,7 @@ module OverSIP::SIP
     def rfc3263_succeeded result
       # After RFC 3263 (DNS) resolution we get N targets.
       @num_target = 0  # First target is 0 (rather than 1).
+      @target = @targets = nil  # Avoid conflicts if same Proxy is used for serial forking to a new destination.
 
       case result
 
@@ -394,15 +416,17 @@ module OverSIP::SIP
     def try_next_target status=nil, reason=nil, full_response=nil, code=nil
       # Single target.
       if @target and @num_target == 0
-        log_system_debug "trying single target: #{@target}"  if $oversip_debug
-        use_target @target
+        @current_target = @target
+        log_system_debug "trying single target: #{@current_target}"  if $oversip_debug
         @num_target = 1
+        use_target @current_target
 
       # Multiple targets (so @targets is set).
       elsif @targets and @num_target < @targets.size
-        log_system_debug "trying target #{@num_target+1} of #{@targets.size}: #{@targets[@num_target]}"  if $oversip_debug
-        use_target @targets[@num_target]
+        @current_target = @targets[@num_target]
+        log_system_debug "trying target #{@num_target+1} of #{@targets.size}: #{@current_target}"  if $oversip_debug
         @num_target += 1
+        use_target @current_target
 
       # No more targets.
       else
@@ -432,6 +456,13 @@ module OverSIP::SIP
 
 
     def use_target target
+      # Lookup the target in the blacklist.
+      if @proxy_conf[:use_blacklist] and (blacklist_entry = @proxy_conf[:blacklist][target.to_s])
+        log_system_notice "destination found in the blacklist"  if $oversip_debug
+        try_next_target blacklist_entry[0], blacklist_entry[1], blacklist_entry[2], blacklist_entry[3]
+        return
+      end
+
       # Call the on_target() callback if set by the user.
       @on_target_block && @on_target_block.call(target.ip_type, target.ip, target.port, target.transport)
 
@@ -440,7 +471,7 @@ module OverSIP::SIP
       if @aborted
         log_system_notice "routing aborted for target #{target}"
         @aborted = @target = @targets = nil
-        try_next_target 403, "Destination Not Allowed", nil, :destination_not_allowed
+        try_next_target 403, "Destination Aborted", nil, :destination_aborted
         return
       end
 

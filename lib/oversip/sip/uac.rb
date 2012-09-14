@@ -5,7 +5,7 @@ module OverSIP::SIP
     include ::OverSIP::Logger
 
     def initialize proxy_profile=:default_proxy
-      unless (@uac_conf = ::OverSIP.proxies[proxy_profile.to_sym])
+      unless (@proxy_conf = ::OverSIP.proxies[proxy_profile.to_sym])
         raise ::OverSIP::RuntimeError, "proxy '#{proxy_profile}' is not defined in Proxies Configuration file"
       end
     end
@@ -41,6 +41,7 @@ module OverSIP::SIP
     def abort_sending
       @aborted = true
     end
+    alias :abort_routing :abort_sending
 
     def send request, dst_host=nil, dst_port=nil, dst_transport=nil
       unless (@request = request).is_a? ::OverSIP::SIP::UacRequest or @request.is_a? ::OverSIP::SIP::Request
@@ -55,7 +56,7 @@ module OverSIP::SIP
         raise ::OverSIP::RuntimeError, "if dst_host is not given then request.ruri must be an OverSIP::SIP::Uri or OverSIP::SIP::NameAddr instance"
       end
 
-      @log_id = "UAC #{@uac_conf[:name]}"
+      @log_id = "UAC (proxy #{@proxy_conf[:name]})"
 
       # Force the destination.
       if dst_host
@@ -78,9 +79,9 @@ module OverSIP::SIP
       end
 
       # Loockup in the DNS cache of this proxy.
-      if dst_host_type == :domain and @uac_conf[:use_dns_cache]
+      if dst_host_type == :domain and @proxy_conf[:use_dns_cache]
         dns_cache_entry = "#{dst_host}|#{dst_port}|#{dst_transport}|#{dst_scheme}"
-        if (result = @uac_conf[:dns_cache][dns_cache_entry])
+        if (result = @proxy_conf[:dns_cache][dns_cache_entry])
           log_system_debug "destination found in the DNS cache"  if $oversip_debug
           if result.is_a? ::Symbol
             rfc3263_failed result
@@ -94,7 +95,7 @@ module OverSIP::SIP
       end
 
       # Perform RFC 3261 procedures.
-      dns_query = ::OverSIP::SIP::RFC3263::Query.new @uac_conf, "UAC", dst_scheme, dst_host, dst_host_type, dst_port, dst_transport
+      dns_query = ::OverSIP::SIP::RFC3263::Query.new @proxy_conf, "UAC", dst_scheme, dst_host, dst_host_type, dst_port, dst_transport
       case result = dns_query.resolve
 
       # Async result so DNS took place.
@@ -103,8 +104,8 @@ module OverSIP::SIP
         dns_query.callback do |result|
           # Store the result in the DNS cache.
           if dns_cache_entry
-            @uac_conf[:dns_cache][dns_cache_entry] = result
-            ::EM.add_timer(@uac_conf[:dns_cache_time]) { @uac_conf[:dns_cache].delete dns_cache_entry }
+            @proxy_conf[:dns_cache][dns_cache_entry] = result
+            ::EM.add_timer(@proxy_conf[:dns_cache_time]) { @proxy_conf[:dns_cache].delete dns_cache_entry }
           end
           rfc3263_succeeded result
         end
@@ -112,8 +113,8 @@ module OverSIP::SIP
         dns_query.errback do |result|
           # Store the result in the DNS cache.
           if dns_cache_entry
-            @uac_conf[:dns_cache][dns_cache_entry] = result
-            ::EM.add_timer(@uac_conf[:dns_cache_time]) { @uac_conf[:dns_cache].delete dns_cache_entry }
+            @proxy_conf[:dns_cache][dns_cache_entry] = result
+            ::EM.add_timer(@proxy_conf[:dns_cache_time]) { @proxy_conf[:dns_cache].delete dns_cache_entry }
           end
           rfc3263_failed result
         end
@@ -121,8 +122,8 @@ module OverSIP::SIP
       when ::Symbol
         # Store the result in the DNS cache.
         if dns_cache_entry
-          @uac_conf[:dns_cache][dns_cache_entry] = result
-          ::EM.add_timer(@uac_conf[:dns_cache_time]) { @uac_conf[:dns_cache].delete dns_cache_entry }
+          @proxy_conf[:dns_cache][dns_cache_entry] = result
+          ::EM.add_timer(@proxy_conf[:dns_cache_time]) { @proxy_conf[:dns_cache].delete dns_cache_entry }
         end
         rfc3263_failed result
       # Instant success so it's not a domain (no DNS performed).
@@ -131,6 +132,7 @@ module OverSIP::SIP
       end
 
     end  # def send
+    alias :route :send
 
 
     def receive_response response
@@ -142,7 +144,7 @@ module OverSIP::SIP
         @on_success_response_block && @on_success_response_block.call(response)
       elsif response.status_code >= 300
         if response.status_code == 503
-          if @uac_conf[:dns_failover_on_503]
+          if @proxy_conf[:dns_failover_on_503]
             try_next_target nil, nil, response
             return
           else
@@ -156,16 +158,37 @@ module OverSIP::SIP
 
 
     def client_timeout
+      # Store the target and error in the blacklist.
+      if @proxy_conf[:use_blacklist]
+        blacklist_entry = @current_target.to_s
+        @proxy_conf[:blacklist][blacklist_entry] = [408, "Client Timeout", nil, :client_timeout]
+        ::EM.add_timer(@proxy_conf[:blacklist_time]) { @proxy_conf[:blacklist].delete blacklist_entry }
+      end
+
       try_next_target 408, "Client Timeout", nil, :client_timeout
     end
 
 
     def connection_failed
+      # Store the target and error in the blacklist.
+      if @proxy_conf[:use_blacklist]
+        blacklist_entry = @current_target.to_s
+        @proxy_conf[:blacklist][blacklist_entry] = [500, "Connection Error", nil, :connection_error]
+        ::EM.add_timer(@proxy_conf[:blacklist_time]) { @proxy_conf[:blacklist].delete blacklist_entry }
+      end
+
       try_next_target 500, "Connection Error", nil, :connection_error
     end
 
 
     def tls_validation_failed
+      # Store the target and error in the blacklist.
+      if @proxy_conf[:use_blacklist]
+        blacklist_entry = @current_target.to_s
+        @proxy_conf[:blacklist][blacklist_entry] = [500, "TLS Validation Failed", nil, :tls_validation_failed]
+        ::EM.add_timer(@proxy_conf[:blacklist_time]) { @proxy_conf[:blacklist].delete blacklist_entry }
+      end
+
       try_next_target 500, "TLS Validation Failed", nil, :tls_validation_failed
     end
 
@@ -182,6 +205,7 @@ module OverSIP::SIP
     def rfc3263_succeeded result
       # After RFC 3263 (DNS) resolution we get N targets.
       @num_target = 0  # First target is 0 (rather than 1).
+      @target = @targets = nil  # Avoid conflicts if same Uac is used for serial forking to a new destination.
 
       case result
 
@@ -206,15 +230,17 @@ module OverSIP::SIP
     def try_next_target status=nil, reason=nil, full_response=nil, code=nil
       # Single target.
       if @target and @num_target == 0
-        log_system_debug "trying single target: #{@target}"  if $oversip_debug
-        use_target @target
+        @current_target = @target
+        log_system_debug "trying single target: #{@current_target}"  if $oversip_debug
         @num_target = 1
+        use_target @current_target
 
       # Multiple targets (so @targets is set).
       elsif @targets and @num_target < @targets.size
-        log_system_debug "trying target #{@num_target+1} of #{@targets.size}: #{@targets[@num_target]}"  if $oversip_debug
-        use_target @targets[@num_target]
+        @current_target = @targets[@num_target]
+        log_system_debug "trying target #{@num_target+1} of #{@targets.size}: #{@current_target}"  if $oversip_debug
         @num_target += 1
+        use_target @current_target
 
       # No more targets.
       else
@@ -232,19 +258,26 @@ module OverSIP::SIP
 
 
     def use_target target
+      # Lookup the target in the blacklist.
+      if @proxy_conf[:use_blacklist] and (blacklist_entry = @proxy_conf[:blacklist][target.to_s])
+        log_system_notice "destination found in the blacklist"  if $oversip_debug
+        try_next_target blacklist_entry[0], blacklist_entry[1], blacklist_entry[2], blacklist_entry[3]
+        return
+      end
+
       # Call the on_target() callback if set by the user.
       @on_target_block && @on_target_block.call(target.ip_type, target.ip, target.port, target.transport)
 
-      # If the user has called to proxy.abort_routing() then stop next targets
+      # If the user has called to uac.abort_sending() then stop next targets
       # and call to on_error() callback.
       if @aborted
         log_system_notice "sending aborted for target #{target}"
         @aborted = @target = @targets = nil
-        try_next_target 403, "Destination Not Allowed", nil, :destination_not_allowed
+        try_next_target 403, "Destination Aborted", nil, :destination_aborted
         return
       end
 
-      @client_transaction = (::OverSIP::SIP::ClientTransaction.get_class @request).new self, @request, @uac_conf, target.transport, target.ip, target.ip_type, target.port
+      @client_transaction = (::OverSIP::SIP::ClientTransaction.get_class @request).new self, @request, @proxy_conf, target.transport, target.ip, target.ip_type, target.port
       @client_transaction.send_request
     end
 
