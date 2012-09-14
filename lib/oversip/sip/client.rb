@@ -47,7 +47,10 @@ module OverSIP::SIP
 
     # Manually insert the last target into the blacklist. Optionally a timeout value can be given
     # (otherwise the proxy blacklist_time is used). The timeout must be between 2 and 3000 seconds.
-    def add_to_blacklist timeout=nil
+    # Also the SIP code and reason can be passed.
+    def add_target_to_blacklist timeout=nil, status_code=403, reason_phrase="Destination Blacklisted"
+      return false  unless @current_target
+
       if timeout
         timeout = timeout.to_i
         if timeout < 2 or timeout > 3000
@@ -58,7 +61,7 @@ module OverSIP::SIP
       end
 
       blacklist_entry = @current_target.to_s
-      @conf[:blacklist][blacklist_entry] = [403, "Destination Blacklisted", nil, :destination_blacklisted]
+      @conf[:blacklist][blacklist_entry] = [status_code, reason_phrase, nil, :destination_blacklisted]
       ::EM.add_timer(timeout) { @conf[:blacklist].delete blacklist_entry }
     end
 
