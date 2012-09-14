@@ -40,9 +40,8 @@ module OverSIP::SIP
       @on_target_block = block
     end
 
-    # It must only be called within the on_target() callback. By calling this method,
-    # the request routing is aborted, no more DNS targets are tryed, a local 403 response
-    # is generated and on_error() callback is called with status 403.
+    # By calling this method the request routing is aborted, no more DNS targets are tryed,
+    # a local 403 response is generated and on_error() callback is called with status 403.
     def abort_routing
       @aborted = true
     end
@@ -237,7 +236,7 @@ module OverSIP::SIP
       end
 
       # Call the on_target() callback if set by the user.
-      @on_target_block && @on_target_block.call(target.ip_type, target.ip, target.port, target.transport)
+      @on_target_block && @on_target_block.call(target)
 
       # If the user has called to proxy.abort_routing() then stop next targets
       # and call to on_error() callback.
