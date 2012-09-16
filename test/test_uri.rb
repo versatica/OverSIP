@@ -15,6 +15,9 @@ class TestUri < OverSIPTest
     uri.set_param "baz", nil
     uri.headers = "?X-Header-1=qwe&X-Header-2=asd"
 
+    assert_true uri.sip?
+    assert_false uri.tel?
+    assert_false uri.unknown_scheme?
     assert_equal "iñaki", uri.user
     assert_equal "123", uri.get_param("Foo")
     assert_equal aor, uri.aor
@@ -29,6 +32,9 @@ class TestUri < OverSIPTest
     uri.set_param "FOO", "bar"
     uri.phone_context_param = "+34"
 
+    assert_false uri.sip?
+    assert_true uri.tel?
+    assert_false uri.unknown_scheme?
     assert_equal "944991212", uri.number
     assert_equal "bar", uri.get_param("Foo")
     assert_equal aor, uri.aor
@@ -42,6 +48,9 @@ class TestUri < OverSIPTest
     uri = ::OverSIP::SIP::Uri.allocate
     uri.instance_variable_set :@uri, full_uri
 
+    assert_false uri.sip?
+    assert_false uri.tel?
+    assert_true uri.unknown_scheme?
     assert_nil uri.aor
     assert_equal full_uri, uri.to_s
   end

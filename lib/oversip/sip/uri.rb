@@ -13,6 +13,14 @@ module OverSIP::SIP
       @uri_modified = true
     end
 
+    def sip?
+      @scheme == :sip or @scheme == :sips
+    end
+
+    def tel?
+      @scheme == :tel
+    end
+
     def scheme= value
       return nil  if unknown_scheme?
       @scheme = value
