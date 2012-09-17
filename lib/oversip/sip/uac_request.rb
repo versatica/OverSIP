@@ -12,10 +12,13 @@ module OverSIP::SIP
 
 
     def initialize data, extra_headers=[], body=nil
-      @sip_method = data[:sip_method]
+      unless (@sip_method = data[:sip_method])
+        raise ::OverSIP::RuntimeError, "no data[:sip_method] given"
+      end
       unless (@ruri = data[:ruri])
         raise ::OverSIP::RuntimeError, "no data[:ruri] given"
       end
+
       @from = data[:from] || DEFAULT_FROM
       @from_tag = data[:from_tag] || ::SecureRandom.hex(4)
       @to = data[:to] || @ruri
