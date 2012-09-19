@@ -4,7 +4,7 @@ module OverSIP::SIP
 
     attr_reader :display_name
 
-    def initialize scheme, user=nil, host=nil, port=nil, display_name=nil
+    def initialize display_name=nil, scheme=:sip, user=nil, host=nil, port=nil
       @display_name = display_name
       @scheme = scheme.to_sym
       @user = user

@@ -3,7 +3,7 @@ module OverSIP::SIP
   class Uri
     attr_reader :scheme, :user, :host, :host_type, :port, :params, :transport_param, :phone_context_param, :ovid_param, :headers
 
-    def initialize scheme, user=nil, host=nil, port=nil
+    def initialize scheme=:sip, user=nil, host=nil, port=nil
       @scheme = scheme.to_sym
       @user = user
       @host = host
