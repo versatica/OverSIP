@@ -2,6 +2,20 @@ CHANGELOG
 =========
 
 
+Version 1.3.0 (released in 2012-10-04)
+--------------------------------------
+
+- [(6afa5a6)](https://github.com/versatica/OverSIP/commit/6afa5a6c2572aea4b78a3aba2fc5d2f0d81d96ce) All the callbacks in `server.rb` are now executed within a new [Fiber](http://www.ruby-doc.org/core-1.9.3/Fiber.html) allowing synchronous style coding by using [em-synchrony]:(https://github.com/igrigorik/em-synchrony) libraries.
+
+- [(b950bba)](https://github.com/versatica/OverSIP/commit/b950bba6aa8d7e3e28d69f7fb3d850a4719e02ba) New class `OverSIP::SIP::Uac`that allows OverSIP behaving as a UAC for generating and sending SIP requests. New class `OverSIP::SIP::UacRequest` for generating requests to be sent via `OverSIP::SIP::Uac#route` method (also allows sending a received `OverSIP::SIP::Request` instance).
+
+- New methods `initialize()`. `sip?`, `tel?` and `get_param()` for `OverSIP::SIP::Uri` class ([doc](http://www.oversip.net/documentation/1.3.x/api/sip/uri/)).
+
+- New class `OverSIP::SIP::Client`, parent class of `OverSIP::SIP::Proxy` and `OverSIP::SIP::Uac`. New method `add_target_to_blacklist()` ([doc](http://www.oversip.net/documentation/1.3.x/api/sip/client/)).
+
+- [(7e9733e)](https://github.com/versatica/OverSIP/commit/7e9733e95f04158bb69ed13130984e335c80c73c) New feature: automatic blacklists. When a destination (target) fails due to timeout, connection error or TLS validation error, the target is added to a temporal blacklist and future requests to same target are not attempted until the entry in the blacklist expires.
+
+
 Version 1.2.0 (released in 2012-09-04)
 --------------------------------------
 
