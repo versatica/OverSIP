@@ -173,7 +173,7 @@ module OverSIP::SIP
       # Don't add routing headers again if we are in DNS failover within the same Proxy instance.
       # But we must run this method if it's an incoming request asking for Outbound usage (in this
       # case @num_target is nil so the method continues).
-      return  if @num_target and @num_target > 0
+      return  if @num_target and @num_target > 1
 
       add_rr_path = false
 

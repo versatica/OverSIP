@@ -182,7 +182,7 @@ module OverSIP::SIP
 
     def rfc3263_succeeded result
       # After RFC 3263 (DNS) resolution we get N targets.
-      @num_target = 0  # First target is 0 (rather than 1).
+      @num_target = 0
       @target = @targets = nil  # Avoid conflicts if same Proxy is used for serial forking to a new destination.
 
       case result
@@ -209,15 +209,15 @@ module OverSIP::SIP
       # Single target.
       if @target and @num_target == 0
         @current_target = @target
-        log_system_debug "trying single target: #{@current_target}"  if $oversip_debug
         @num_target = 1
+        log_system_debug "trying single target: #{@current_target}"  if $oversip_debug
         use_target @current_target
 
       # Multiple targets (so @targets is set).
       elsif @targets and @num_target < @targets.size
         @current_target = @targets[@num_target]
-        log_system_debug "trying target #{@num_target+1} of #{@targets.size}: #{@current_target}"  if $oversip_debug
         @num_target += 1
+        log_system_debug "trying target #{@num_target} of #{@targets.size}: #{@current_target}"  if $oversip_debug
         use_target @current_target
 
       # No more targets.
