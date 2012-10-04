@@ -34,7 +34,7 @@ module OverSIP
       :use_dns_cache              => :boolean,
       :dns_cache_time             => [ :fixnum, [ :greater_equal_than, 300 ] ],
       :use_blacklist              => :boolean,
-      :blacklist_time             => [ :fixnum, [ :greater_equal_than, 2 ], [ :minor_equal_than, 120 ] ],
+      :blacklist_time             => [ :fixnum, [ :greater_equal_than, 2 ], [ :minor_equal_than, 600 ] ],
       :use_naptr                  => :boolean,
       :use_srv                    => :boolean,
       :transport_preference       => [ [ :choices, %w{tls tcp udp}], :multi_value, :non_empty ],
