@@ -9,7 +9,7 @@ Version 1.3.0 (released in 2012-10-04)
 
 - [(b950bba)](https://github.com/versatica/OverSIP/commit/b950bba6aa8d7e3e28d69f7fb3d850a4719e02ba) New class `OverSIP::SIP::Uac`that allows OverSIP behaving as a UAC for generating and sending SIP requests. New class `OverSIP::SIP::UacRequest` for generating requests to be sent via `OverSIP::SIP::Uac#route` method (also allows sending a received `OverSIP::SIP::Request` instance).
 
-- New methods `initialize()`. `sip?`, `tel?` and `get_param()` for `OverSIP::SIP::Uri` class ([doc](http://www.oversip.net/documentation/1.3.x/api/sip/uri/)).
+- New methods `initialize()`, `sip?`, `tel?` and `get_param()` for `OverSIP::SIP::Uri` class ([doc](http://www.oversip.net/documentation/1.3.x/api/sip/uri/)).
 
 - New class `OverSIP::SIP::Client`, parent class of `OverSIP::SIP::Proxy` and `OverSIP::SIP::Uac`. New method `add_target_to_blacklist()` ([doc](http://www.oversip.net/documentation/1.3.x/api/sip/client/)).
 
