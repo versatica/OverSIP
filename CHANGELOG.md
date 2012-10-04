@@ -2,6 +2,12 @@ CHANGELOG
 =========
 
 
+Version 1.3.1 (released in 2012-10-04)
+--------------------------------------
+
+- [(042fdaf)](https://github.com/versatica/OverSIP/commit/042fdaf17bfeddf22ffa80637b0e0fb387a77bff) Fixed an important bug in record-routing mechanism that makes OverSIP not to add Record-Route/Path headers.
+
+
 Version 1.3.0 (released in 2012-10-04)
 --------------------------------------
 
