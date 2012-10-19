@@ -114,7 +114,7 @@ VALUE Stun_parse_request(VALUE self, VALUE rb_stun_request, VALUE rb_source_ip, 
    *
    * So let's check the second byte which must be 0x1.
    */
-  if ( request[1] != 0b00000001 ) {
+  if ( request[1] != 0x1 ) {
     LOG("ERROR: not a valid STUN Binding Request, maybe an STUN Indication (so ignore it)\n");
     return Qfalse;
   }
