@@ -44,6 +44,7 @@ module OverSIP
         :record_route_hostname_tls_ipv4 => nil,
         :record_route_hostname_tls_ipv6 => nil,
         :max_body_size            => 65536,
+        :timeout_anti_slow_attacks => 4
       },
       :websocket => {
         :sip_ws                   => false,
@@ -59,7 +60,8 @@ module OverSIP
         :callback_on_client_tls_handshake => true,
         :max_ws_message_size      => 65536,
         :max_ws_frame_size        => 65536,
-        :ws_keepalive_interval    => nil
+        :ws_keepalive_interval    => nil,
+        :timeout_anti_slow_attacks => 4
       },
       :tls => {
         :public_cert              => nil,
@@ -97,7 +99,8 @@ module OverSIP
         :tcp_keepalive_interval          => [ :fixnum, [ :greater_equal_than, 180 ] ],
         :record_route_hostname_tls_ipv4  => :domain,
         :record_route_hostname_tls_ipv6  => :domain,
-        :max_body_size                   => [ :fixnum, [ :minor_than, 1048576 ] ]
+        :max_body_size                   => [ :fixnum, [ :minor_than, 1048576 ] ],
+        :timeout_anti_slow_attacks       => [ :fixnum, [ :minor_than, 120 ] ]
       },
       :websocket => {
         :sip_ws                          => :boolean,
@@ -113,7 +116,8 @@ module OverSIP
         :callback_on_client_tls_handshake => :boolean,
         :max_ws_message_size             => [ :fixnum, [ :minor_than, 1048576 ] ],
         :max_ws_frame_size               => [ :fixnum, [ :minor_than, 1048576 ] ],
-        :ws_keepalive_interval           => [ :fixnum, [ :greater_equal_than, 180 ] ]
+        :ws_keepalive_interval           => [ :fixnum, [ :greater_equal_than, 180 ] ],
+        :timeout_anti_slow_attacks       => [ :fixnum, [ :minor_than, 120 ] ]
       },
       :tls => {
         :public_cert                     => [ :readable_file, :tls_pem_chain ],

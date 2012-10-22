@@ -109,7 +109,7 @@ module OverSIP::SIP
       # Store the previous internal To-tag (if set).
       internal_to_tag = @internal_to_tag
 
-      # Set it with the To-tag of the response for which a 199 must eb generated.
+      # Set it with the To-tag of the response for which a 199 must be generated.
       @internal_to_tag = response.to_tag
 
       # Send the 199 response.

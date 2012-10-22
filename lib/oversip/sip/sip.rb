@@ -10,6 +10,8 @@ module OverSIP::SIP
 
     @max_body_size = conf[:sip][:max_body_size]
 
+    @timeout_anti_slow_attacks = conf[:sip][:timeout_anti_slow_attacks]
+
     @local_aliases = {}
 
     sip_local_domains = conf[:sip][:local_domains] || []
@@ -67,6 +69,9 @@ module OverSIP::SIP
     @max_body_size
   end
 
+  def self.timeout_anti_slow_attacks
+    @timeout_anti_slow_attacks
+  end
 
   def self.local_ipv4
     @local_ipv4

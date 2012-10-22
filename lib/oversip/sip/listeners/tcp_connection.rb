@@ -33,17 +33,20 @@ module OverSIP::SIP
         when :init
           @parser.reset
           @parser_nbytes = 0
+          @parsing_message = false
           @state = :headers
 
         when :headers
           parse_headers
-          # TODO: Add a timer for the case in which an attacker sends us slow headers that never end:
-          #   http://ha.ckers.org/slowloris/.
 
         when :body
           get_body
 
         when :finished
+          # Stop the timer that avoids slow attacks.
+          @timer_anti_slow_attacks.cancel
+          @parsing_message = false
+
           if @msg.request?
             process_request
           else
@@ -52,6 +55,7 @@ module OverSIP::SIP
 
           # Set state to :init.
           @state = :init
+
           # Return true to continue processing possible remaining data.
           true
 
@@ -63,6 +67,17 @@ module OverSIP::SIP
 
     def parse_headers
       return false if @buffer.empty?
+
+      unless @parsing_message
+        @parsing_message = true
+        @timer_anti_slow_attacks = ::EM::Timer.new(::OverSIP::SIP.timeout_anti_slow_attacks) do
+          unless @state == :ignore
+            log_system_warn "DoS attack detected: slow headers or body, closing connection with #{remote_desc}"
+            close_connection
+            @state = :ignore
+          end
+        end
+      end
 
       # Parse the currently buffered data. If parsing fails @parser_nbytes gets nil value.
       unless @parser_nbytes = @parser.execute(@buffer.to_str, @parser_nbytes)
