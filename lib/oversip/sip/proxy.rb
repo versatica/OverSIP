@@ -3,8 +3,18 @@ module OverSIP::SIP
   class Proxy < Client
 
     # If called, current response within the called callback won't be forwarded.
-    def drop_response
+    # If a SIP response is given then this method may offer other features such as replying 199.
+    def drop_response response=nil
       @drop_response = true
+
+      # RFC 6228 (199 response).
+      # http://tools.ietf.org/html/rfc6228#section-6
+      if response and response.status_code >= 300 and
+         @request.sip_method == :INVITE and
+         @request.supported and @request.supported.include?("199")
+
+        @request.send :reply_199, response
+      end
     end
 
 
