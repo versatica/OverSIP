@@ -100,6 +100,26 @@ module OverSIP::WebSocket
       if parser_nbytes != ws_message.bytesize
         @msg.body = ws_message[parser_nbytes..-1]
 
+        # Check max body size.
+        body_length = if @msg.content_length
+          @msg.content_length
+        elsif @msg.body
+          @msg.body.bytesize
+        else
+          0
+        end
+
+        if body_length > ::OverSIP::SIP.max_body_size
+          if @msg.request?
+            log_system_warn "request body size too big => 403"
+            @msg.reply 403, "body size too big"
+          else
+            log_system_warn "response body size too big, discarding response"
+          end
+          @connection.close 4002, "SIP message body too big"
+          return
+        end
+
         if @msg.content_length and @msg.content_length != @msg.body.bytesize
           log_system_warn "SIP message body size (#{@msg.body.bytesize}) does not match Content-Length (#{@msg.content_length.inspect}), ignoring message"
           @connection.close 4002, "SIP message body size does not match Content-Length"

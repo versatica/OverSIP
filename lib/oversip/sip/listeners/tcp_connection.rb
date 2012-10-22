@@ -141,6 +141,19 @@ module OverSIP::SIP
       if (@body_length = @msg.content_length)
         # There is body (or should be).
         if @body_length > 0
+          # Check max body size.
+          if @body_length > ::OverSIP::SIP.max_body_size
+            if @msg.request?
+              log_system_warn "request body size too big => 403"
+              @msg.reply 403, "body size too big"
+            else
+              log_system_warn "response body size too big, discarding response"
+            end
+            close_connection_after_writing
+            @state = :ignore
+            return false
+          end
+
           @state = :body
           # Return true to continue in get_body() method.
           return true

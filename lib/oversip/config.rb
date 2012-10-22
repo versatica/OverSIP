@@ -42,7 +42,8 @@ module OverSIP
         :local_domains            => nil,
         :tcp_keepalive_interval   => nil,
         :record_route_hostname_tls_ipv4 => nil,
-        :record_route_hostname_tls_ipv6 => nil
+        :record_route_hostname_tls_ipv6 => nil,
+        :max_body_size            => 65536,
       },
       :websocket => {
         :sip_ws                   => false,
@@ -96,6 +97,7 @@ module OverSIP
         :tcp_keepalive_interval          => [ :fixnum, [ :greater_equal_than, 180 ] ],
         :record_route_hostname_tls_ipv4  => :domain,
         :record_route_hostname_tls_ipv6  => :domain,
+        :max_body_size                   => [ :fixnum, [ :minor_than, 1048576 ] ]
       },
       :websocket => {
         :sip_ws                          => :boolean,

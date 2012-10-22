@@ -8,6 +8,8 @@ module OverSIP::SIP
 
     @tcp_keepalive_interval = conf[:sip][:tcp_keepalive_interval]
 
+    @max_body_size = conf[:sip][:max_body_size]
+
     @local_aliases = {}
 
     sip_local_domains = conf[:sip][:local_domains] || []
@@ -60,6 +62,11 @@ module OverSIP::SIP
   def self.tcp_keepalive_interval
     @tcp_keepalive_interval
   end
+
+  def self.max_body_size
+    @max_body_size
+  end
+
 
   def self.local_ipv4
     @local_ipv4
