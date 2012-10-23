@@ -20,11 +20,6 @@ module OverSIP::WebSocket
     KEEPALIVE_PING_FRAME = keepalive_ping_frame
 
 
-    def self.class_init
-      @@max_frame_size = ::OverSIP.configuration[:websocket][:max_ws_frame_size]
-    end
-
-
     attr_writer :ws_app
 
 
@@ -180,7 +175,7 @@ module OverSIP::WebSocket
           end
 
           # Check max frame size.
-          if @payload_length > @@max_frame_size
+          if @payload_length > ::OverSIP::Security.websocket_max_message_size
             @connection.close 1009, "frame too big"
             return false
           end
@@ -283,7 +278,12 @@ module OverSIP::WebSocket
                 end
               end
 
-              return false  unless @ws_app.receive_payload_data @payload
+              # If @ws_app.receive_payload_data returns false it means that total
+              # message size is too big.
+              unless @ws_app.receive_payload_data @payload
+                @connection.close 1009, "message too big"
+                return false
+              end
             end
 
             # If message is finished tell it to the WS application.
@@ -345,6 +345,10 @@ module OverSIP::WebSocket
           end
 
           true
+
+        when :ignore
+          false
+
         end)
       end # while
 
@@ -500,6 +504,7 @@ module OverSIP::WebSocket
 
 
     def send_close_frame status=nil, reason=nil, in_reply_to_close=nil
+      @state = :ignore
       @keep_alive_timer.cancel  if @keep_alive_timer
 
       unless in_reply_to_close

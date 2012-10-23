@@ -6,7 +6,6 @@ module OverSIP::WebSocket
     include ::OverSIP::SIP::MessageProcessor
 
     def self.class_init
-      @@max_message_size = ::OverSIP.configuration[:websocket][:max_ws_message_size]
       @@ws_keepalive_interval = ::OverSIP.configuration[:websocket][:ws_keepalive_interval]
     end
 
@@ -36,7 +35,7 @@ module OverSIP::WebSocket
       @ws_message << payload_data
 
       # Check max message size.
-      return false  if @ws_message.size > @@max_message_size
+      return false  if @ws_message.size > ::OverSIP::Security.websocket_max_message_size
       true
     end
 
@@ -109,7 +108,7 @@ module OverSIP::WebSocket
           0
         end
 
-        if body_length > ::OverSIP::SIP.max_body_size
+        if body_length > ::OverSIP::Security.sip_max_body_size
           if @msg.request?
             log_system_warn "request body size too big => 403"
             @msg.reply 403, "body size too big"

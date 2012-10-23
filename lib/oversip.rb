@@ -66,6 +66,7 @@ module OverSIP
   # Pre-declare internal modules.
   module SIP ; end
   module WebSocket ; end
+  module Security ; end
   module Modules ; end
 
   # Allow OverSIP::M::MODULE_NAME usage.

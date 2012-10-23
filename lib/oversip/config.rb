@@ -42,9 +42,7 @@ module OverSIP
         :local_domains            => nil,
         :tcp_keepalive_interval   => nil,
         :record_route_hostname_tls_ipv4 => nil,
-        :record_route_hostname_tls_ipv6 => nil,
-        :max_body_size            => 65536,
-        :timeout_anti_slow_attacks => 4
+        :record_route_hostname_tls_ipv6 => nil
       },
       :websocket => {
         :sip_ws                   => false,
@@ -59,14 +57,17 @@ module OverSIP
         :listen_port_tls_tunnel   => 10444,
         :callback_on_client_tls_handshake => true,
         :max_ws_message_size      => 65536,
-        :max_ws_frame_size        => 65536,
-        :ws_keepalive_interval    => nil,
-        :timeout_anti_slow_attacks => 4
+        :ws_keepalive_interval    => nil
       },
       :tls => {
         :public_cert              => nil,
         :private_cert             => nil,
         :ca_dir                   => nil
+      },
+      :security => {
+        :sip_max_body_size           => 65536,
+        :websocket_max_message_size  => 65536,
+        :anti_slow_attack_timeout    => 4
       }
     }
 
@@ -99,8 +100,6 @@ module OverSIP
         :tcp_keepalive_interval          => [ :fixnum, [ :greater_equal_than, 180 ] ],
         :record_route_hostname_tls_ipv4  => :domain,
         :record_route_hostname_tls_ipv6  => :domain,
-        :max_body_size                   => [ :fixnum, [ :minor_than, 1048576 ] ],
-        :timeout_anti_slow_attacks       => [ :fixnum, [ :minor_than, 120 ] ]
       },
       :websocket => {
         :sip_ws                          => :boolean,
@@ -114,15 +113,17 @@ module OverSIP
         :use_tls_tunnel                  => :boolean,
         :listen_port_tls_tunnel          => :port,
         :callback_on_client_tls_handshake => :boolean,
-        :max_ws_message_size             => [ :fixnum, [ :minor_than, 1048576 ] ],
-        :max_ws_frame_size               => [ :fixnum, [ :minor_than, 1048576 ] ],
         :ws_keepalive_interval           => [ :fixnum, [ :greater_equal_than, 180 ] ],
-        :timeout_anti_slow_attacks       => [ :fixnum, [ :minor_than, 120 ] ]
       },
       :tls => {
         :public_cert                     => [ :readable_file, :tls_pem_chain ],
         :private_cert                    => [ :readable_file, :tls_pem_private ],
         :ca_dir                          => :readable_dir
+      },
+      :security => {
+        :sip_max_body_size               => :fixnum,
+        :websocket_max_message_size      => :fixnum,
+        :anti_slow_attack_timeout        => :fixnum
       }
     }
 

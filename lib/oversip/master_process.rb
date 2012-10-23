@@ -57,6 +57,7 @@ require "oversip/websocket/ws_framing_utils.so"
 require "oversip/websocket/ws_framing.rb"
 require "oversip/websocket/ws_sip_app.rb"
 
+require "oversip/security.rb"
 require "oversip/fiber_pool.rb"
 require "oversip/tls.rb"
 require "oversip/stun.so"

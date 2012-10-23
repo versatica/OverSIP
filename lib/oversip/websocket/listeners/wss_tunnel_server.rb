@@ -79,13 +79,13 @@ module OverSIP::WebSocket
           parse_http_headers
 
         when :check_http_request
+          # Stop the timer that avoids slow attacks.
+          @timer_anti_slow_attack_http.cancel
+          @parsing_message = false
+
           check_http_request
 
         when :on_connection_callback
-          # Stop the timer that avoids slow attacks.
-          @timer_anti_slow_attacks.cancel
-          @parsing_message = false
-
           do_on_connection_callback
           false
 
@@ -93,7 +93,7 @@ module OverSIP::WebSocket
           accept_ws_handshake
 
         when :websocket
-          @ws_established = true
+          @ws_established ||= true
           return false  if @buffer.size.zero?
           @ws_framing.receive_data
           false

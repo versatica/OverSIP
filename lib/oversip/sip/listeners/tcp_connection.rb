@@ -34,6 +34,7 @@ module OverSIP::SIP
           @parser.reset
           @parser_nbytes = 0
           @parsing_message = false
+          @timer_anti_slow_attack.cancel  if @timer_anti_slow_attack
           @state = :headers
 
         when :headers
@@ -43,10 +44,6 @@ module OverSIP::SIP
           get_body
 
         when :finished
-          # Stop the timer that avoids slow attacks.
-          @timer_anti_slow_attacks.cancel
-          @parsing_message = false
-
           if @msg.request?
             process_request
           else
@@ -70,7 +67,7 @@ module OverSIP::SIP
 
       unless @parsing_message
         @parsing_message = true
-        @timer_anti_slow_attacks = ::EM::Timer.new(::OverSIP::SIP.timeout_anti_slow_attacks) do
+        @timer_anti_slow_attack = ::EM::Timer.new(::OverSIP::Security.anti_slow_attack_timeout) do
           unless @state == :ignore
             log_system_warn "DoS attack detected: slow headers or body, closing connection with #{remote_desc}"
             close_connection
@@ -157,7 +154,7 @@ module OverSIP::SIP
         # There is body (or should be).
         if @body_length > 0
           # Check max body size.
-          if @body_length > ::OverSIP::SIP.max_body_size
+          if @body_length > ::OverSIP::Security.sip_max_body_size
             if @msg.request?
               log_system_warn "request body size too big => 403"
               @msg.reply 403, "body size too big"
@@ -203,11 +200,6 @@ module OverSIP::SIP
       # Return false until the buffer gets all the body.
       return false if @buffer.size < @body_length
 
-      ### TODO: Creo que es mejor forzarlo a BINARY y no a UTF-8. Aunque IOBuffer ya lo saca siempre en BINARY.
-      # ¿Por qué lo forcé a UTF-8?
-      # RESPUESTA: Si no lo hago y resulta que el body no es UTF-8 válido, al añadir el body a los headers (que
-      # se generan como un string en UTF-8 (aunque contengan símbolos no UTF-8) fallaría. O todo UTF-8 (aunque
-      # tenga símbolos inválidos) o todo BINARY.
       @msg.body = @buffer.read(@body_length).force_encoding(::Encoding::UTF_8)
       @state = :finished
       return true

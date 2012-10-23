@@ -6,6 +6,9 @@ module OverSIP::WebSocket
     # (avoid DoS attacks).
     HEADERS_MAX_SIZE = 2048
 
+    # Avoid slow HTTP headers attack when receiving the HTTP GET.
+    ANTI_SLOW_ATTACK_HTTP_TIMEOUT = 1
+
     WS_MAGIC_GUID_04 = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11".freeze
     WS_VERSIONS = { 7=>true, 8=>true, 13=>true }
     HDR_SUPPORTED_WEBSOCKET_VERSIONS = [ "X-Supported-WebSocket-Versions: #{WS_VERSIONS.keys.join(", ")}" ]
@@ -123,13 +126,13 @@ module OverSIP::WebSocket
           parse_http_headers
 
         when :check_http_request
+          # Stop the timer that avoids slow attacks.
+          @timer_anti_slow_attack_http.cancel
+          @parsing_message = false
+
           check_http_request
 
         when :on_connection_callback
-          # Stop the timer that avoids slow attacks.
-          @timer_anti_slow_attacks.cancel
-          @parsing_message = false
-
           do_on_connection_callback
           false
 
@@ -137,7 +140,7 @@ module OverSIP::WebSocket
           accept_ws_handshake
 
         when :websocket
-          @ws_established = true
+          @ws_established ||= true
           @ws_framing.receive_data
           false
 
@@ -154,7 +157,7 @@ module OverSIP::WebSocket
 
       unless @parsing_message
         @parsing_message = true
-        @timer_anti_slow_attacks = ::EM::Timer.new(::OverSIP::WebSocket.timeout_anti_slow_attacks) do
+        @timer_anti_slow_attack_http = ::EM::Timer.new(ANTI_SLOW_ATTACK_HTTP_TIMEOUT) do
           unless @state == :ignore
             log_system_warn "DoS attack detected: slow headers or body, closing connection with #{remote_desc}"
             close_connection
