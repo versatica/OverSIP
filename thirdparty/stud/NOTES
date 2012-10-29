@@ -1,0 +1,3 @@
+- stud's original Makefile has been modified for adding /usr/include/libev into the library path (workaround for CentOS):
+  See: https://github.com/versatica/OverSIP/issues/23#issuecomment-9649288
+
