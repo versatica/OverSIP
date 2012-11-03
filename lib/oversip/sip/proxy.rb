@@ -250,7 +250,13 @@ module OverSIP::SIP
             @request.insert_header "Record-Route", "<sip:" << @request.connection_outbound_flow_token << @request.connection.class.outbound_record_route_fragment
           elsif @request.incoming_outbound_requested?
             @request.in_rr = :incoming_outbound_rr
-            @request.insert_header "Record-Route", @request.connection.class.record_route
+            # The request comes via UDP or via a connection made by the client.
+            if @request.connection.class.outbound_listener?
+              @request.insert_header "Record-Route", @request.connection.class.record_route
+            # The request comes via a TCP/TLS connection made by OverSIP.
+            else
+              @request.insert_header "Record-Route", @request.connection.record_route
+            end
           else
             @request.in_rr = :rr
             # The request comes via UDP or via a connection made by the client.
