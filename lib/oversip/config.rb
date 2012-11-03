@@ -65,8 +65,10 @@ module OverSIP
         :ca_dir                   => nil
       },
       :security => {
-        :sip_max_body_size           => 65536,
-        :websocket_max_message_size  => 65536,
+        :sip_max_body_size                 => 65536,
+        :websocket_max_message_size        => 65536,
+        :connection_in_inactivity_timeout  => 120,
+        :connection_out_inactivity_timeout => 120,
         :anti_slow_attack_timeout    => 4
       }
     }
@@ -97,7 +99,7 @@ module OverSIP
         :listen_port_tls_tunnel          => :port,
         :callback_on_client_tls_handshake => :boolean,
         :local_domains                   => [ :domain, :multi_value ],
-        :tcp_keepalive_interval          => [ :fixnum, [ :greater_equal_than, 180 ] ],
+        :tcp_keepalive_interval          => [ :fixnum, [ :greater_equal_than, 2 ] ],  # TODO: poner 180
         :record_route_hostname_tls_ipv4  => :domain,
         :record_route_hostname_tls_ipv6  => :domain,
       },
@@ -121,9 +123,11 @@ module OverSIP
         :ca_dir                          => :readable_dir
       },
       :security => {
-        :sip_max_body_size               => :fixnum,
-        :websocket_max_message_size      => :fixnum,
-        :anti_slow_attack_timeout        => :fixnum
+        :sip_max_body_size                 => :fixnum,
+        :websocket_max_message_size        => :fixnum,
+        :connection_in_inactivity_timeout  => [ :fixnum, [ :greater_equal_than, 2 ] ],
+        :connection_out_inactivity_timeout => [ :fixnum, [ :greater_equal_than, 2 ] ],
+        :anti_slow_attack_timeout          => :fixnum
       }
     }
 

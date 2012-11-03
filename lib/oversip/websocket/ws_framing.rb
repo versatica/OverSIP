@@ -175,7 +175,7 @@ module OverSIP::WebSocket
           end
 
           # Check max frame size.
-          if @payload_length > ::OverSIP::Security.websocket_max_message_size
+          if @payload_length > ::OverSIP::Security.ws_max_message_size
             @connection.close 1009, "frame too big"
             return false
           end

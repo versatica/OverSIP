@@ -35,7 +35,7 @@ module OverSIP::WebSocket
       @ws_message << payload_data
 
       # Check max message size.
-      return false  if @ws_message.size > ::OverSIP::Security.websocket_max_message_size
+      return false  if @ws_message.size > ::OverSIP::Security.ws_max_message_size
       true
     end
 

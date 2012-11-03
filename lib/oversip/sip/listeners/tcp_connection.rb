@@ -216,6 +216,20 @@ module OverSIP::SIP
       true
     end
 
+
+    def start_timer_anti_slow_attack
+      unless @parsing_message
+        @parsing_message = true
+        @timer_anti_slow_attack = ::EM::Timer.new(::OverSIP::Security.anti_slow_attack_timeout) do
+          unless @state == :ignore
+            log_system_warn "DoS attack detected: slow headers or body, closing connection with #{remote_desc}"
+            close_connection
+            @state = :ignore
+          end
+        end
+      end
+    end
+
   end
 
 end

@@ -21,8 +21,8 @@ module OverSIP::SIP
       @connected = false
       @pending_client_transactions = []
 
-      ### TODO: make it configurable.
       set_pending_connect_timeout 2.0
+      set_comm_inactivity_timeout ::OverSIP::Security.connection_out_inactivity_timeout
     end
 
 

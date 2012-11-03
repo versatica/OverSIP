@@ -58,7 +58,7 @@ module OverSIP::WebSocket
           if enabled
             ::EM.start_server(ip, port, klass) do |conn|
               conn.post_connection
-              conn.set_comm_inactivity_timeout 300
+              conn.set_comm_inactivity_timeout ::OverSIP::Security.connection_in_inactivity_timeout
             end
           end
 
@@ -71,7 +71,7 @@ module OverSIP::WebSocket
           if enabled
             ::EM.start_server(ip, port, klass) do |conn|
               conn.post_connection
-              conn.set_comm_inactivity_timeout 300
+              conn.set_comm_inactivity_timeout ::OverSIP::Security.connection_in_inactivity_timeout
             end
           end
 
@@ -85,7 +85,7 @@ module OverSIP::WebSocket
           if enabled
             ::EM.start_server(ip, port, klass) do |conn|
               conn.post_connection
-              conn.set_comm_inactivity_timeout 300
+              conn.set_comm_inactivity_timeout ::OverSIP::Security.connection_in_inactivity_timeout
             end
           end
 
@@ -99,7 +99,7 @@ module OverSIP::WebSocket
           if enabled
             ::EM.start_server(ip, port, klass) do |conn|
               conn.post_connection
-              conn.set_comm_inactivity_timeout 300
+              conn.set_comm_inactivity_timeout ::OverSIP::Security.connection_in_inactivity_timeout
             end
           end
 
@@ -113,7 +113,7 @@ module OverSIP::WebSocket
           if enabled
             ::EM.start_server(ip, port, klass) do |conn|
               conn.post_connection
-              conn.set_comm_inactivity_timeout 300
+              conn.set_comm_inactivity_timeout ::OverSIP::Security.connection_in_inactivity_timeout
             end
           end
 
@@ -127,7 +127,7 @@ module OverSIP::WebSocket
           if enabled
             ::EM.start_server(ip, port, klass) do |conn|
               conn.post_connection
-              conn.set_comm_inactivity_timeout 300
+              conn.set_comm_inactivity_timeout ::OverSIP::Security.connection_in_inactivity_timeout
             end
           end
 
