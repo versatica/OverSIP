@@ -2,6 +2,12 @@ CHANGELOG
 =========
 
 
+Version 1.3.2 (released in 2012-11-03)
+--------------------------------------
+
+- [(3d7fa9e)](https://github.com/versatica/OverSIP/commit/3d7fa9e4440968b7c13fe4c65b764ed71d084ec8) Fixed a bug that writes an empty Record-Route header when an INVITE asking for incoming Outbound support comes from a TCP connection initiated by OverSIP.
+
+
 Version 1.3.1 (released in 2012-10-04)
 --------------------------------------
 
