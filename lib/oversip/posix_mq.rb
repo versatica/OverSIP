@@ -56,15 +56,17 @@ module OverSIP
 
       # Set RLIMIT_MSGQUEUE (ulimit) in order to create the queue with required
       # ammount of memory.
-      if ( current_rlimit = ::Process.getrlimit(12)[1] ) < mq_size
-        log_system_info "incrementing rlimits for Posix Message Queues (currently #{current_rlimit} bytes) to #{mq_size} bytes (ulimit -q)"
+      if ( current_rlimit = ::Process.getrlimit(::Process::RLIMIT_MSGQUEUE)[1] ) < mq_size
+        log_system_info "incrementing rlimits for 'msgqueue' Posix Message Queues (currently #{current_rlimit} bytes) to #{mq_size} bytes (ulimit -q)"
         begin
-          ::Process.setrlimit(12, mq_size)
+          ::Process.setrlimit(::Process::RLIMIT_MSGQUEUE, mq_size, mq_size)
         rescue ::Errno::EPERM
-          ::OverSIP::Launcher.fatal "current user has no permissions to increase rlimits to #{mq_size} bytes (ulimit -q)"
+          ::OverSIP::Launcher.fatal "current user has no permissions to increase 'msgqueue' rlimits to #{mq_size} bytes"
+        rescue => e
+          ::OverSIP::Launcher.fatal e
         end
       else
-        log_system_info "rlimits for Posix Message Queues is #{current_rlimit} bytes (>= #{mq_size}), no need to increase it"
+        log_system_info "rlimits for 'msgqueue' is #{current_rlimit} bytes (>= #{mq_size}), no need to increase it"
       end
 
       # Create the Posix message queue to write into it.
@@ -79,7 +81,7 @@ module OverSIP
 
       # Kernel has no support for posix message queues.
       rescue ::Errno::ENOSYS => e
-        ::OverSIP::Launcher.fatal "the kernel has no support for posix messages queues, enable it (#{e.class}: #{e.message})"
+        ::OverSIP::Launcher.fatal "the kernel has no support for Posix Messages Queues, enable it (#{e.class}: #{e.message})"
 
       # http://linux.die.net/man/3/mq_open
       #
@@ -99,7 +101,7 @@ module OverSIP
       rescue Errno::ENFILE => e
         ::OverSIP::Launcher.fatal "the system limit on the total number of open files and message queues has been reached (#{e.class}: #{e.message})"
       rescue ::Errno::ENOSPC => e
-        ::OverSIP::Launcher.fatal "insufficient space for the creation of a new message queue, probably occurred because the queues_max limit was encountered (#{e.class}: #{e.message})"
+        ::OverSIP::Launcher.fatal "insufficient space for the creation of a new message queue, probably occurred because the 'queues_max' limit was encountered (#{e.class}: #{e.message})"
 
       end
 
