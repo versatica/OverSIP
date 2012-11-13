@@ -66,7 +66,7 @@ module OverSIP
       },
       :security => {
         :sip_max_body_size                 => 65536,
-        :websocket_max_message_size        => 65536,
+        :ws_max_message_size               => 65536,
         :connection_in_inactivity_timeout  => 120,
         :connection_out_inactivity_timeout => 120,
         :anti_slow_attack_timeout    => 4
@@ -124,7 +124,7 @@ module OverSIP
       },
       :security => {
         :sip_max_body_size                 => :fixnum,
-        :websocket_max_message_size        => :fixnum,
+        :ws_max_message_size               => :fixnum,
         :connection_in_inactivity_timeout  => [ :fixnum, [ :greater_equal_than, 2 ] ],
         :connection_out_inactivity_timeout => [ :fixnum, [ :greater_equal_than, 2 ] ],
         :anti_slow_attack_timeout          => :fixnum
