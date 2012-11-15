@@ -7,7 +7,7 @@ Version 1.3.3 (released in 2012-11-15)
 
 - [(d9eee0d)](https://github.com/versatica/OverSIP/commit/d9eee0dbe0f7e0b9a9d8527ca9c57dc67cda0a8c) Improved OverSIP security limits (Posix Message Queue) for Debian/Ubuntu (fixes [bug #27](https://github.com/versatica/OverSIP/issues/27)).
 
-- [(d9eee0d)](https://github.com/versatica/OverSIP/commit/d9eee0dbe0f7e0b9a9d8527ca9c57dc67cda0a8c) Use C binary syntax 0x1 instead of 0b00000001 (fixes [bug #23](https://github.com/versatica/OverSIP/issues/23) and [bug #29](https://github.com/versatica/OverSIP/issues/29)).
+- [(834462a)](https://github.com/versatica/OverSIP/commit/834462ab8481dd9855c501fe52247a28f3700bef) Use C binary syntax 0x1 instead of 0b00000001 (fixes [bug #23](https://github.com/versatica/OverSIP/issues/23) and [bug #29](https://github.com/versatica/OverSIP/issues/29)).
 
 
 
