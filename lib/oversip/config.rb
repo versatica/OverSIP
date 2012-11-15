@@ -99,7 +99,7 @@ module OverSIP
         :listen_port_tls_tunnel          => :port,
         :callback_on_client_tls_handshake => :boolean,
         :local_domains                   => [ :domain, :multi_value ],
-        :tcp_keepalive_interval          => [ :fixnum, [ :greater_equal_than, 2 ] ],  # TODO: poner 180
+        :tcp_keepalive_interval          => [ :fixnum, [ :greater_equal_than, 180 ] ],
         :record_route_hostname_tls_ipv4  => :domain,
         :record_route_hostname_tls_ipv6  => :domain,
       },
