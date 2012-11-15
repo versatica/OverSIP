@@ -65,4 +65,3 @@ require "oversip/modules/user_assertion.rb"
 require "oversip/modules/outbound_mangling.rb"
 
 require "oversip/ruby_ext/eventmachine.rb"
-require "oversip/ruby_ext/process.rb"
