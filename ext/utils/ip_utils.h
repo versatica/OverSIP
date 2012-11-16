@@ -3,7 +3,8 @@
 
 #include <string.h>
 #include <netinet/in.h>
-
+#include <sys/types.h>
+#include <sys/socket.h>
 
 enum enum_ip_type {
   ip_type_ipv4 = 1,
