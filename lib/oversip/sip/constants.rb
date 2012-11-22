@@ -4,7 +4,7 @@ module OverSIP::SIP
   DOUBLE_CRLF = "\r\n\r\n"
 
   # DOC: http://www.iana.org/assignments/sip-parameters
-  REASON_PHARSE = {
+  REASON_PHRASE = {
     100 => "Trying",
     180 => "Ringing",
     181 => "Call Is Being Forwarded",
@@ -78,7 +78,7 @@ module OverSIP::SIP
     606 => "Not Acceptable"
   }
 
-  REASON_PHARSE_NOT_SET = "Reason Phrase Not Set"
+  REASON_PHRASE_NOT_SET = "Reason Phrase Not Set"
 
   HDR_SERVER                  = "Server: #{::OverSIP::PROGRAM_NAME}/#{::OverSIP::VERSION}".freeze
   HDR_USER_AGENT              = "User-Agent: #{::OverSIP::PROGRAM_NAME}/#{::OverSIP::VERSION}".freeze

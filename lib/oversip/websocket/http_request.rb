@@ -34,7 +34,7 @@ module OverSIP::WebSocket
 
 
     def reply status_code, reason_phrase=nil, extra_headers={}
-      reason_phrase ||= REASON_PHARSE[status_code] || REASON_PHARSE_NOT_SET
+      reason_phrase ||= REASON_PHRASE[status_code] || REASON_PHRASE_NOT_SET
       extra_headers ||= {}
 
       response = "#{@http_version} #{status_code} #{reason_phrase}\r\n"

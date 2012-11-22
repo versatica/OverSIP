@@ -2,7 +2,7 @@ module OverSIP::WebSocket
 
   CRLF = "\r\n"
 
-  REASON_PHARSE = {
+  REASON_PHRASE = {
     100 => "Continue",
     101 => "Switching Protocols",
     200 => "OK",
@@ -46,7 +46,7 @@ module OverSIP::WebSocket
     505 => "HTTP Version Not Supported"
   }
 
-  REASON_PHARSE_NOT_SET = "Reason Phrase Not Set"
+  REASON_PHRASE_NOT_SET = "Reason Phrase Not Set"
 
   HDR_SERVER = "Server: #{::OverSIP::PROGRAM_NAME}/#{::OverSIP::VERSION}".freeze
 
