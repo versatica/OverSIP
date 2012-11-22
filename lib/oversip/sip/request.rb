@@ -44,7 +44,7 @@ module OverSIP::SIP
       end
       return false  unless @server_transaction.receive_response(status_code)  if @server_transaction
 
-      reason_phrase ||= REASON_PHARSE[status_code] || REASON_PHARSE_NOT_SET
+      reason_phrase ||= REASON_PHRASE[status_code] || REASON_PHRASE_NOT_SET
 
       if status_code > 100
         @internal_to_tag ||= @to_tag || ( @server_transaction ? ::SecureRandom.hex(6) : ::OverSIP::SIP::Tags.totag_for_sl_reply )
