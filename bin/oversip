@@ -82,10 +82,10 @@ module OverSIP
             ::POSIX_MQ.unlink value
           rescue ::Errno::ENOENT
           rescue ::Errno::EACCES => e
-            fatal "cannot remove '#{value}' posix message queue due file permissions"
+            ::OverSIP::Launcher.fatal "cannot remove '#{value}' posix message queue due file permissions"
             exit 1
           rescue ::Errno::EINVAL => e
-            fatal "cannot remove '#{value}' posix message queue, invalid name"
+            ::OverSIP::Launcher.fatal "cannot remove '#{value}' posix message queue, invalid name"
             exit 1
           ensure
             exit
@@ -143,7 +143,7 @@ module OverSIP
 
       # PID file is required.
       unless options[:pid_file]
-        fatal "PID file is required (use -P or --pid option)"
+        ::OverSIP::Launcher.fatal "PID file is required (use -P or --pid option)"
       end
 
       # Ignore user/group if the launcher is not being running as root.
@@ -157,14 +157,14 @@ module OverSIP
           begin
             ::Etc.getpwnam options[:user]
           rescue ::ArgumentError
-            fatal "user '#{options[:user]}' does not exist in the system"
+            ::OverSIP::Launcher.fatal "user '#{options[:user]}' does not exist in the system"
           end
         end
         if options[:group]
           begin
             ::Etc.getgrnam options[:group]
           rescue ::ArgumentError
-            fatal "group '#{options[:group]}' does not exist in the system"
+            ::OverSIP::Launcher.fatal "group '#{options[:group]}' does not exist in the system"
           end
         end
       end
