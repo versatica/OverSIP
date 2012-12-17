@@ -2,7 +2,7 @@ CHANGELOG
 =========
 
 
-Version 1.3.4 (released in 2012-12-17)
+Version 1.3.5 (released in 2012-12-17)
 --------------------------------------
 
 - [(6ee6b8c)](https://github.com/versatica/OverSIP/commit/6ee6b8c808e24ad9680291e67ff85ca30889cb2f) Fixed a bug in name_addr.rb that prevents the NameAddr to be printed until some URI field is modified.
