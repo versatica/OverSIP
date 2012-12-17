@@ -139,10 +139,8 @@ module OverSIP::SIP
       return false if @destination_myself == false
 
       if local_uri? @ruri
-        log_system_debug "RURI destination is myself"  if $oversip_debug
         return @destination_myself = true
       else
-        log_system_debug "RURI destination is not myself"  if $oversip_debug
         return @destination_myself = false
       end
     end

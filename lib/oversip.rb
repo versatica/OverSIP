@@ -11,11 +11,12 @@ require "tempfile"
 # Ruby external gems.
 
 require "term/ansicolor"
+gem "posix_mq", ">= 2.0.0"
 require "posix_mq"
 require "syslog"
 # Load EventMachine-LE here to avoid som EM based gem in server.rb to be loaded first
 # (and load eventmachine instead of eventmachine-le).
-gem "eventmachine-le", ">= 1.1.3"
+gem "eventmachine-le", ">= 1.1.4"
 require "eventmachine-le"
 
 

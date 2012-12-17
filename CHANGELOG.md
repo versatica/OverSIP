@@ -2,6 +2,15 @@ CHANGELOG
 =========
 
 
+Version 1.3.4 (released in 2012-12-17)
+--------------------------------------
+
+- [(6ee6b8c)](https://github.com/versatica/OverSIP/commit/6ee6b8c808e24ad9680291e67ff85ca30889cb2f) Fixed a bug in name_addr.rb that prevents the NameAddr to be printed until some URI field is modified.
+
+- [(9b20db3)](https://github.com/versatica/OverSIP/commit/9b20db392711e89ae3971945bcd2916df18f3907) Add via_branch_id attr reader to UacRequest to avoid a bug in `OverSIP::SIP::Uac#route()` method.
+
+
+
 Version 1.3.3 (released in 2012-11-15)
 --------------------------------------
 

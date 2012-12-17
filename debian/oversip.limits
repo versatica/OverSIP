@@ -5,9 +5,14 @@
 # value below, and thus those limits should belong to that exact user (which is
 # different in each computer). The workaround is setting it for every user (*).
 #
+# NOTE: But in Debian Squeeze the above does not happen so we also need to give
+# those limits to the root user (since the wildcard does not affect to root user).
+#
 # NOTE: Each OverSIP instance requires 2008000 bytes. Let's allocate
 # a value for 4 instances of OverSIP (2008000 x 4 = 8032000). Increase
 # this value if you need more instances of OverSIP in this host.
-#
-*    soft    msgqueue    8032000
-*    hard    msgqueue    8032000
+
+*       soft    msgqueue    8032000
+*       hard    msgqueue    8032000
+root    soft    msgqueue    8032000
+root    hard    msgqueue    8032000
