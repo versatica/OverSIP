@@ -13,6 +13,7 @@ module OverSIP::SIP
       @port = port
 
       @name_addr_modified = true
+      @uri_modified = true
     end
 
     def display_name= value
