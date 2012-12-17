@@ -6,7 +6,7 @@ module OverSIP::SIP
     DEFAULT_FROM = "\"OverSIP #{::OverSIP::VERSION}\" <sip:uac@oversip.net>"
 
     attr_reader :sip_method, :ruri, :from, :from_tag, :to, :body, :call_id, :cseq
-    attr_reader :antiloop_id
+    attr_reader :antiloop_id, :via_branch_id
     attr_reader :routes  # Always nil (needed for OverSIP::SIP::Tags.create_antiloop_id().
     attr_accessor :tvars  # Transaction variables (a hash).
 
@@ -32,6 +32,7 @@ module OverSIP::SIP
       @body = body
 
       @antiloop_id = ::OverSIP::SIP::Tags.create_antiloop_id(self)
+      @via_branch_id = ::SecureRandom.hex(4)
     end
 
 
