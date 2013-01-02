@@ -98,7 +98,7 @@ module OverSIP::WebSocket
 
       # Get the body.
       if parser_nbytes != ws_message.bytesize
-        @msg.body = ws_message[parser_nbytes..-1]
+        @msg.body = ws_message[parser_nbytes..-1].force_encoding(::Encoding::UTF_8)
 
         if @msg.content_length and @msg.content_length != @msg.body.bytesize
           log_system_warn "SIP message body size (#{@msg.body.bytesize}) does not match Content-Length (#{@msg.content_length.inspect}), ignoring message"
