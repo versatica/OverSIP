@@ -88,19 +88,20 @@ module OverSIP::SIP
 
       # Incoming initial request or in-dialog incoming/outgoing request. Must only perform
       # Outbound for the incoming case and just when:
-      # - There are 2 Route headers.
       # - All the Route headers point to us.
+      # - There are 1 or 2 Route headers.
       # - The latest Route has a flow token and a valid ;ovid param (so has been generated
       #   previously by us).
       #     NOTE: But don't check its value so it still would work in case of server reboot.
       # - It's an incoming Outbound request (so flow token in the Route does not match the
       #   flow token of the incoming connection).
       if (
-            num_removes == 2 and
-            @routes.size == 2 and
+            @routes.size == num_removes and
+            (num_removes == 1 or num_removes == 2) and
             (outbound_route = @routes.last) and
             outbound_route.ovid_param and
-            (@route_outbound_flow_token = outbound_route.user) != @connection_outbound_flow_token
+            (@route_outbound_flow_token = outbound_route.user) and
+            @route_outbound_flow_token != @connection_outbound_flow_token
           )
         @incoming_outbound_requested = true
         log_system_debug "destination is an incoming Outbound connection"  if $oversip_debug

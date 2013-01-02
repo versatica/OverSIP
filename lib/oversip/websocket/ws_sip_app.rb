@@ -97,7 +97,7 @@ module OverSIP::WebSocket
 
       # Get the body.
       if parser_nbytes != ws_message.bytesize
-        @msg.body = ws_message[parser_nbytes..-1]
+        @msg.body = ws_message[parser_nbytes..-1].force_encoding(::Encoding::UTF_8)
 
         # Check max body size.
         body_length = if @msg.content_length
