@@ -96,8 +96,8 @@ module OverSIP::SIP
       # - It's an incoming Outbound request (so flow token in the Route does not match the
       #   flow token of the incoming connection).
       if (
-            @routes.size == num_removes and
             (num_removes == 1 or num_removes == 2) and
+            @routes.size == num_removes and
             (outbound_route = @routes.last) and
             outbound_route.ovid_param and
             (@route_outbound_flow_token = outbound_route.user) and
