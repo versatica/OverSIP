@@ -2,6 +2,14 @@ CHANGELOG
 =========
 
 
+Version 1.3.6 (released in 2013-01-03)
+--------------------------------------
+
+- [(0a858b1)](https://github.com/versatica/OverSIP/commit/0a858b11bb1351b85690f8a5aabbf7d467ed8792) Encode the body in UTF-8 also when received via WebSocket.
+
+- `s/2012/2013/g`.
+
+
 Version 1.3.5 (released in 2012-12-17)
 --------------------------------------
 

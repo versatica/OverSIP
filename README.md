@@ -17,7 +17,7 @@ OverSIP is a powerful and flexible SIP proxy & server by the authors of [draft-i
 * SIP over UDP, TCP, TLS and WebSocket (use true SIP in your web apps)
 * Full support for IPv4, IPv6 and DNS resolution (NAPTR, SRV, A, AAAA)
 * The perfect Outbound Edge Proxy
-* Written by the authors of [draft-ietf-sipcore-sip-websocket](http://tools.ietf.org/html/draft-ietf-sipcore-sip-websocket) and [JsSIP](http://www.jssip.net)
+* Written by the authors of [draft-ietf-sipcore-sip-websocket](http://tools.ietf.org/html/draft-ietf-sipcore-sip-websocket) and [JsSIP](http://jssip.net)
 
 
 ## Documentation

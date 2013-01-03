@@ -5,7 +5,7 @@ module OverSIP
   module Version
     MAJOR = 1
     MINOR = 3
-    TINY  = 5
+    TINY  = 6
     DEVEL = nil  # Set to nil for stable releases.
   end
 
@@ -15,7 +15,7 @@ module OverSIP
   AUTHOR = "Inaki Baz Castillo"
   AUTHOR_EMAIL = "ibc@aliax.net"
   HOMEPAGE = "http://www.oversip.net"
-  year = "2012"
+  year = "2013"
   DESCRIPTION = "#{PROGRAM_NAME} #{VERSION}\n#{HOMEPAGE}\n#{year}, #{AUTHOR} <#{AUTHOR_EMAIL}>"
 
 end
