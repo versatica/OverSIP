@@ -128,6 +128,7 @@ module OverSIP::Launcher
 
         ::OverSIP.is_ready = false
         ::OverSIP.status = :loading
+        ::OverSIP.root_fiber = ::Fiber.current
 
         log_system_notice "using Ruby #{RUBY_VERSION}p#{RUBY_PATCHLEVEL} (#{RUBY_RELEASE_DATE} revision #{RUBY_REVISION}) [#{RUBY_PLATFORM}]"
         log_system_notice "using EventMachine-LE #{::EM::VERSION}"
