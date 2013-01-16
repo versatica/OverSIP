@@ -49,7 +49,8 @@ module OverSIP
                   :tls_public_cert, :tls_private_cert,
                   :stud_pids,
                   :is_ready,  # true, false
-                  :status  # :loading, :running, :terminating
+                  :status,  # :loading, :running, :terminating
+                  :root_fiber
 
     def master?
       @master_pid == $$
