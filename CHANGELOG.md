@@ -2,6 +2,12 @@ CHANGELOG
 =========
 
 
+Version 1.3.7 (released in 2013-01-28)
+--------------------------------------
+
+- [(ac18ff2)](https://github.com/versatica/OverSIP/commit/ac18ff28e2eaebfd9b3b0f69893e84adb5be04fb) Added `OverSIP.root_fiber` attribute which stores the root `Fiber`.
+
+
 Version 1.3.6 (released in 2013-01-03)
 --------------------------------------
 
