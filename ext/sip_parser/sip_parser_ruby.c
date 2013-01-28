@@ -124,7 +124,7 @@ static void data_type(void *parser, enum data_type data_type)
   TRACE();
   VALUE parsed;
   sip_message_parser *sp = (sip_message_parser*)parser;
-  
+
   switch(data_type) {
     case sip_request:
       parsed = rb_obj_alloc(cSIPRequest);
@@ -171,7 +171,7 @@ static void header(VALUE parsed, const char *hdr_field, size_t hdr_field_len, co
 
   /* Header name. */
   f = headerize(hdr_field, hdr_field_len);
-  
+
   /* Header value. */
   v = RB_STR_UTF8_NEW(hdr_value, hdr_value_len);
 
@@ -209,7 +209,7 @@ static void msg_method(VALUE parsed, const char *at, size_t length, enum method 
 {
   TRACE();
   VALUE v;
-  
+
   switch(method) {
     /* If the method is known store it as a symbol (i.e. :INVITE). */
     case method_INVITE:
@@ -308,7 +308,7 @@ static void msg_via_sent_by_host(VALUE parsed, const char *at, size_t length)
 {
   TRACE();
   VALUE v;
-  
+
   v = RB_STR_UTF8_NEW(at, length);
   rb_ivar_set(parsed, id_via_sent_by_host, v);
 }
@@ -318,7 +318,7 @@ static void msg_via_sent_by_port(VALUE parsed, const char *at, size_t length)
 {
   TRACE();
   VALUE v;
-  
+
   v = INT2FIX(str_to_int(at, length));
   rb_ivar_set(parsed, id_via_sent_by_port, v);
 }
@@ -337,7 +337,7 @@ static void msg_via_branch(VALUE parsed, const char *at, size_t length)
 static void msg_via_branch_rfc3261(VALUE parsed, const char *at, size_t length)
 {
   TRACE();
-   
+
   rb_ivar_set(parsed, id_via_branch_rfc3261, Qtrue);
 }
 
@@ -392,7 +392,7 @@ static void msg_max_forwards(VALUE parsed, const char *at, size_t length)
 {
   TRACE();
   VALUE v;
-  
+
   v = INT2FIX(str_to_int(at, length));
   rb_ivar_set(parsed, id_max_forwards, v);
 }
@@ -579,7 +579,7 @@ static void uri_known_param(VALUE parsed, enum uri_owner owner, enum uri_param_n
       v = my_rb_str_downcase(at, length);
       break;
   }
-  
+
   rb_ivar_set(get_uri_object(parsed, owner), p, v);
 }
 
@@ -594,7 +594,7 @@ static void uri_has_param(VALUE parsed, enum uri_owner owner, enum uri_param_nam
     case uri_param_lr:  p = id_uri_lr_param;  break;
     case uri_param_ob:  p = id_uri_ob_param;  break;
   }
-  
+
   rb_ivar_set(get_uri_object(parsed, owner), p, Qtrue);
 }
 
@@ -616,7 +616,7 @@ static void uri_display_name(VALUE parsed, enum uri_owner owner, const char *at,
 
   if (length == 0)
     return;
-  
+
   v = RB_STR_UTF8_NEW(at, length);
   rb_ivar_set(get_uri_object(parsed, owner), id_display_name, v);
 }
@@ -698,7 +698,7 @@ static void option_tag(VALUE parsed, enum header_field header_field, const char 
   VALUE v;
   VALUE id_option_tag_owner;
   VALUE option_tag_owner;
-  
+
   switch(header_field) {
     case header_field_require:        id_option_tag_owner = id_require;        break;
     case header_field_proxy_require:  id_option_tag_owner = id_proxy_require;  break;
@@ -800,7 +800,7 @@ VALUE SipMessageParser_alloc(VALUE klass)
   parser->message.header_param        = header_param;
   parser->message.option_tag          = option_tag;
   parser->message.init_component      = init_component;
-  
+
   parser->uri.full                    = uri_full;
   parser->uri.scheme                  = uri_scheme;
   parser->uri.user                    = uri_user;
@@ -811,7 +811,7 @@ VALUE SipMessageParser_alloc(VALUE klass)
   parser->uri.has_param               = uri_has_param;
   parser->uri.headers                 = uri_headers;
   parser->uri.display_name            = uri_display_name;
-  
+
   sip_message_parser_init(parser);
 
   obj = Data_Wrap_Struct(klass, NULL, SipMessageParser_free, parser);
@@ -887,7 +887,7 @@ VALUE SipMessageParser_execute(VALUE self, VALUE buffer, VALUE start)
   int from = 0;
   char *dptr = NULL;
   long dlen = 0;
-  
+
   REQUIRE_TYPE(buffer, T_STRING);
   REQUIRE_TYPE(start, T_FIXNUM);
 
@@ -1072,7 +1072,7 @@ VALUE SipMessageParser_has_duplicated_core_header(VALUE self)
 
   /* NOTE: Good moment for counting the num of Via values and store it. */
   rb_ivar_set(parser->parsed, id_num_vias, INT2FIX(parser->num_via));
-  
+
   if (parser->num_from > 1)
     return string_From;
   else if (parser->num_to > 1)
@@ -1113,7 +1113,7 @@ VALUE SipMessageParser_has_missing_core_header(VALUE self)
     return string_CSeq;
   else if (parser->num_call_id == 0)
     return string_Call_ID;
-  
+
   return Qfalse;
 }
 
@@ -1125,11 +1125,8 @@ VALUE SipMessageParser_post_parsing(VALUE self)
   DATA_GET(self, sip_message_parser, parser);
 
   /* We just parse Contact if it's a single header with a single Name Addr within it. */
-  if (! (parser->contact_is_valid == 1 && parser->num_contact == 1)) {
-    /*printf("--- if (! (parser->contact_is_valid == 1 && parser->num_contact == 1))  returns false\n");
-    printf("--- parser->num_contact = %d\n", parser->num_contact);*/
+  if (! (parser->contact_is_valid == 1 && parser->num_contact == 1))
     rb_ivar_set(parser->parsed, id_contact, Qnil);
-  }
 
   return Qnil;
 }
@@ -1149,7 +1146,7 @@ VALUE SipMessageParser_Class_headerize(VALUE self, VALUE string)
   TRACE();
   if (TYPE(string) != T_STRING)
     rb_raise(rb_eTypeError, "Argument must be a String");
-  
+
   if ((RSTRING_LEN(string)) == 0)
     rb_str_new(RSTRING_PTR(string), RSTRING_LEN(string));
 
@@ -1162,10 +1159,10 @@ VALUE SipMessageParser_Class_headerize(VALUE self, VALUE string)
 void Init_sip_parser()
 {
   TRACE();
-  
+
   mOverSIP = rb_define_module("OverSIP");
   eOverSIPError = rb_define_class_under(mOverSIP, "Error", rb_eStandardError);
-  
+
   mSIP = rb_define_module_under(mOverSIP, "SIP");
   cSIPMessageParser = rb_define_class_under(mSIP, "MessageParser", rb_cObject);
   cSIPMessage = rb_define_class_under(mSIP, "Message", rb_cObject);
@@ -1231,7 +1228,7 @@ void Init_sip_parser()
   id_hdr_from = rb_intern("@hdr_from");
   id_hdr_to = rb_intern("@hdr_to");
   id_hdr_route = rb_intern("@hdr_route");
-  
+
   id_display_name = rb_intern("@display_name");
   id_uri = rb_intern("@uri");
   id_uri_scheme = rb_intern("@scheme");
@@ -1278,7 +1275,7 @@ void Init_sip_parser()
   symbol_ipv4 = ID2SYM(rb_intern("ipv4"));
   symbol_ipv6 = ID2SYM(rb_intern("ipv6"));
   symbol_ipv6_reference = ID2SYM(rb_intern("ipv6_reference"));
-  
+
   string_Via = rb_str_new2("Via");
   string_Via = rb_obj_freeze(string_Via);
   rb_global_variable(&string_Via);
