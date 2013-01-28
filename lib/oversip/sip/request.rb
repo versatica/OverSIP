@@ -104,6 +104,24 @@ module OverSIP::SIP
     end
 
 
+    # RFC 6228 (199 response).
+    def reply_199 response
+      # Store the previous internal To-tag (if set).
+      internal_to_tag = @internal_to_tag
+
+      # Set it with the To-tag of the response for which a 199 must eb generated.
+      @internal_to_tag = response.to_tag
+
+      # Send the 199 response.
+      reply 199, "Early Dialog Terminated", [ "Reason: SIP ;cause=#{response.status_code} ;text=\"#{response.reason_phrase}\"" ]
+
+      # Restore the previous internal To-tag.
+      @internal_to_tag = internal_to_tag
+      true
+    end
+    private :reply_199
+
+
     def send_response(response)
       unless (case @transport
         when :udp
