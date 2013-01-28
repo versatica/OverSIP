@@ -149,6 +149,20 @@ END
     assert_equal ["aaa", "bbb", "ccc"], msg.require
     assert_equal ["aaa", "bbb", "ccc"], msg.proxy_require
     assert_equal ["aaa", "bbb", "ccc"], msg.supported
+
+    # Change the full RURI and test again.
+    msg.ruri = ::OverSIP::SIP::Uri.new :sips, "iñaki", "aliax.net", 7070
+
+    assert_equal :sips, msg.ruri.scheme
+    assert_equal "iñaki", msg.ruri.user
+    assert_equal "aliax.net", msg.ruri.host
+    assert_equal :domain, msg.ruri.host_type
+    assert_equal 7070, msg.ruri.port
+    assert_equal({}, msg.ruri.params)
+    assert_nil msg.ruri.headers
+    assert_nil msg.ruri.transport_param
+    assert_nil msg.ruri.phone_context_param
+    assert_equal "sips:i%C3%B1aki@aliax.net:7070", msg.ruri.to_s
   end
 
 end

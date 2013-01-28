@@ -91,6 +91,10 @@ module OverSIP::SIP
 
       # Or use the Request URI.
       else
+        unless @request.ruri.is_a? ::OverSIP::SIP::Uri
+          raise ::OverSIP::RuntimeError, "attempt to route a request based on its Request-URI but it should be an OverSIP::SIP::Uri or OverSIP::SIP::NameAddr instance"
+        end
+
         dst_scheme = @request.ruri.scheme
         dst_host = @request.ruri.host
         dst_host_type = @request.ruri.host_type
