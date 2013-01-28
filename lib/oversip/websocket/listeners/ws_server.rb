@@ -6,9 +6,6 @@ module OverSIP::WebSocket
     # (avoid DoS attacks).
     HEADERS_MAX_SIZE = 2048
 
-    # Avoid slow HTTP headers attack when receiving the HTTP GET.
-    ANTI_SLOW_ATTACK_HTTP_TIMEOUT = 1
-
     WS_MAGIC_GUID_04 = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11".freeze
     WS_VERSIONS = { 7=>true, 8=>true, 13=>true }
     HDR_SUPPORTED_WEBSOCKET_VERSIONS = [ "X-Supported-WebSocket-Versions: #{WS_VERSIONS.keys.join(", ")}" ]
@@ -119,17 +116,12 @@ module OverSIP::WebSocket
           @http_request = ::OverSIP::WebSocket::HttpRequest.new
           @http_parser_nbytes = 0
           @bytes_remaining = 0
-          @parsing_message = false
           @state = :http_headers
 
         when :http_headers
           parse_http_headers
 
         when :check_http_request
-          # Stop the timer that avoids slow attacks.
-          @timer_anti_slow_attack_http.cancel
-          @parsing_message = false
-
           check_http_request
 
         when :on_connection_callback
@@ -140,7 +132,7 @@ module OverSIP::WebSocket
           accept_ws_handshake
 
         when :websocket
-          @ws_established ||= true
+          @ws_established = true
           @ws_framing.receive_data
           false
 
@@ -154,17 +146,6 @@ module OverSIP::WebSocket
 
     def parse_http_headers
       return false if @buffer.empty?
-
-      unless @parsing_message
-        @parsing_message = true
-        @timer_anti_slow_attack_http = ::EM::Timer.new(ANTI_SLOW_ATTACK_HTTP_TIMEOUT) do
-          unless @state == :ignore
-            log_system_warn "DoS attack detected: slow headers or body, closing connection with #{remote_desc}"
-            close_connection
-            @state = :ignore
-          end
-        end
-      end
 
       # Parse the currently buffered data. If parsing fails @http_parser_nbytes gets nil value.
       unless @http_parser_nbytes = @http_parser.execute(@http_request, @buffer.to_str, @http_parser_nbytes)

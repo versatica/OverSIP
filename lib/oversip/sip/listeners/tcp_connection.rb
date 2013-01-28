@@ -33,12 +33,12 @@ module OverSIP::SIP
         when :init
           @parser.reset
           @parser_nbytes = 0
-          @parsing_message = false
-          @timer_anti_slow_attack.cancel  if @timer_anti_slow_attack
           @state = :headers
 
         when :headers
           parse_headers
+          # TODO: Add a timer for the case in which an attacker sends us slow headers that never end:
+          #   http://ha.ckers.org/slowloris/.
 
         when :body
           get_body
@@ -52,7 +52,6 @@ module OverSIP::SIP
 
           # Set state to :init.
           @state = :init
-
           # Return true to continue processing possible remaining data.
           true
 
@@ -64,17 +63,6 @@ module OverSIP::SIP
 
     def parse_headers
       return false if @buffer.empty?
-
-      unless @parsing_message
-        @parsing_message = true
-        @timer_anti_slow_attack = ::EM::Timer.new(::OverSIP::Security.anti_slow_attack_timeout) do
-          unless @state == :ignore
-            log_system_warn "DoS attack detected: slow headers or body, closing connection with #{remote_desc}"
-            close_connection
-            @state = :ignore
-          end
-        end
-      end
 
       # Parse the currently buffered data. If parsing fails @parser_nbytes gets nil value.
       unless @parser_nbytes = @parser.execute(@buffer.to_str, @parser_nbytes)
@@ -153,19 +141,6 @@ module OverSIP::SIP
       if (@body_length = @msg.content_length)
         # There is body (or should be).
         if @body_length > 0
-          # Check max body size.
-          if @body_length > ::OverSIP::Security.sip_max_body_size
-            if @msg.request?
-              log_system_warn "request body size too big => 403"
-              @msg.reply 403, "body size too big"
-            else
-              log_system_warn "response body size too big, discarding response"
-            end
-            close_connection_after_writing
-            @state = :ignore
-            return false
-          end
-
           @state = :body
           # Return true to continue in get_body() method.
           return true
@@ -200,6 +175,11 @@ module OverSIP::SIP
       # Return false until the buffer gets all the body.
       return false if @buffer.size < @body_length
 
+      ### TODO: Creo que es mejor forzarlo a BINARY y no a UTF-8. Aunque IOBuffer ya lo saca siempre en BINARY.
+      # ¿Por qué lo forcé a UTF-8?
+      # RESPUESTA: Si no lo hago y resulta que el body no es UTF-8 válido, al añadir el body a los headers (que
+      # se generan como un string en UTF-8 (aunque contengan símbolos no UTF-8) fallaría. O todo UTF-8 (aunque
+      # tenga símbolos inválidos) o todo BINARY.
       @msg.body = @buffer.read(@body_length).force_encoding(::Encoding::UTF_8)
       @state = :finished
       return true
@@ -214,20 +194,6 @@ module OverSIP::SIP
       end
       send_data msg
       true
-    end
-
-
-    def start_timer_anti_slow_attack
-      unless @parsing_message
-        @parsing_message = true
-        @timer_anti_slow_attack = ::EM::Timer.new(::OverSIP::Security.anti_slow_attack_timeout) do
-          unless @state == :ignore
-            log_system_warn "DoS attack detected: slow headers or body, closing connection with #{remote_desc}"
-            close_connection
-            @state = :ignore
-          end
-        end
-      end
     end
 
   end

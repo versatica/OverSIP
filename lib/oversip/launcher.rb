@@ -108,8 +108,8 @@ module OverSIP::Launcher
         ::OverSIP::SIP.module_init
         ::OverSIP::SIP::RFC3263.module_init
         ::OverSIP::WebSocket.module_init
+        ::OverSIP::WebSocket::WsFraming.class_init
         ::OverSIP::WebSocket::WsSipApp.class_init
-        ::OverSIP::Security.module_init
 
       # I'm the syslogger process.
       else

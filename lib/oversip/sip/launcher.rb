@@ -86,7 +86,7 @@ module OverSIP::SIP
           if enabled
             ::EM.start_server(ip, port, klass) do |conn|
               conn.post_connection
-              conn.set_comm_inactivity_timeout ::OverSIP::Security.connection_in_inactivity_timeout
+              conn.set_comm_inactivity_timeout 300
             end
           end
 
@@ -99,7 +99,7 @@ module OverSIP::SIP
           if enabled
             ::EM.start_server(ip, port, klass) do |conn|
               conn.post_connection
-              conn.set_comm_inactivity_timeout ::OverSIP::Security.connection_in_inactivity_timeout
+              conn.set_comm_inactivity_timeout 300
             end
           end
 
@@ -113,7 +113,7 @@ module OverSIP::SIP
           if enabled
             ::EM.start_server(ip, port, klass) do |conn|
               conn.post_connection
-              conn.set_comm_inactivity_timeout ::OverSIP::Security.connection_in_inactivity_timeout
+              conn.set_comm_inactivity_timeout 300
             end
           end
 
@@ -127,7 +127,7 @@ module OverSIP::SIP
           if enabled
             ::EM.start_server(ip, port, klass) do |conn|
               conn.post_connection
-              conn.set_comm_inactivity_timeout ::OverSIP::Security.connection_in_inactivity_timeout
+              conn.set_comm_inactivity_timeout 300
             end
           end
 
@@ -141,7 +141,7 @@ module OverSIP::SIP
           if enabled
             ::EM.start_server(ip, port, klass) do |conn|
               conn.post_connection
-              conn.set_comm_inactivity_timeout ::OverSIP::Security.connection_in_inactivity_timeout
+              conn.set_comm_inactivity_timeout 300
             end
           end
 
@@ -155,7 +155,7 @@ module OverSIP::SIP
           if enabled
             ::EM.start_server(ip, port, klass) do |conn|
               conn.post_connection
-              conn.set_comm_inactivity_timeout ::OverSIP::Security.connection_in_inactivity_timeout
+              conn.set_comm_inactivity_timeout 300
             end
           end
 

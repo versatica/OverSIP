@@ -63,7 +63,6 @@ module OverSIP::WebSocket
           @http_parser.reset
           @http_parser_nbytes = 0
           @bytes_remaining = 0
-          @parsing_message = false
           # If it's a TCP connection from the TLS proxy then parse the HAProxy Protocol line
           # if it's not yet done.
           unless @haproxy_protocol_parsed
@@ -79,10 +78,6 @@ module OverSIP::WebSocket
           parse_http_headers
 
         when :check_http_request
-          # Stop the timer that avoids slow attacks.
-          @timer_anti_slow_attack_http.cancel
-          @parsing_message = false
-
           check_http_request
 
         when :on_connection_callback
@@ -93,7 +88,7 @@ module OverSIP::WebSocket
           accept_ws_handshake
 
         when :websocket
-          @ws_established ||= true
+          @ws_established = true
           return false  if @buffer.size.zero?
           @ws_framing.receive_data
           false

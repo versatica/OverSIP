@@ -13,9 +13,6 @@ module OverSIP::SIP
         when :init
           @parser.reset
           @parser_nbytes = 0
-          @parsing_message = false
-          @timer_anti_slow_attack.cancel  if @timer_anti_slow_attack
-
           # If it's a TCP connection from the TLS tunnel then parse the HAProxy Protocol line
           # if it's not yet done.
           unless @haproxy_protocol_parsed
@@ -42,7 +39,6 @@ module OverSIP::SIP
 
           # Set state to :init.
           @state = :init
-
           # Return true to continue processing possible remaining data.
           true
 

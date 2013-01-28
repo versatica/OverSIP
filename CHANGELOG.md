@@ -2,6 +2,18 @@ CHANGELOG
 =========
 
 
+Version 1.4.0 (released in 2013-XX-XX)
+--------------------------------------
+
+- [(7befa37)](https://github.com/versatica/OverSIP/commit/7befa378d535bb5822dc7260516eaae8158fb9f6) RFC 6228 (199 response) implemented in `Proxy#drop_response(response)`. The method now allows passing the `OverSIP::SIP::Response` instance to drop and, in case it is a [3456]XX response and the received request includes "Supported: 199" then a 199 response is sent upstream.
+
+
+Version 1.3.7 (released in 2013-01-28)
+--------------------------------------
+
+- [(ac18ff2)](https://github.com/versatica/OverSIP/commit/ac18ff28e2eaebfd9b3b0f69893e84adb5be04fb) Added `OverSIP.root_fiber` attribute which stores the root `Fiber`.
+
+
 Version 1.3.6 (released in 2013-01-03)
 --------------------------------------
 

@@ -57,19 +57,13 @@ module OverSIP
         :listen_port_tls_tunnel   => 10444,
         :callback_on_client_tls_handshake => true,
         :max_ws_message_size      => 65536,
+        :max_ws_frame_size        => 65536,
         :ws_keepalive_interval    => nil
       },
       :tls => {
         :public_cert              => nil,
         :private_cert             => nil,
         :ca_dir                   => nil
-      },
-      :security => {
-        :sip_max_body_size                 => 65536,
-        :ws_max_message_size               => 65536,
-        :connection_in_inactivity_timeout  => 120,
-        :connection_out_inactivity_timeout => 120,
-        :anti_slow_attack_timeout    => 4
       }
     }
 
@@ -115,19 +109,14 @@ module OverSIP
         :use_tls_tunnel                  => :boolean,
         :listen_port_tls_tunnel          => :port,
         :callback_on_client_tls_handshake => :boolean,
-        :ws_keepalive_interval           => [ :fixnum, [ :greater_equal_than, 180 ] ],
+        :max_ws_message_size             => [ :fixnum, [ :minor_than, 1048576 ] ],
+        :max_ws_frame_size               => [ :fixnum, [ :minor_than, 1048576 ] ],
+        :ws_keepalive_interval           => [ :fixnum, [ :greater_equal_than, 180 ] ]
       },
       :tls => {
         :public_cert                     => [ :readable_file, :tls_pem_chain ],
         :private_cert                    => [ :readable_file, :tls_pem_private ],
         :ca_dir                          => :readable_dir
-      },
-      :security => {
-        :sip_max_body_size                 => :fixnum,
-        :ws_max_message_size               => :fixnum,
-        :connection_in_inactivity_timeout  => [ :fixnum, [ :greater_equal_than, 2 ] ],
-        :connection_out_inactivity_timeout => [ :fixnum, [ :greater_equal_than, 2 ] ],
-        :anti_slow_attack_timeout          => :fixnum
       }
     }
 
