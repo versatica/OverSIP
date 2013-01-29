@@ -156,7 +156,7 @@ typedef struct sip_message_parser {
   char *              error_start;
   size_t              error_len;
   int                 error_pos;
-  
+
   size_t              mark;
   size_t              hdr_field_start;
   size_t              hdr_field_len;
@@ -203,7 +203,7 @@ typedef struct sip_message_parser {
   enum uri_scheme     uri_scheme;
   /* URI display name is quoted. */
   size_t              uri_display_name_quoted;
-  
+
   header_cb           header;
   struct_message      message;
   struct_uri          uri;
@@ -216,6 +216,27 @@ typedef struct sip_message_parser {
   VALUE               ruby_sip_parser;
 } sip_message_parser;
 
+typedef struct sip_uri_parser {
+  /* Parser stuf. */
+  size_t              mark;
+  size_t              uri_start;
+  /* URI parameters. */
+  size_t              uri_param_key_start;
+  size_t              uri_param_key_len;
+  size_t              uri_param_value_start;
+  size_t              uri_param_value_len;
+  /* URI scheme type. */
+  enum uri_scheme     uri_scheme;
+  /* URI display name is quoted. */
+  size_t              uri_display_name_quoted;
+
+  struct_uri          uri;
+
+  /* Will be set to OverSIP::SIP::Uri. */
+  VALUE               parsed;
+} sip_uri_parser;
+
+
 
 int sip_message_parser_init(sip_message_parser *parser);
 int sip_message_parser_finish(sip_message_parser *parser);
@@ -223,6 +244,7 @@ size_t sip_message_parser_execute(sip_message_parser *parser, const char *buffer
 int sip_message_parser_has_error(sip_message_parser *parser);
 int sip_message_parser_is_finished(sip_message_parser *parser);
 #define sip_message_parser_nread(parser) (parser)->nread
+int sip_uri_parser_execute(sip_uri_parser *parser, const char *buffer, size_t len, VALUE parsed, int allow_name_addr);
 
 
 #endif

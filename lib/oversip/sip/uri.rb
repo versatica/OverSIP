@@ -3,6 +3,14 @@ module OverSIP::SIP
   class Uri
     attr_reader :scheme, :user, :host, :host_type, :port, :params, :transport_param, :phone_context_param, :ovid_param, :headers
 
+
+    def self.parse value
+      uri = ::OverSIP::SIP::MessageParser.parse_uri value, false
+      raise ::OverSIP::RuntimeError, "invalid URI #{value.inspect}"  unless uri.is_a? (::OverSIP::SIP::Uri)
+      uri
+    end
+
+
     def initialize scheme=:sip, user=nil, host=nil, port=nil
       @scheme = scheme.to_sym
       @user = user

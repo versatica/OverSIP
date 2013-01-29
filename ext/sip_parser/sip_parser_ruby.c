@@ -116,7 +116,8 @@ static VALUE string_Call_ID;
 static VALUE string_Max_Forwards;
 static VALUE string_Content_Length;
 
-
+/* A single and global SIP URI parser. */
+static sip_uri_parser *global_sip_uri_parser;
 
 
 static void data_type(void *parser, enum data_type data_type)
@@ -443,6 +444,9 @@ static VALUE get_uri_object(VALUE parsed, enum uri_owner owner)
       return RARRAY_PTR(routes_array)[RARRAY_LEN(routes_array)-1];
       break;
     case uri_owner_contact:  return rb_ivar_get(parsed, id_contact);  break;
+    /* Otherwise return the parsed object itself (useful for OverSIP::SIP::MessageParser.parse_uri method). */
+    default:
+      return parsed;
   }
   return Qnil;
 }
@@ -903,7 +907,7 @@ VALUE SipMessageParser_execute(VALUE self, VALUE buffer, VALUE start)
 
   sip_message_parser_execute(parser, dptr, dlen, from);
 
-  if(sip_message_parser_has_error(parser))
+  if (sip_message_parser_has_error(parser))
     return Qfalse;
   else
     return INT2FIX(sip_message_parser_nread(parser));
@@ -1154,6 +1158,58 @@ VALUE SipMessageParser_Class_headerize(VALUE self, VALUE string)
 }
 
 
+/**
+ * call-seq:
+ *    OverSIP::SIP::MessageParser.parse_uri(string) -> OverSIP::SIP::Uri
+ */
+VALUE SipMessageParser_Class_parse_uri(VALUE self, VALUE string, VALUE allow_name_addr)
+{
+  TRACE();
+  char *dptr = NULL;
+  long dlen = 0;
+  sip_uri_parser *parser;
+  VALUE parsed;
+  int int_allow_name_addr;
+
+  /* Initialize the global SIP URI parser if not set yet. */
+  if (global_sip_uri_parser == NULL) {
+    /* Asign functions to the pointers of global_sip_uri_parser struct. */
+    global_sip_uri_parser = ALLOC(sip_uri_parser);
+    global_sip_uri_parser->uri.full                    = uri_full;
+    global_sip_uri_parser->uri.scheme                  = uri_scheme;
+    global_sip_uri_parser->uri.user                    = uri_user;
+    global_sip_uri_parser->uri.host                    = uri_host;
+    global_sip_uri_parser->uri.port                    = uri_port;
+    global_sip_uri_parser->uri.param                   = uri_param;
+    global_sip_uri_parser->uri.known_param             = uri_known_param;
+    global_sip_uri_parser->uri.has_param               = uri_has_param;
+    global_sip_uri_parser->uri.headers                 = uri_headers;
+    global_sip_uri_parser->uri.display_name            = uri_display_name;
+  }
+
+  REQUIRE_TYPE(string, T_STRING);
+
+  /* NOTE: We need to pass a \0 terminated string to the URI parser. StringValueCStr() gives
+   * exactly that. So also increment dlen in 1. */
+  dptr = StringValueCStr(string);
+  dlen = RSTRING_LEN(string) + 1;
+
+  if (TYPE(allow_name_addr) == T_TRUE) {
+    parsed = rb_obj_alloc(cNameAddr);
+    int_allow_name_addr = 1;
+  }
+  else {
+    parsed = rb_obj_alloc(cUri);
+    int_allow_name_addr = 0;
+  }
+
+  if (sip_uri_parser_execute(global_sip_uri_parser, dptr, dlen, parsed, int_allow_name_addr) == 0)
+    return parsed;
+  else
+    return Qfalse;
+}
+
+
 
 
 void Init_sip_parser()
@@ -1187,6 +1243,7 @@ void Init_sip_parser()
   rb_define_method(cSIPMessageParser, "post_parsing", SipMessageParser_post_parsing,0);
 
   rb_define_module_function(cSIPMessageParser, "headerize", SipMessageParser_Class_headerize,1);
+  rb_define_module_function(cSIPMessageParser, "parse_uri", SipMessageParser_Class_parse_uri,2);
 
   init_common_headers();
   init_short_headers();
@@ -1297,4 +1354,7 @@ void Init_sip_parser()
   string_Content_Length = rb_str_new2("Content-Length");
   string_Content_Length = rb_obj_freeze(string_Content_Length);
   rb_global_variable(&string_Content_Length);
+
+  /* Asign functions to the pointers of global_sip_uri_parser struct. */
+  global_sip_uri_parser = NULL;
 }

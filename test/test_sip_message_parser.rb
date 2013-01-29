@@ -3,7 +3,7 @@
 require "oversip_test_helper"
 
 
-class TestSipParser < OverSIPTest
+class TestSipMessageParser < OverSIPTest
 
   def parse data
     parser = OverSIP::SIP::MessageParser.new
