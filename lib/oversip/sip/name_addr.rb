@@ -7,7 +7,7 @@ module OverSIP::SIP
 
     def self.parse value
       name_addr = ::OverSIP::SIP::MessageParser.parse_uri value, true
-      raise ::OverSIP::RuntimeError, "invalid NameAddr #{value.inspect}"  unless name_addr.is_a? (::OverSIP::SIP::NameAddr)
+      raise ::OverSIP::ParsingError, "invalid NameAddr #{value.inspect}"  unless name_addr.is_a? (::OverSIP::SIP::NameAddr)
       name_addr
     end
 

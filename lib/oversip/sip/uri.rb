@@ -6,7 +6,7 @@ module OverSIP::SIP
 
     def self.parse value
       uri = ::OverSIP::SIP::MessageParser.parse_uri value, false
-      raise ::OverSIP::RuntimeError, "invalid URI #{value.inspect}"  unless uri.is_a? (::OverSIP::SIP::Uri)
+      raise ::OverSIP::ParsingError, "invalid URI #{value.inspect}"  unless uri.is_a? (::OverSIP::SIP::Uri)
       uri
     end
 
