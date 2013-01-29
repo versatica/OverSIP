@@ -16,6 +16,6 @@ module OverSIP
   AUTHOR_EMAIL = "ibc@aliax.net"
   HOMEPAGE = "http://www.oversip.net"
   year = "2012-2013"
-  DESCRIPTION = "#{PROGRAM_NAME} #{VERSION}\n#{HOMEPAGE}\n#{year}, #{AUTHOR} <#{AUTHOR_EMAIL}>"
+  DESCRIPTION = "#{PROGRAM_NAME} #{VERSION}\n#{HOMEPAGE}\n#{year}, #{AUTHOR} <#{AUTHOR_EMAIL}>\nSoftware by Versatica: http://www.versatica.com"
 
 end
