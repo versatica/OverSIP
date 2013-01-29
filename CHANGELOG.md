@@ -2,10 +2,17 @@ CHANGELOG
 =========
 
 
-Version 1.4.0 (released in 2013-XX-XX)
+Version devel (note released)
 --------------------------------------
 
 - [(7befa37)](https://github.com/versatica/OverSIP/commit/7befa378d535bb5822dc7260516eaae8158fb9f6) RFC 6228 (199 response) implemented in `Proxy#drop_response(response)`. The method now allows passing the `OverSIP::SIP::Response` instance to drop and, in case it is a [3456]XX response and the received request includes "Supported: 199" then a 199 response is sent upstream.
+
+- [(1159607)](https://github.com/versatica/OverSIP/commit/1159607ef524c8bba012fb19f60153d52b7d23f3)
+  - Allow entirely replacing the RURI of a request by passing an `OverSIP::SIP::Uri` instance or a string to `request.ruri=(ruri)`. In case of a string it's parsed.
+  - Allow passing a URI as string to `UacRequest.initialize` and route based on it (if no `dst_host` param is given to the `Uac` instance routing such a request).
+  - New class methods `OverSIP::SIP::Uri.parse(string)` and `OverSIP::SIP::NameAddr.parse(string)` which generates instances of those classes.
+
+- [(a2971fc)](https://github.com/versatica/OverSIP/commit/a2971fcc5c2e4fd4ed816d555b59442a64d22c33) New `OverSIP::ParsingError` exception which is raised when invalid data is passed to `OverSIP::SIP::Uri.parse(uri)` or `OverSIP::SIP::NameAddr.parse(uri)`.
 
 
 Version 1.3.7 (released in 2013-01-28)
