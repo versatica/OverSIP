@@ -1355,6 +1355,6 @@ void Init_sip_parser()
   string_Content_Length = rb_obj_freeze(string_Content_Length);
   rb_global_variable(&string_Content_Length);
 
-  /* Asign functions to the pointers of global_sip_uri_parser struct. */
+  /* Initialize global_sip_uri_parser struct to NULL. */
   global_sip_uri_parser = NULL;
 }
