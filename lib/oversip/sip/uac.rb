@@ -10,11 +10,8 @@ module OverSIP::SIP
 
       # The destination of the request is taken from:
       # - dst_xxx fields if given.
-      # - The request.ruri if it is an OverSIP::SIP::Uri or OverSIP::SIP::NameAddr.
+      # - The request.ruri (which is an OverSIP::SIP::Uri or OverSIP::SIP::NameAddr).
       # Otherwise raise an exception.
-      unless dst_host or request.ruri.is_a?(::OverSIP::SIP::Uri) or request.ruri.is_a?(::OverSIP::SIP::NameAddr)
-        raise ::OverSIP::RuntimeError, "if dst_host is not given then request.ruri must be an OverSIP::SIP::Uri or OverSIP::SIP::NameAddr instance"
-      end
 
       @log_id = "UAC (proxy #{@conf[:name]})"
 
@@ -49,7 +46,7 @@ module OverSIP::SIP
         do_dns result, @request.via_branch_id, dst_scheme, dst_host, dst_host_type, dst_port, dst_transport
       end
 
-    end  # def send
+    end  # def route
 
 
     def receive_response response

@@ -15,8 +15,17 @@ module OverSIP::SIP
       unless (@sip_method = data[:sip_method])
         raise ::OverSIP::RuntimeError, "no data[:sip_method] given"
       end
-      unless (@ruri = data[:ruri])
+      unless (ruri = data[:ruri])
         raise ::OverSIP::RuntimeError, "no data[:ruri] given"
+      end
+
+      case ruri
+      when ::OverSIP::SIP::Uri, ::OverSIP::SIP::NameAddr
+        @ruri = ruri
+      when ::String
+        @ruri = OverSIP::SIP::Uri.parse ruri
+      else
+        raise ::OverSIP::RuntimeError, "invalid URI #{ruri.inspect}"
       end
 
       @from = data[:from] || DEFAULT_FROM
@@ -47,15 +56,7 @@ module OverSIP::SIP
 
 
     def to_s
-      # Let @ruri to be an String, an OverSIP::SIP::Uri or an OverSIP::SIP::NameAddr instance.
-      ruri = case @ruri
-        when ::String
-          @ruri
-        when ::OverSIP::SIP::Uri, ::OverSIP::SIP::NameAddr
-          @ruri.uri
-        end
-
-      msg = "#{@sip_method.to_s} #{ruri} SIP/2.0\r\n"
+      msg = "#{@sip_method.to_s} #{@ruri.uri} SIP/2.0\r\n"
 
       @headers.each do |name, value|
         msg << name << ": #{value}\r\n"

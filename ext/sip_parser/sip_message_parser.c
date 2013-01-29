@@ -1,5 +1,5 @@
 
-#line 1 "sip_parser.rl"
+#line 1 "sip_message_parser.rl"
 #include "sip_parser.h"
 #include "ext_help.h"
 #include <stdio.h>
@@ -16,14 +16,14 @@
 
 /** machine **/
 
-#line 571 "sip_parser.rl"
+#line 571 "sip_message_parser.rl"
 
 
 
 
 /** Data **/
 
-#line 27 "sip_parser.c"
+#line 27 "sip_message_parser.c"
 static const char _sip_message_parser_actions[] = {
 	0, 1, 3, 1, 5, 1, 6, 1, 
 	7, 1, 8, 1, 28, 1, 29, 1, 
@@ -28749,19 +28749,19 @@ static const int sip_message_parser_error = 0;
 static const int sip_message_parser_en_main = 1;
 
 
-#line 577 "sip_parser.rl"
+#line 577 "sip_message_parser.rl"
 
 int sip_message_parser_init(sip_message_parser *parser)
 {
   TRACE();
   int cs = 0;
   
-#line 28760 "sip_parser.c"
+#line 28760 "sip_message_parser.c"
 	{
 	cs = sip_message_parser_start;
 	}
 
-#line 583 "sip_parser.rl"
+#line 583 "sip_message_parser.rl"
   parser->cs = cs;
   parser->nread = 0;
   parser->error_start = NULL;
@@ -28819,7 +28819,7 @@ size_t sip_message_parser_execute(sip_message_parser *parser, const char *buffer
   assert(pe - p == len - off && "pointers aren't same distance");
 
   
-#line 28823 "sip_parser.c"
+#line 28823 "sip_message_parser.c"
 	{
 	int _klen;
 	unsigned int _trans;
@@ -28854,7 +28854,7 @@ _resume:
 	case 0: {
 		_widec = (short)(128 + ((*p) - -128));
 		if ( 
-#line 170 "sip_parser.rl"
+#line 170 "sip_message_parser.rl"
 
     parser->method
    ) _widec += 256;
@@ -28928,52 +28928,52 @@ _match:
 		switch ( *_acts++ )
 		{
 	case 0:
-#line 20 "sip_parser.rl"
+#line 20 "sip_message_parser.rl"
 	{
     parser->data_type(parser, sip_request);
   }
 	break;
 	case 1:
-#line 24 "sip_parser.rl"
+#line 24 "sip_message_parser.rl"
 	{
     parser->data_type(parser, sip_response);
   }
 	break;
 	case 2:
-#line 28 "sip_parser.rl"
+#line 28 "sip_message_parser.rl"
 	{
     parser->data_type(parser, outbound_keepalive);
   }
 	break;
 	case 3:
-#line 33 "sip_parser.rl"
+#line 33 "sip_message_parser.rl"
 	{ MARK(mark, p); }
 	break;
 	case 4:
-#line 35 "sip_parser.rl"
+#line 35 "sip_message_parser.rl"
 	{
     MARK(hdr_field_start, p);
   }
 	break;
 	case 5:
-#line 39 "sip_parser.rl"
+#line 39 "sip_message_parser.rl"
 	{
     parser->hdr_field_len = LEN(hdr_field_start, p);
     parser->hdr_field_name = header_field_any;
   }
 	break;
 	case 6:
-#line 44 "sip_parser.rl"
+#line 44 "sip_message_parser.rl"
 	{ MARK(hdr_value_start, p); }
 	break;
 	case 7:
-#line 46 "sip_parser.rl"
+#line 46 "sip_message_parser.rl"
 	{
     parser->hdr_value_len = LEN(hdr_value_start, p);
   }
 	break;
 	case 8:
-#line 50 "sip_parser.rl"
+#line 50 "sip_message_parser.rl"
 	{
     if (parser->hdr_value_start) {
       parser->header(parser->parsed, PTR_TO(hdr_field_start), parser->hdr_field_len, PTR_TO(hdr_value_start), parser->hdr_value_len, parser->hdr_field_name);
@@ -28981,7 +28981,7 @@ _match:
   }
 	break;
 	case 9:
-#line 57 "sip_parser.rl"
+#line 57 "sip_message_parser.rl"
 	{
     if (!parser->method) {
       parser->method = method_INVITE;
@@ -28989,7 +28989,7 @@ _match:
   }
 	break;
 	case 10:
-#line 63 "sip_parser.rl"
+#line 63 "sip_message_parser.rl"
 	{
     if (!parser->method) {
       parser->method = method_ACK;
@@ -28997,7 +28997,7 @@ _match:
   }
 	break;
 	case 11:
-#line 69 "sip_parser.rl"
+#line 69 "sip_message_parser.rl"
 	{
     if (!parser->method) {
       parser->method = method_CANCEL;
@@ -29005,7 +29005,7 @@ _match:
   }
 	break;
 	case 12:
-#line 75 "sip_parser.rl"
+#line 75 "sip_message_parser.rl"
 	{
     if (!parser->method) {
       parser->method = method_PRACK;
@@ -29013,7 +29013,7 @@ _match:
   }
 	break;
 	case 13:
-#line 81 "sip_parser.rl"
+#line 81 "sip_message_parser.rl"
 	{
     if (!parser->method) {
       parser->method = method_BYE;
@@ -29021,7 +29021,7 @@ _match:
   }
 	break;
 	case 14:
-#line 87 "sip_parser.rl"
+#line 87 "sip_message_parser.rl"
 	{
     if (!parser->method) {
       parser->method = method_REFER;
@@ -29029,7 +29029,7 @@ _match:
   }
 	break;
 	case 15:
-#line 93 "sip_parser.rl"
+#line 93 "sip_message_parser.rl"
 	{
     if (!parser->method) {
       parser->method = method_INFO;
@@ -29037,7 +29037,7 @@ _match:
   }
 	break;
 	case 16:
-#line 99 "sip_parser.rl"
+#line 99 "sip_message_parser.rl"
 	{
     if (!parser->method) {
       parser->method = method_UPDATE;
@@ -29045,7 +29045,7 @@ _match:
   }
 	break;
 	case 17:
-#line 105 "sip_parser.rl"
+#line 105 "sip_message_parser.rl"
 	{
     if (!parser->method_set) {
       parser->method = method_OPTIONS;
@@ -29054,7 +29054,7 @@ _match:
   }
 	break;
 	case 18:
-#line 112 "sip_parser.rl"
+#line 112 "sip_message_parser.rl"
 	{
     if (!parser->method) {
       parser->method = method_REGISTER;
@@ -29062,7 +29062,7 @@ _match:
   }
 	break;
 	case 19:
-#line 118 "sip_parser.rl"
+#line 118 "sip_message_parser.rl"
 	{
     if (!parser->method) {
       parser->method = method_MESSAGE;
@@ -29070,7 +29070,7 @@ _match:
   }
 	break;
 	case 20:
-#line 124 "sip_parser.rl"
+#line 124 "sip_message_parser.rl"
 	{
     if (!parser->method) {
       parser->method = method_SUBSCRIBE;
@@ -29078,7 +29078,7 @@ _match:
   }
 	break;
 	case 21:
-#line 130 "sip_parser.rl"
+#line 130 "sip_message_parser.rl"
 	{
     if (!parser->method) {
       parser->method = method_NOTIFY;
@@ -29086,7 +29086,7 @@ _match:
   }
 	break;
 	case 22:
-#line 136 "sip_parser.rl"
+#line 136 "sip_message_parser.rl"
 	{
     if (!parser->method) {
       parser->method = method_PUBLISH;
@@ -29094,7 +29094,7 @@ _match:
   }
 	break;
 	case 23:
-#line 142 "sip_parser.rl"
+#line 142 "sip_message_parser.rl"
 	{
     if (!parser->method) {
       parser->method = method_PULL;
@@ -29102,7 +29102,7 @@ _match:
   }
 	break;
 	case 24:
-#line 148 "sip_parser.rl"
+#line 148 "sip_message_parser.rl"
 	{
     if (!parser->method) {
       parser->method = method_PUSH;
@@ -29110,7 +29110,7 @@ _match:
   }
 	break;
 	case 25:
-#line 154 "sip_parser.rl"
+#line 154 "sip_message_parser.rl"
 	{
     if (!parser->method) {
       parser->method = method_STORE;
@@ -29118,7 +29118,7 @@ _match:
   }
 	break;
 	case 26:
-#line 160 "sip_parser.rl"
+#line 160 "sip_message_parser.rl"
 	{
     if (!parser->method) {
       parser->method = method_unknown;
@@ -29126,37 +29126,37 @@ _match:
   }
 	break;
 	case 27:
-#line 166 "sip_parser.rl"
+#line 166 "sip_message_parser.rl"
 	{
     parser->message.method(parser->parsed, PTR_TO(mark), LEN(mark, p), parser->method);
   }
 	break;
 	case 28:
-#line 175 "sip_parser.rl"
+#line 175 "sip_message_parser.rl"
 	{
     parser->message.sip_version(parser->parsed, PTR_TO(mark), LEN(mark, p));
   }
 	break;
 	case 29:
-#line 179 "sip_parser.rl"
+#line 179 "sip_message_parser.rl"
 	{ 
     parser->message.status_code(parser->parsed, PTR_TO(mark), LEN(mark, p));
   }
 	break;
 	case 30:
-#line 183 "sip_parser.rl"
+#line 183 "sip_message_parser.rl"
 	{
     parser->message.reason_phrase(parser->parsed, PTR_TO(mark), LEN(mark, p));
   }
 	break;
 	case 31:
-#line 188 "sip_parser.rl"
+#line 188 "sip_message_parser.rl"
 	{
     MARK(header_param_key_start, p);
   }
 	break;
 	case 32:
-#line 192 "sip_parser.rl"
+#line 192 "sip_message_parser.rl"
 	{
     parser->header_param_key_len = LEN(header_param_key_start, p);
     /* If current param has no value don't take previous param's value. */
@@ -29164,213 +29164,213 @@ _match:
   }
 	break;
 	case 33:
-#line 198 "sip_parser.rl"
+#line 198 "sip_message_parser.rl"
 	{
     MARK(header_param_value_start, p);
   }
 	break;
 	case 34:
-#line 202 "sip_parser.rl"
+#line 202 "sip_message_parser.rl"
 	{
     parser->header_param_value_len = LEN(header_param_value_start, p);
   }
 	break;
 	case 35:
-#line 207 "sip_parser.rl"
+#line 207 "sip_message_parser.rl"
 	{
     parser->hdr_field_name = header_field_via;
   }
 	break;
 	case 36:
-#line 211 "sip_parser.rl"
+#line 211 "sip_message_parser.rl"
 	{ parser->num_via++; }
 	break;
 	case 37:
-#line 213 "sip_parser.rl"
+#line 213 "sip_message_parser.rl"
 	{
     if (parser->num_via == 1)
       parser->message.via_sent_by_host(parser->parsed, PTR_TO(mark), LEN(mark, p));
   }
 	break;
 	case 38:
-#line 218 "sip_parser.rl"
+#line 218 "sip_message_parser.rl"
 	{
     if (parser->num_via == 1)
       parser->message.via_sent_by_port(parser->parsed, PTR_TO(mark), LEN(mark, p));
   }
 	break;
 	case 39:
-#line 223 "sip_parser.rl"
+#line 223 "sip_message_parser.rl"
 	{
     if (parser->num_via == 1)
       parser->message.via_branch(parser->parsed, PTR_TO(mark), LEN(mark, p));
   }
 	break;
 	case 40:
-#line 228 "sip_parser.rl"
+#line 228 "sip_message_parser.rl"
 	{
     if (parser->num_via == 1)
       parser->message.via_branch_rfc3261(parser->parsed, PTR_TO(mark), LEN(mark, p));
   }
 	break;
 	case 41:
-#line 233 "sip_parser.rl"
+#line 233 "sip_message_parser.rl"
 	{
     if (parser->num_via == 1)
       parser->message.via_received(parser->parsed, PTR_TO(mark), LEN(mark, p));
   }
 	break;
 	case 42:
-#line 238 "sip_parser.rl"
+#line 238 "sip_message_parser.rl"
 	{
     if (parser->num_via == 1)
       parser->message.via_has_rport(parser->parsed);
   }
 	break;
 	case 43:
-#line 243 "sip_parser.rl"
+#line 243 "sip_message_parser.rl"
 	{
     if (parser->num_via == 1)
       parser->message.via_has_alias(parser->parsed);
   }
 	break;
 	case 44:
-#line 248 "sip_parser.rl"
+#line 248 "sip_message_parser.rl"
 	{
     if (parser->num_via == 1)
       parser->message.header_core_value(parser->parsed, header_field_via, PTR_TO(hdr_value_start), LEN(hdr_value_start, p));
   }
 	break;
 	case 45:
-#line 253 "sip_parser.rl"
+#line 253 "sip_message_parser.rl"
 	{
     if (parser->num_via == 1)
       parser->message.header_param(parser->parsed, header_field_via, PTR_TO(header_param_key_start), parser->header_param_key_len, PTR_TO(header_param_value_start), parser->header_param_value_len);
   }
 	break;
 	case 46:
-#line 258 "sip_parser.rl"
+#line 258 "sip_message_parser.rl"
 	{ parser->num_call_id++; }
 	break;
 	case 47:
-#line 260 "sip_parser.rl"
+#line 260 "sip_message_parser.rl"
 	{
     if (parser->num_call_id == 1)
       parser->message.call_id(parser->parsed, PTR_TO(mark), LEN(mark, p));
   }
 	break;
 	case 48:
-#line 265 "sip_parser.rl"
+#line 265 "sip_message_parser.rl"
 	{ parser->num_cseq++; }
 	break;
 	case 49:
-#line 267 "sip_parser.rl"
+#line 267 "sip_message_parser.rl"
 	{
     if (parser->num_cseq == 1)
       parser->message.cseq_number(parser->parsed, PTR_TO(mark), LEN(mark, p));
   }
 	break;
 	case 50:
-#line 272 "sip_parser.rl"
+#line 272 "sip_message_parser.rl"
 	{ parser->num_max_forwards++; }
 	break;
 	case 51:
-#line 274 "sip_parser.rl"
+#line 274 "sip_message_parser.rl"
 	{
     if (parser->num_max_forwards == 1)
       parser->message.max_forwards(parser->parsed, PTR_TO(mark), LEN(mark, p));
   }
 	break;
 	case 52:
-#line 279 "sip_parser.rl"
+#line 279 "sip_message_parser.rl"
 	{ parser->num_content_length++; }
 	break;
 	case 53:
-#line 281 "sip_parser.rl"
+#line 281 "sip_message_parser.rl"
 	{
     if (parser->num_content_length == 1)
       parser->message.content_length(parser->parsed, PTR_TO(mark), LEN(mark, p));
   }
 	break;
 	case 54:
-#line 287 "sip_parser.rl"
+#line 287 "sip_message_parser.rl"
 	{
     if (parser->do_uri)
       parser->uri_scheme = uri_scheme_sip;
   }
 	break;
 	case 55:
-#line 292 "sip_parser.rl"
+#line 292 "sip_message_parser.rl"
 	{
     if (parser->do_uri)
       parser->uri_scheme = uri_scheme_sips;
   }
 	break;
 	case 56:
-#line 297 "sip_parser.rl"
+#line 297 "sip_message_parser.rl"
 	{
     if (parser->do_uri)
       parser->uri_scheme = uri_scheme_tel;
   }
 	break;
 	case 57:
-#line 302 "sip_parser.rl"
+#line 302 "sip_message_parser.rl"
 	{
     if (parser->do_uri)
       parser->uri_scheme = uri_scheme_unknown;
   }
 	break;
 	case 58:
-#line 307 "sip_parser.rl"
+#line 307 "sip_message_parser.rl"
 	{
     if (parser->do_uri)
       parser->uri.scheme(parser->parsed, parser->uri_owner, PTR_TO(mark), LEN(mark, p), parser->uri_scheme);
   }
 	break;
 	case 59:
-#line 312 "sip_parser.rl"
+#line 312 "sip_message_parser.rl"
 	{
     if (parser->do_uri)
       parser->uri.user(parser->parsed, parser->uri_owner, PTR_TO(mark), LEN(mark, p), parser->uri_scheme);
   }
 	break;
 	case 60:
-#line 317 "sip_parser.rl"
+#line 317 "sip_message_parser.rl"
 	{
     if (parser->do_uri)
       parser->uri.host(parser->parsed, parser->uri_owner, PTR_TO(mark), LEN(mark, p), host_type_domain);
   }
 	break;
 	case 61:
-#line 322 "sip_parser.rl"
+#line 322 "sip_message_parser.rl"
 	{
     if (parser->do_uri)
       parser->uri.host(parser->parsed, parser->uri_owner, PTR_TO(mark), LEN(mark, p), host_type_ipv4);
   }
 	break;
 	case 62:
-#line 327 "sip_parser.rl"
+#line 327 "sip_message_parser.rl"
 	{
     if (parser->do_uri)
       parser->uri.host(parser->parsed, parser->uri_owner, PTR_TO(mark), LEN(mark, p), host_type_ipv6);
   }
 	break;
 	case 63:
-#line 332 "sip_parser.rl"
+#line 332 "sip_message_parser.rl"
 	{
     if (parser->do_uri)
       parser->uri.port(parser->parsed, parser->uri_owner, PTR_TO(mark), LEN(mark, p), parser->uri_scheme);
   }
 	break;
 	case 64:
-#line 338 "sip_parser.rl"
+#line 338 "sip_message_parser.rl"
 	{
     if (parser->do_uri)
       MARK(uri_param_key_start, p);
   }
 	break;
 	case 65:
-#line 343 "sip_parser.rl"
+#line 343 "sip_message_parser.rl"
 	{
     if (parser->do_uri) {
       parser->uri_param_key_len = LEN(uri_param_key_start, p);
@@ -29380,112 +29380,112 @@ _match:
   }
 	break;
 	case 66:
-#line 351 "sip_parser.rl"
+#line 351 "sip_message_parser.rl"
 	{
     if (parser->do_uri)
       MARK(uri_param_value_start, p);
   }
 	break;
 	case 67:
-#line 356 "sip_parser.rl"
+#line 356 "sip_message_parser.rl"
 	{
     if (parser->do_uri)
       parser->uri_param_value_len = LEN(uri_param_value_start, p);
   }
 	break;
 	case 68:
-#line 361 "sip_parser.rl"
+#line 361 "sip_message_parser.rl"
 	{
     if (parser->do_uri == 1)
       parser->uri.param(parser->parsed, parser->uri_owner, PTR_TO(uri_param_key_start), parser->uri_param_key_len, PTR_TO(uri_param_value_start), parser->uri_param_value_len);
   }
 	break;
 	case 69:
-#line 367 "sip_parser.rl"
+#line 367 "sip_message_parser.rl"
 	{
     if (parser->do_uri)
       parser->uri.headers(parser->parsed, parser->uri_owner, PTR_TO(mark), LEN(mark, p), parser->uri_scheme);
   }
 	break;
 	case 70:
-#line 372 "sip_parser.rl"
+#line 372 "sip_message_parser.rl"
 	{
     if (parser->do_uri)
       parser->uri.known_param(parser->parsed, parser->uri_owner, uri_tel_phone_context, PTR_TO(mark), LEN(mark, p), 0);
   }
 	break;
 	case 71:
-#line 377 "sip_parser.rl"
+#line 377 "sip_message_parser.rl"
 	{
     if (parser->do_uri)
       parser->uri.known_param(parser->parsed, parser->uri_owner, uri_param_transport, PTR_TO(mark), LEN(mark, p), transport_udp);
   }
 	break;
 	case 72:
-#line 382 "sip_parser.rl"
+#line 382 "sip_message_parser.rl"
 	{
     if (parser->do_uri)
       parser->uri.known_param(parser->parsed, parser->uri_owner, uri_param_transport, PTR_TO(mark), LEN(mark, p), transport_tcp);
   }
 	break;
 	case 73:
-#line 387 "sip_parser.rl"
+#line 387 "sip_message_parser.rl"
 	{
     if (parser->do_uri)
       parser->uri.known_param(parser->parsed, parser->uri_owner, uri_param_transport, PTR_TO(mark), LEN(mark, p), transport_tls);
   }
 	break;
 	case 74:
-#line 392 "sip_parser.rl"
+#line 392 "sip_message_parser.rl"
 	{
     if (parser->do_uri)
       parser->uri.known_param(parser->parsed, parser->uri_owner, uri_param_transport, PTR_TO(mark), LEN(mark, p), transport_sctp);
   }
 	break;
 	case 75:
-#line 397 "sip_parser.rl"
+#line 397 "sip_message_parser.rl"
 	{
     if (parser->do_uri)
       parser->uri.known_param(parser->parsed, parser->uri_owner, uri_param_transport, PTR_TO(mark), LEN(mark, p), transport_ws);
   }
 	break;
 	case 76:
-#line 402 "sip_parser.rl"
+#line 402 "sip_message_parser.rl"
 	{
     if (parser->do_uri)
       parser->uri.known_param(parser->parsed, parser->uri_owner, uri_param_transport, PTR_TO(mark), LEN(mark, p), transport_wss);
   }
 	break;
 	case 77:
-#line 407 "sip_parser.rl"
+#line 407 "sip_message_parser.rl"
 	{
     if (parser->do_uri)
       parser->uri.known_param(parser->parsed, parser->uri_owner, uri_param_transport, PTR_TO(mark), LEN(mark, p), transport_unknown);
   }
 	break;
 	case 78:
-#line 412 "sip_parser.rl"
+#line 412 "sip_message_parser.rl"
 	{
     if (parser->do_uri)
       parser->uri.has_param(parser->parsed, parser->uri_owner, uri_param_lr);
   }
 	break;
 	case 79:
-#line 417 "sip_parser.rl"
+#line 417 "sip_message_parser.rl"
 	{
     if (parser->do_uri)
       parser->uri.has_param(parser->parsed, parser->uri_owner, uri_param_ob);
   }
 	break;
 	case 80:
-#line 422 "sip_parser.rl"
+#line 422 "sip_message_parser.rl"
 	{
     if (parser->do_uri)
       parser->uri.known_param(parser->parsed, parser->uri_owner, uri_param_ovid, PTR_TO(mark), LEN(mark, p), 0);
   }
 	break;
 	case 81:
-#line 427 "sip_parser.rl"
+#line 427 "sip_message_parser.rl"
 	{
     if (parser->do_uri)
       if (!parser->uri_display_name_quoted)
@@ -29495,20 +29495,20 @@ _match:
   }
 	break;
 	case 82:
-#line 436 "sip_parser.rl"
+#line 436 "sip_message_parser.rl"
 	{
     parser->uri_display_name_quoted=1;
   }
 	break;
 	case 83:
-#line 440 "sip_parser.rl"
+#line 440 "sip_message_parser.rl"
 	{
     if (parser->do_uri)
       MARK(uri_start, p);
   }
 	break;
 	case 84:
-#line 445 "sip_parser.rl"
+#line 445 "sip_message_parser.rl"
 	{
     if (parser->do_uri)
       parser->uri.full(parser->parsed, parser->uri_owner, PTR_TO(uri_start), LEN(uri_start, p), parser->uri_scheme);
@@ -29520,29 +29520,29 @@ _match:
   }
 	break;
 	case 85:
-#line 455 "sip_parser.rl"
+#line 455 "sip_message_parser.rl"
 	{ parser->message.init_component(parser->parsed, component_ruri); }
 	break;
 	case 86:
-#line 457 "sip_parser.rl"
+#line 457 "sip_message_parser.rl"
 	{
     parser->do_uri = 1;
     parser->uri_owner = uri_owner_ruri;
   }
 	break;
 	case 87:
-#line 462 "sip_parser.rl"
+#line 462 "sip_message_parser.rl"
 	{
     parser->message.init_component(parser->parsed, component_from);
     parser->hdr_field_name = header_field_from;
   }
 	break;
 	case 88:
-#line 467 "sip_parser.rl"
+#line 467 "sip_message_parser.rl"
 	{ parser->num_from++; }
 	break;
 	case 89:
-#line 469 "sip_parser.rl"
+#line 469 "sip_message_parser.rl"
 	{
     if (parser->num_from == 1) {
       parser->do_uri = 1;
@@ -29551,18 +29551,18 @@ _match:
   }
 	break;
 	case 90:
-#line 476 "sip_parser.rl"
+#line 476 "sip_message_parser.rl"
 	{
     parser->message.init_component(parser->parsed, component_to);
     parser->hdr_field_name = header_field_to;
   }
 	break;
 	case 91:
-#line 481 "sip_parser.rl"
+#line 481 "sip_message_parser.rl"
 	{ parser->num_to++; }
 	break;
 	case 92:
-#line 483 "sip_parser.rl"
+#line 483 "sip_message_parser.rl"
 	{
     if (parser->num_to == 1) {
       parser->do_uri = 1;
@@ -29571,19 +29571,19 @@ _match:
   }
 	break;
 	case 93:
-#line 491 "sip_parser.rl"
+#line 491 "sip_message_parser.rl"
 	{
     parser->message.from_tag(parser->parsed, PTR_TO(mark), LEN(mark, p));
   }
 	break;
 	case 94:
-#line 495 "sip_parser.rl"
+#line 495 "sip_message_parser.rl"
 	{
     parser->message.to_tag(parser->parsed, PTR_TO(mark), LEN(mark, p));
   }
 	break;
 	case 95:
-#line 500 "sip_parser.rl"
+#line 500 "sip_message_parser.rl"
 	{
     if (parser->route_found == 0) {
       parser->message.init_component(parser->parsed, component_route);
@@ -29593,30 +29593,30 @@ _match:
   }
 	break;
 	case 96:
-#line 508 "sip_parser.rl"
+#line 508 "sip_message_parser.rl"
 	{
     parser->message.init_component(parser->parsed, component_route_uri); }
 	break;
 	case 97:
-#line 511 "sip_parser.rl"
+#line 511 "sip_message_parser.rl"
 	{
     parser->do_uri = 1;
     parser->uri_owner = uri_owner_route;
   }
 	break;
 	case 98:
-#line 517 "sip_parser.rl"
+#line 517 "sip_message_parser.rl"
 	{
     parser->message.init_component(parser->parsed, component_contact);
     parser->hdr_field_name = header_field_contact;
   }
 	break;
 	case 99:
-#line 522 "sip_parser.rl"
+#line 522 "sip_message_parser.rl"
 	{ parser->num_contact++; }
 	break;
 	case 100:
-#line 524 "sip_parser.rl"
+#line 524 "sip_message_parser.rl"
 	{
     if (parser->num_contact == 1) {
       parser->do_uri = 1;
@@ -29625,54 +29625,54 @@ _match:
   }
 	break;
 	case 101:
-#line 536 "sip_parser.rl"
+#line 536 "sip_message_parser.rl"
 	{
     if (parser->num_contact == 1)
       parser->message.contact_params(parser->parsed, PTR_TO(mark), LEN(mark, p));
   }
 	break;
 	case 102:
-#line 541 "sip_parser.rl"
+#line 541 "sip_message_parser.rl"
 	{
     if (parser->num_contact == 1)
       parser->message.contact_has_reg_id(parser->parsed);
   }
 	break;
 	case 103:
-#line 546 "sip_parser.rl"
+#line 546 "sip_message_parser.rl"
 	{
     parser->contact_is_valid = 1;
   }
 	break;
 	case 104:
-#line 550 "sip_parser.rl"
+#line 550 "sip_message_parser.rl"
 	{
     parser->contact_is_valid = 0;
   }
 	break;
 	case 105:
-#line 555 "sip_parser.rl"
+#line 555 "sip_message_parser.rl"
 	{
     parser->message.option_tag(parser->parsed, header_field_require, PTR_TO(mark), LEN(mark, p));
   }
 	break;
 	case 106:
-#line 559 "sip_parser.rl"
+#line 559 "sip_message_parser.rl"
 	{
     parser->message.option_tag(parser->parsed, header_field_proxy_require, PTR_TO(mark), LEN(mark, p));
   }
 	break;
 	case 107:
-#line 563 "sip_parser.rl"
+#line 563 "sip_message_parser.rl"
 	{
     parser->message.option_tag(parser->parsed, header_field_supported, PTR_TO(mark), LEN(mark, p));
   }
 	break;
 	case 108:
-#line 568 "sip_parser.rl"
+#line 568 "sip_message_parser.rl"
 	{ {p++; goto _out; } }
 	break;
-#line 29676 "sip_parser.c"
+#line 29676 "sip_message_parser.c"
 		}
 	}
 
@@ -29685,7 +29685,7 @@ _again:
 	_out: {}
 	}
 
-#line 640 "sip_parser.rl"
+#line 640 "sip_message_parser.rl"
 
   parser->cs = cs;
   parser->nread += p - (buffer + off);

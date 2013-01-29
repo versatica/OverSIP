@@ -7,7 +7,7 @@ module OverSIP::SIP
     SECURE_TRANSPORTS = { :tls=>true, :wss=>true }
 
     attr_accessor :server_transaction
-    attr_accessor :ruri
+    attr_reader :ruri
     attr_reader :new_max_forwards
     attr_accessor :antiloop_id
     attr_accessor :route_outbound_flow_token
@@ -122,6 +122,18 @@ module OverSIP::SIP
     private :reply_199
 
 
+    def ruri= ruri
+      case ruri
+      when ::OverSIP::SIP::Uri, ::OverSIP::SIP::NameAddr
+        @ruri = ruri
+      when ::String
+        @ruri = OverSIP::SIP::Uri.parse ruri
+      else
+        raise ::OverSIP::RuntimeError, "invalid URI #{ruri.inspect}"
+      end
+    end
+
+
     def send_response(response)
       unless (case @transport
         when :udp
@@ -136,7 +148,7 @@ module OverSIP::SIP
 
 
     def to_s
-      msg = "#{@sip_method.to_s} #{@ruri.is_a?(::OverSIP::SIP::Uri) ? @ruri.uri : @ruri} SIP/2.0\r\n"
+      msg = "#{@sip_method.to_s} #{@ruri.uri} SIP/2.0\r\n"
 
       # Update From/To/Contact headers if modified.
       if @from.modified?

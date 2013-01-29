@@ -4,6 +4,14 @@ module OverSIP::SIP
 
     attr_reader :display_name
 
+
+    def self.parse value
+      name_addr = ::OverSIP::SIP::MessageParser.parse_uri value, true
+      raise ::OverSIP::RuntimeError, "invalid NameAddr #{value.inspect}"  unless name_addr.is_a? (::OverSIP::SIP::NameAddr)
+      name_addr
+    end
+
+
     def initialize display_name=nil, scheme=:sip, user=nil, host=nil, port=nil
       @display_name = display_name
       @scheme = scheme.to_sym

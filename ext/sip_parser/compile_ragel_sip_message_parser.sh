@@ -19,11 +19,3 @@ ragel -T0 -C $RAGEL_FILE.rl
 echo
 echo "DEBUG: $RAGEL_FILE.c generated"
 echo
-
-RAGEL_FILE=sip_uri_parser
-echo "DEBUG: compiling Ragel grammar $RAGEL_FILE.rl ..."
-ragel -T0 -C $RAGEL_FILE.rl
-echo
-echo "DEBUG: $RAGEL_FILE.c generated"
-echo
-
