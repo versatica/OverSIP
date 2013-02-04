@@ -15,6 +15,8 @@ class TestSipUriParser < OverSIPTest
     assert_true uri.sip?
     assert_false uri.unknown_scheme?
     assert_equal "iñaki", uri.user
+    assert_true uri.has_param? "FOO"
+    assert_false uri.has_param? "LALALA"
     assert_equal "123", uri.get_param("Foo")
     assert_equal aor, uri.aor
     assert_equal uri_str, uri.to_s
@@ -30,6 +32,8 @@ class TestSipUriParser < OverSIPTest
     assert_true uri.tel?
     assert_false uri.unknown_scheme?
     assert_equal "944991212", uri.number
+    assert_true uri.has_param? "FOO"
+    assert_false uri.has_param? "LALALA"
     assert_equal "bar", uri.get_param("Foo")
     assert_equal aor, uri.aor
     assert_equal uri_str, uri.to_s
@@ -45,6 +49,7 @@ class TestSipUriParser < OverSIPTest
     assert_false uri.sip?
     assert_false uri.tel?
     assert_true uri.unknown_scheme?
+    assert_nil uri.has_param? "FOO"
     assert_nil uri.aor
     assert_equal uri_str, uri.to_s
   end
