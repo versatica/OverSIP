@@ -4,7 +4,7 @@ module OverSIP::SIP
 
     include ::OverSIP::Logger
 
-    attr_reader :current_target
+    attr_reader :request, :current_target
 
     def initialize proxy_profile=:default_proxy
       unless (@conf = ::OverSIP.proxies[proxy_profile.to_sym])
@@ -46,6 +46,44 @@ module OverSIP::SIP
 
     def on_target &block
       @on_target_cbs << block
+    end
+
+    def clean_on_provisional_response
+      @on_provisional_response_cbs.clear
+    end
+
+    def clean_on_success_response
+      @on_success_response_cbs.clear
+    end
+
+    def clean_on_failure_response
+      @on_failure_response_cbs.clear
+    end
+
+    def clean_on_canceled
+      @on_canceled_cbs.clear
+    end
+
+    def clean_on_invite_timeout
+      @on_invite_timeout_cbs.clear
+    end
+
+    def clean_on_error
+      @on_error_cbs.clear
+    end
+
+    def clean_on_target
+      @on_target_cbs.clear
+    end
+
+    def clean_callbacks
+      @on_provisional_response_cbs.clear
+      @on_success_response_cbs.clear
+      @on_failure_response_cbs.clear
+      @on_canceled_cbs.clear
+      @on_invite_timeout_cbs.clear
+      @on_error_cbs.clear
+      @on_target_cbs.clear
     end
 
     # By calling this method the request routing is aborted, no more DNS targets are tryed,

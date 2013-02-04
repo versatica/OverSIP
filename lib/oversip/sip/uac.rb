@@ -2,7 +2,6 @@ module OverSIP::SIP
 
   class Uac < Client
 
-
     def route request, dst_host=nil, dst_port=nil, dst_transport=nil
       unless (@request = request).is_a? ::OverSIP::SIP::UacRequest or @request.is_a? ::OverSIP::SIP::Request
         raise ::OverSIP::RuntimeError, "request must be a OverSIP::SIP::UacRequest or OverSIP::SIP::Request instance"
