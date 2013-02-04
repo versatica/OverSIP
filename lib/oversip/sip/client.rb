@@ -160,43 +160,78 @@ module OverSIP::SIP
 
     def run_on_provisional_response_cbs response
       @on_provisional_response_cbs.each do |cb|
-        cb.call response
+        begin
+          cb.call response
+        rescue => e
+          log_system_error "error executing on_provisional_response callback:"
+          log_system_error e
+        end
       end
     end
 
     def run_on_success_response_cbs response
       @on_success_response_cbs.each do |cb|
-        cb.call response
+        begin
+          cb.call response
+        rescue => e
+          log_system_error "error executing on_success_response callback:"
+          log_system_error e
+        end
       end
     end
 
     def run_on_failure_response_cbs response
       @on_failure_response_cbs.each do |cb|
-        cb.call response
+        begin
+          cb.call response
+        rescue => e
+          log_system_error "error executing on_failure_response callback:"
+          log_system_error e
+        end
       end
     end
 
     def run_on_canceled_cbs
       @on_canceled_cbs.each do |cb|
-        cb.call
+        begin
+          cb.call
+        rescue => e
+          log_system_error "error executing on_canceled callback:"
+          log_system_error e
+        end
       end
     end
 
     def run_on_invite_timeout_cbs
       @on_invite_timeout_cbs.each do |cb|
-        cb.call
+        begin
+          cb.call
+        rescue => e
+          log_system_error "error executing on_invite_timeout callback:"
+          log_system_error e
+        end
       end
     end
 
     def run_on_error_cbs status, reason, code
       @on_error_cbs.each do |cb|
-        cb.call status, reason, code
+        begin
+          cb.call status, reason, code
+        rescue => e
+          log_system_error "error executing on_error callback:"
+          log_system_error e
+        end
       end
     end
 
     def run_on_target_cbs target
       @on_target_cbs.each do |cb|
-        cb.call target
+        begin
+          cb.call target
+        rescue => e
+          log_system_error "error executing on_target callback:"
+          log_system_error e
+        end
       end
     end
 
