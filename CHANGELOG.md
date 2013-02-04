@@ -2,7 +2,7 @@ CHANGELOG
 =========
 
 
-Version devel (not released)
+Version devel (not yet released)
 --------------------------------------
 
 - [(7befa37)](https://github.com/versatica/OverSIP/commit/7befa378d535bb5822dc7260516eaae8158fb9f6) RFC 6228 (199 response) implemented in `Proxy#drop_response(response)`. The method now allows passing the `OverSIP::SIP::Response` instance to drop and, in case it is a [3456]XX response and the received request includes "Supported: 199" then a 199 response is sent upstream.
@@ -12,6 +12,12 @@ Version devel (not released)
 - [(a2971fc)](https://github.com/versatica/OverSIP/commit/a2971fcc5c2e4fd4ed816d555b59442a64d22c33) New `OverSIP::ParsingError` exception which is raised when invalid data is passed to `OverSIP::SIP::Uri.parse(uri)` or `OverSIP::SIP::NameAddr.parse(name_addr)`.
 
 - [(2689e02)](https://github.com/versatica/OverSIP/commit/2689e02d4358daf12eac76264a0e2cac96fcb665) `OverSIP::SIP::Proxy` and `OverSIP::SIP::Uac` instances now allow setting multiple callbacks (for events like `on_success_response`) and all of them will be executed sequentially.
+
+- [(4b7c47f)](https://github.com/versatica/OverSIP/commit/4b7c47fd27e5186c71541952a1bb28af35cfcaa5) New method `OverSIP::SIP::Uri#has_param?(param)`.
+
+- [(774de3b)](https://github.com/versatica/OverSIP/commit/774de3b537fb6afdc71adb1047184cf0785c495c) New instance methods `clean_on_xxxxxx()` and `clean_callbacks()` to clean existing callbacks in `OverSIP::SIP::Proxy` and `OverSIP::SIP::Uac`.
+
+- [(e58974f)](https://github.com/versatica/OverSIP/commit/e58974feea8cd7962ea3efa8d8476f4bd54e52f9) New design of `OverSIP::Modules::OutboundMangling` module: `add_outbound_to_contact()` now requires passing an `OverSIP::SIP::Proxy` as argument rather than a request, and it internally adds the callback to the 2XX response (for reverting the custom ;ov-ob param) so `remove_outbound_from_contact()` is no longer required and has been removed.
 
 
 Version 1.3.7 (released in 2013-01-28)
