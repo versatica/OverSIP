@@ -10,34 +10,42 @@ module OverSIP::SIP
       unless (@conf = ::OverSIP.proxies[proxy_profile.to_sym])
         raise ::OverSIP::RuntimeError, "proxy profile '#{proxy_profile}' is not defined"
       end
+
+      @on_provisional_response_cbs = []
+      @on_success_response_cbs = []
+      @on_failure_response_cbs = []
+      @on_canceled_cbs = []
+      @on_invite_timeout_cbs = []
+      @on_error_cbs = []
+      @on_target_cbs = []
     end
 
     def on_provisional_response &block
-      @on_provisional_response_block = block
+      @on_provisional_response_cbs << block
     end
 
     def on_success_response &block
-      @on_success_response_block = block
+      @on_success_response_cbs << block
     end
 
     def on_failure_response &block
-      @on_failure_response_block = block
+      @on_failure_response_cbs << block
     end
 
     def on_canceled &block
-      @on_canceled_block = block
+      @on_canceled_cbs << block
     end
 
     def on_invite_timeout &block
-      @on_invite_timeout_block = block
+      @on_invite_timeout_cbs << block
     end
 
     def on_error &block
-      @on_error_block = block
+      @on_error_cbs << block
     end
 
     def on_target &block
-      @on_target_block = block
+      @on_target_cbs << block
     end
 
     # By calling this method the request routing is aborted, no more DNS targets are tryed,
@@ -104,12 +112,55 @@ module OverSIP::SIP
 
     # Timer C for INVITE.
     def invite_timeout
-      @on_invite_timeout_block && @on_invite_timeout_block.call
+      run_on_invite_timeout_cbs
     end
 
 
 
     private
+
+
+    def run_on_provisional_response_cbs response
+      @on_provisional_response_cbs.each do |cb|
+        cb.call response
+      end
+    end
+
+    def run_on_success_response_cbs response
+      @on_success_response_cbs.each do |cb|
+        cb.call response
+      end
+    end
+
+    def run_on_failure_response_cbs response
+      @on_failure_response_cbs.each do |cb|
+        cb.call response
+      end
+    end
+
+    def run_on_canceled_cbs
+      @on_canceled_cbs.each do |cb|
+        cb.call
+      end
+    end
+
+    def run_on_invite_timeout_cbs
+      @on_invite_timeout_cbs.each do |cb|
+        cb.call
+      end
+    end
+
+    def run_on_error_cbs status, reason, code
+      @on_error_cbs.each do |cb|
+        cb.call status, reason, code
+      end
+    end
+
+    def run_on_target_cbs target
+      @on_target_cbs.each do |cb|
+        cb.call target
+      end
+    end
 
 
     def add_routing_headers
@@ -236,7 +287,7 @@ module OverSIP::SIP
       end
 
       # Call the on_target() callback if set by the user.
-      @on_target_block && @on_target_block.call(target)
+      run_on_target_cbs target
 
       # If the user has called to proxy.abort_routing() then stop next targets
       # and call to on_error() callback.
@@ -296,7 +347,7 @@ module OverSIP::SIP
 
 
     def do_dns_fail status, reason, code
-      @on_error_block && @on_error_block.call(status, reason, code)
+      run_on_error_cbs status, reason, code
     end
 
   end  # class Client

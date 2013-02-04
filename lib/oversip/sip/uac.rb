@@ -53,19 +53,19 @@ module OverSIP::SIP
       log_system_debug "received response #{response.status_code}"  if $oversip_debug
 
       if response.status_code < 200
-        @on_provisional_response_block && @on_provisional_response_block.call(response)
+        run_on_provisional_response_cbs response
       elsif response.status_code >= 200 && response.status_code <= 299
-        @on_success_response_block && @on_success_response_block.call(response)
+        run_on_success_response_cbs response
       elsif response.status_code >= 300
         if response.status_code == 503
           if @conf[:dns_failover_on_503]
             try_next_target nil, nil, response
             return
           else
-            @on_failure_response_block && @on_failure_response_block.call(response)
+            run_on_failure_response_cbs response
           end
         else
-          @on_failure_response_block && @on_failure_response_block.call(response)
+          run_on_failure_response_cbs response
         end
       end
     end
@@ -76,12 +76,12 @@ module OverSIP::SIP
 
 
     def no_more_targets status, reason, full_response, code
-      # If we have received a [3456]XX response from downstream then run @on_failure_block.
+      # If we have received a [3456]XX response from downstream then run @on_failure_response_cbs.
       if full_response
-        @on_failure_response_block && @on_failure_response_block.call(full_response)
+        run_on_failure_response_cbs full_response
       # If not, generate the response according to the given status and reason.
       else
-        @on_error_block && @on_error_block.call(status, reason, code)
+        run_on_error_cbs status, reason, code
       end
     end
 

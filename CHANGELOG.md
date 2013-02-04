@@ -11,6 +11,8 @@ Version devel (not released)
 
 - [(a2971fc)](https://github.com/versatica/OverSIP/commit/a2971fcc5c2e4fd4ed816d555b59442a64d22c33) New `OverSIP::ParsingError` exception which is raised when invalid data is passed to `OverSIP::SIP::Uri.parse(uri)` or `OverSIP::SIP::NameAddr.parse(name_addr)`.
 
+- [(a8f5ca3)](https://github.com/versatica/OverSIP/commit/a8f5ca305352c517eb80d4c62736afc0b15028c9) `OverSIP::SIP::Proxy` and `OverSIP::SIP::Uac` instances now allow setting multiple callbacks (for events like `on_success_response`) and all of them will be executed sequentially.
+
 
 Version 1.3.7 (released in 2013-01-28)
 --------------------------------------

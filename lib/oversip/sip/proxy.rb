@@ -54,7 +54,7 @@ module OverSIP::SIP
           unless @request.sip_method == :ACK
             log_system_debug "flow failed"  if $oversip_debug
 
-            @on_error_block && @on_error_block.call(430, "Flow Failed", :flow_failed)
+            run_on_error_cbs 430, "Flow Failed", :flow_failed
             unless @drop_response
               @request.reply 430, "Flow Failed"
             else
@@ -125,9 +125,9 @@ module OverSIP::SIP
 
       if @request.server_transaction.valid_response? response.status_code
         if response.status_code < 200 && ! @canceled
-          @on_provisional_response_block && @on_provisional_response_block.call(response)
+          run_on_provisional_response_cbs response
         elsif response.status_code >= 200 && response.status_code <= 299
-          @on_success_response_block && @on_success_response_block.call(response)
+          run_on_success_response_cbs response
         elsif response.status_code >= 300 && ! @canceled
           if response.status_code == 503
             if @conf[:dns_failover_on_503]
@@ -136,10 +136,10 @@ module OverSIP::SIP
             else
               # If the response is 503 convert it into 500 (RFC 3261 16.7).
               response.status_code = 500
-              @on_failure_response_block && @on_failure_response_block.call(response)
+              run_on_failure_response_cbs response
             end
           else
-            @on_failure_response_block && @on_failure_response_block.call(response)
+            run_on_failure_response_cbs response
           end
         end
       end
@@ -157,7 +157,7 @@ module OverSIP::SIP
       log_system_debug "server transaction canceled, cancelling pending client transaction"  if $oversip_debug
 
       @canceled = true
-      @on_canceled_block && @on_canceled_block.call
+      run_on_canceled_cbs
 
       @client_transaction.do_cancel cancel
     end
@@ -165,7 +165,7 @@ module OverSIP::SIP
 
     # Timer C for INVITE (method called by the client transaction).
     def invite_timeout
-      @on_invite_timeout_block && @on_invite_timeout_block.call
+      run_on_invite_timeout_cbs
 
       unless @drop_response
         @request.reply 408, "INVITE Timeout"
@@ -284,9 +284,9 @@ module OverSIP::SIP
 
 
     def no_more_targets status, reason, full_response, code
-      # If we have received a [3456]XX response from downstream then run @on_failure_block.
+      # If we have received a [3456]XX response from downstream then run @on_failure_response_cbs.
       if full_response
-        @on_failure_response_block && @on_failure_response_block.call(full_response)
+        run_on_failure_response_cbs full_response
         unless @drop_response
           # If the response is 503 convert it into 500 (RFC 3261 16.7).
           full_response.status_code = 500  if full_response.status_code == 503
@@ -297,7 +297,7 @@ module OverSIP::SIP
 
       # If not, generate the response according to the given status and reason.
       else
-        @on_error_block && @on_error_block.call(status, reason, code)
+        run_on_error_cbs status, reason, code
         unless @drop_response
           @request.reply status, reason
         else
@@ -309,7 +309,7 @@ module OverSIP::SIP
 
 
     def do_dns_fail status, reason, code
-      @on_error_block && @on_error_block.call(status, reason, code)
+      run_on_error_cbs status, reason, code
 
       unless @drop_response
         @request.reply status, reason  unless @request.sip_method == :ACK
