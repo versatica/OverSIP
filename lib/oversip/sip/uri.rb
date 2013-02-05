@@ -98,6 +98,16 @@ module OverSIP::SIP
       false
     end
 
+    def clean_params
+      return nil  if unknown_scheme?
+      return false  unless @params
+      @params.clear
+      @transport_param = nil
+      @phone_context_param = nil
+      @uri_modified = true
+      true
+    end
+
     def transport_param= value
       return nil  unless @scheme == :sip or @scheme == :sips
       if value

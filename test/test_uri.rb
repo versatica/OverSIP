@@ -22,6 +22,11 @@ class TestUri < OverSIPTest
     assert_equal "123", uri.get_param("Foo")
     assert_equal aor, uri.aor
     assert_equal full_uri, uri.to_s
+
+    uri.clean_params
+
+    assert_equal({}, uri.params)
+    assert_equal "sips:i%C3%B1aki@aliax.net:5060?X-Header-1=qwe&X-Header-2=asd", uri.to_s
   end
 
   def test_tel_uri
@@ -39,6 +44,11 @@ class TestUri < OverSIPTest
     assert_equal "bar", uri.get_param("Foo")
     assert_equal aor, uri.aor
     assert_equal full_uri, uri.to_s
+
+    uri.clean_params
+
+    assert_equal({}, uri.params)
+    assert_equal aor, uri.to_s
   end
 
   def test_http_uri
@@ -53,5 +63,6 @@ class TestUri < OverSIPTest
     assert_true uri.unknown_scheme?
     assert_nil uri.aor
     assert_equal full_uri, uri.to_s
+    assert_nil uri.clean_params
   end
 end
