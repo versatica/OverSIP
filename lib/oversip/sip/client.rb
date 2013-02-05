@@ -48,35 +48,35 @@ module OverSIP::SIP
       @on_target_cbs << block
     end
 
-    def clean_on_provisional_response
+    def clear_on_provisional_response
       @on_provisional_response_cbs.clear
     end
 
-    def clean_on_success_response
+    def clear_on_success_response
       @on_success_response_cbs.clear
     end
 
-    def clean_on_failure_response
+    def clear_on_failure_response
       @on_failure_response_cbs.clear
     end
 
-    def clean_on_canceled
+    def clear_on_canceled
       @on_canceled_cbs.clear
     end
 
-    def clean_on_invite_timeout
+    def clear_on_invite_timeout
       @on_invite_timeout_cbs.clear
     end
 
-    def clean_on_error
+    def clear_on_error
       @on_error_cbs.clear
     end
 
-    def clean_on_target
+    def clear_on_target
       @on_target_cbs.clear
     end
 
-    def clean_callbacks
+    def clear_callbacks
       @on_provisional_response_cbs.clear
       @on_success_response_cbs.clear
       @on_failure_response_cbs.clear

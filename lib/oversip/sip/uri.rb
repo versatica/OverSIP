@@ -98,7 +98,7 @@ module OverSIP::SIP
       false
     end
 
-    def clean_params
+    def clear_params
       return nil  if unknown_scheme?
       return false  unless @params
       @params.clear
