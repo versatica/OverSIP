@@ -3,7 +3,7 @@ module OverSIP::SIP
   class Proxy < Client
 
     # If a SIP response is given then this method may offer other features such as replying 199.
-    def drop_response
+    def drop_response response=nil
       @drop_response = true
 
       # RFC 6228 (199 response).
