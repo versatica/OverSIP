@@ -1,3 +1,9 @@
+# 
+# OverSIP
+# Copyright (c) 2012-2013 Iñaki Baz Castillo - Versatica <http://www.versatica.com>
+# MIT License
+#
+
 # Ruby built-in libraries.
 
 require "etc"
