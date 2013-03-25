@@ -62,7 +62,12 @@ module OverSIP
 
           proxies[proxy.to_sym] = @proxy_configuration.dup
           proxies[proxy.to_sym].each do |parameter, default_value|
-            proxies[proxy.to_sym][parameter] = default_value.clone rescue default_value
+            proxies[proxy.to_sym][parameter] = case default_value
+            when ::TrueClass, ::FalseClass, ::NilClass, ::Fixnum
+              default_value
+            else
+              default_value.clone
+            end
           end
 
           PROXY_CONFIG_VALIDATIONS.each do |parameter, validations|
