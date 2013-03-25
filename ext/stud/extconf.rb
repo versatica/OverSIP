@@ -1,11 +1,17 @@
 require "mkmf"
 require "fileutils"
+require "rbconfig"
+
+
+def log(message)
+  puts "[ext/stud/extconf.rb] #{message}"
+end
 
 
 def sys(cmd)
-  puts "system command:  #{cmd}"
+  log "executing system command: #{cmd}"
   unless ret = xsystem(cmd)
-    raise "system command `#{cmd}' failed"
+    raise "[ext/stud/extconf.rb] system command `#{cmd}' failed"
   end
   ret
 end
@@ -17,8 +23,17 @@ stud_tarball = "stud.tar.gz"
 
 Dir.chdir(stud_dir) do
   sys("tar -zxf #{stud_tarball}")
+
   Dir.chdir("stud") do
-    sys("make")
+    host_os = RbConfig::CONFIG["host_os"]
+    log "RbConfig::CONFIG['host_os'] returns #{host_os.inspect}"
+    case host_os
+    when /bsd/i
+      log "BSD detected, using `gmake' instead of `make'"
+      sys("gmake")
+    else
+      sys("make")
+    end
     FileUtils.mv "stud", "../../../bin/oversip_stud"
   end
 
