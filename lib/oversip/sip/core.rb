@@ -77,13 +77,15 @@ module OverSIP::SIP
                 @num_vias == 1 and
                 outbound_aware? and (
                   ( has_preloaded_route_with_ob_param or (@contact and @contact.ob_param?) ) or
-                  ( @sip_method == :REGISTER and contact_reg_id?)
+                  ( @sip_method == :REGISTER and contact_reg_id? )
                 )
               )
             )
           )
         @outgoing_outbound_requested = true
         log_system_debug "applying outgoing Outbound support"  if $oversip_debug
+      else
+        @outgoing_outbound_requested = false
       end
 
       # Incoming initial request or in-dialog incoming/outgoing request. Must only perform
@@ -158,7 +160,31 @@ module OverSIP::SIP
     end
 
 
-    def outgoing_outbound_requested?       ; @outgoing_outbound_requested  end
+    def outgoing_outbound_requested?
+      return true   if @outgoing_outbound_requested
+      return false  if @outgoing_outbound_requested == false
+      
+      # It could be an initial request so we must provide Outbound support if
+      # forced via request.fix_nat() or if the request properly indicates it, even
+      # when route.loose_route() is not called.
+      if (
+            initial? and
+            @connection.class.outbound_listener? and (
+              @force_outgoing_outbound or (
+                @num_vias == 1 and
+                outbound_aware? and (
+                  ( @contact and @contact.ob_param? ) or
+                  ( @sip_method == :REGISTER and contact_reg_id? )
+                )
+              )
+            )
+          )
+        log_system_debug "applying outgoing Outbound support"  if $oversip_debug
+        @outgoing_outbound_requested = true
+      else
+        @outgoing_outbound_requested = false
+      end
+    end
 
     def incoming_outbound_requested?       ; @incoming_outbound_requested  end
 
