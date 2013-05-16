@@ -22,6 +22,12 @@ Version devel (not yet released)
 - [(31114a0)](https://github.com/versatica/OverSIP/commit/31114a091c9649574af0710f23e459f0bd488757) Added `OverSIP::SIP::Uri#clear_params()` which removes all the params from the URI.
 
 
+Version 1.3.8 (released in 2013-05-16)
+--------------------------------------
+
+- [(04b0882)](https://github.com/versatica/OverSIP/commit/04b088259f0881f5a09af9ebef9ce6e5387c4c02) `request.fix_nat()` works now for initial requests regardless `request.loose_route()` is not called (thanks to Vlad Paiu for reporting).
+
+
 Version 1.3.7 (released in 2013-01-28)
 --------------------------------------
 
