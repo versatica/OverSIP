@@ -5,6 +5,11 @@ CHANGELOG
 Version devel (not yet released)
 --------------------------------------
 
+
+
+Version 1.4.0 (released in 2013-09-15)
+--------------------------------------
+
 - [(7befa37)](https://github.com/versatica/OverSIP/commit/7befa378d535bb5822dc7260516eaae8158fb9f6) RFC 6228 (199 response) implemented in `Proxy#drop_response(response)`. The method now allows passing the `OverSIP::SIP::Response` instance to drop and, in case it is a [3456]XX response and the received request includes "Supported: 199" then a 199 response is sent upstream.
 
 - [(1159607)](https://github.com/versatica/OverSIP/commit/1159607ef524c8bba012fb19f60153d52b7d23f3) New `OverSIP::SIP::Request#ruri=(uri)` method which replaces the Request URI of the request by passing an `OverSIP::SIP::Uri` instance or a string. Also allow passing a URI as string to `UacRequest.initialize` and route based on it (if no `dst_host` param is given to the `Uac` instance routing such a request). New class methods `OverSIP::SIP::Uri.parse(string)` and `OverSIP::SIP::NameAddr.parse(string)` which generate instances of those classes.
@@ -20,6 +25,8 @@ Version devel (not yet released)
 - [(e58974f)](https://github.com/versatica/OverSIP/commit/e58974feea8cd7962ea3efa8d8476f4bd54e52f9) New design of `OverSIP::Modules::OutboundMangling` module: `add_outbound_to_contact()` now requires passing an `OverSIP::SIP::Proxy` as argument rather than a request, and it internally adds the callback to the 2XX response (for reverting the custom ;ov-ob param) so `remove_outbound_from_contact()` is no longer required and has been removed.
 
 - [(31114a0)](https://github.com/versatica/OverSIP/commit/31114a091c9649574af0710f23e459f0bd488757) Added `OverSIP::SIP::Uri#clear_params()` which removes all the params from the URI.
+
+- [(c610d90)](https://github.com/versatica/OverSIP/commit/c610d90b326174b37368f11b27d40c839d76de9d) Add `advertised_ipv4` and `advertised_ipv6` configuration options for running OverSIP in NAT'ed boxes.
 
 
 Version 1.3.8 (released in 2013-05-16)
