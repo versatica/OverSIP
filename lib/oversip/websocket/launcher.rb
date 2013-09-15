@@ -50,11 +50,16 @@ module OverSIP::WebSocket
       case
 
         when klass == ::OverSIP::WebSocket::IPv4WsServer
-          klass.via_core = "SIP/2.0/WS #{uri_ip}:#{port}"
-          klass.record_route = "<sip:#{uri_ip}:#{port};transport=ws;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
-          klass.outbound_record_route_fragment = "@#{uri_ip}:#{port};transport=ws;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
-          klass.outbound_path_fragment = "@#{uri_ip}:#{port};transport=ws;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid};ob>"
-
+          if ::OverSIP.configuration[:websocket][:advertised_ipv4]
+            used_uri_host = ::OverSIP.configuration[:websocket][:advertised_ipv4]
+          else
+            used_uri_host = uri_ip
+          end
+          klass.via_core = "SIP/2.0/WS #{used_uri_host}:#{port}"
+          klass.record_route = "<sip:#{used_uri_host}:#{port};transport=ws;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
+          klass.outbound_record_route_fragment = "@#{used_uri_host}:#{port};transport=ws;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
+          klass.outbound_path_fragment = "@#{used_uri_host}:#{port};transport=ws;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid};ob>"
+          
           if enabled
             ::EM.start_server(ip, port, klass) do |conn|
               conn.post_connection
@@ -63,10 +68,15 @@ module OverSIP::WebSocket
           end
 
         when klass == ::OverSIP::WebSocket::IPv6WsServer
-          klass.via_core = "SIP/2.0/WS #{uri_ip}:#{port}"
-          klass.record_route = "<sip:#{uri_ip}:#{port};transport=ws;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
-          klass.outbound_record_route_fragment = "@#{uri_ip}:#{port};transport=ws;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
-          klass.outbound_path_fragment = "@#{uri_ip}:#{port};transport=ws;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid};ob>"
+          if ::OverSIP.configuration[:websocket][:advertised_ipv6]
+            used_uri_host = "[#{::OverSIP.configuration[:websocket][:advertised_ipv6]}]"
+          else
+            used_uri_host = uri_ip
+          end
+          klass.via_core = "SIP/2.0/WS #{used_uri_host}:#{port}"
+          klass.record_route = "<sip:#{used_uri_host}:#{port};transport=ws;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
+          klass.outbound_record_route_fragment = "@#{used_uri_host}:#{port};transport=ws;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
+          klass.outbound_path_fragment = "@#{used_uri_host}:#{port};transport=ws;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid};ob>"
 
           if enabled
             ::EM.start_server(ip, port, klass) do |conn|
@@ -76,11 +86,17 @@ module OverSIP::WebSocket
           end
 
         when klass == ::OverSIP::WebSocket::IPv4WssServer
-          klass.via_core = "SIP/2.0/WSS #{uri_ip}:#{port}"
-          rr_host = ::OverSIP.configuration[:sip][:record_route_hostname_tls_ipv4] || uri_ip
-          klass.record_route = "<sip:#{rr_host}:#{port};transport=wss;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
-          klass.outbound_record_route_fragment = "@#{rr_host}:#{port};transport=wss;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
-          klass.outbound_path_fragment = "@#{rr_host}:#{port};transport=wss;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid};ob>"
+          if ::OverSIP.configuration[:sip][:record_route_hostname_tls_ipv4]
+            used_uri_host = ::OverSIP.configuration[:sip][:record_route_hostname_tls_ipv4]
+          elsif ::OverSIP.configuration[:websocket][:advertised_ipv4]
+            used_uri_host = ::OverSIP.configuration[:websocket][:advertised_ipv4]
+          else
+            used_uri_host = uri_ip
+          end
+          klass.via_core = "SIP/2.0/WS #{used_uri_host}:#{port}"
+          klass.record_route = "<sip:#{used_uri_host}:#{port};transport=ws;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
+          klass.outbound_record_route_fragment = "@#{used_uri_host}:#{port};transport=ws;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
+          klass.outbound_path_fragment = "@#{used_uri_host}:#{port};transport=ws;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid};ob>"
 
           if enabled
             ::EM.start_server(ip, port, klass) do |conn|
@@ -90,11 +106,17 @@ module OverSIP::WebSocket
           end
 
         when klass == ::OverSIP::WebSocket::IPv6WssServer
-          klass.via_core = "SIP/2.0/WSS #{uri_ip}:#{port}"
-          rr_host = ::OverSIP.configuration[:sip][:record_route_hostname_tls_ipv6] || uri_ip
-          klass.record_route = "<sips:#{rr_host}:#{port};transport=ws;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
-          klass.outbound_record_route_fragment = "@#{rr_host}:#{port};transport=wss;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
-          klass.outbound_path_fragment = "@#{rr_host}:#{port};transport=wss;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid};ob>"
+          if ::OverSIP.configuration[:sip][:record_route_hostname_tls_ipv6]
+            used_uri_host = ::OverSIP.configuration[:sip][:record_route_hostname_tls_ipv6]
+          elsif ::OverSIP.configuration[:websocket][:advertised_ipv6]
+            used_uri_host = "[#{::OverSIP.configuration[:websocket][:advertised_ipv6]}]"
+          else
+            used_uri_host = uri_ip
+          end
+          klass.via_core = "SIP/2.0/WS #{used_uri_host}:#{port}"
+          klass.record_route = "<sip:#{used_uri_host}:#{port};transport=ws;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
+          klass.outbound_record_route_fragment = "@#{used_uri_host}:#{port};transport=ws;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
+          klass.outbound_path_fragment = "@#{used_uri_host}:#{port};transport=ws;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid};ob>"
 
           if enabled
             ::EM.start_server(ip, port, klass) do |conn|
@@ -104,11 +126,17 @@ module OverSIP::WebSocket
           end
 
         when klass == ::OverSIP::WebSocket::IPv4WssTunnelServer
-          klass.via_core = "SIP/2.0/WSS #{uri_virtual_ip}:#{virtual_port}"
-          rr_host = ::OverSIP.configuration[:sip][:record_route_hostname_tls_ipv4] || uri_virtual_ip
-          klass.record_route = "<sip:#{rr_host}:#{virtual_port};transport=wss;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
-          klass.outbound_record_route_fragment = "@#{rr_host}:#{virtual_port};transport=wss;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
-          klass.outbound_path_fragment = "@#{rr_host}:#{virtual_port};transport=wss;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid};ob>"
+          if ::OverSIP.configuration[:sip][:record_route_hostname_tls_ipv4]
+            used_uri_host = ::OverSIP.configuration[:sip][:record_route_hostname_tls_ipv4]
+          elsif ::OverSIP.configuration[:websocket][:advertised_ipv4]
+            used_uri_host = ::OverSIP.configuration[:websocket][:advertised_ipv4]
+          else
+            used_uri_host = uri_virtual_ip
+          end
+          klass.via_core = "SIP/2.0/WSS #{used_uri_host}:#{virtual_port}"
+          klass.record_route = "<sip:#{used_uri_host}:#{virtual_port};transport=wss;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
+          klass.outbound_record_route_fragment = "@#{used_uri_host}:#{virtual_port};transport=wss;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
+          klass.outbound_path_fragment = "@#{used_uri_host}:#{virtual_port};transport=wss;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid};ob>"
 
           if enabled
             ::EM.start_server(ip, port, klass) do |conn|
@@ -118,12 +146,18 @@ module OverSIP::WebSocket
           end
 
         when klass == ::OverSIP::WebSocket::IPv6WssTunnelServer
-          klass.via_core = "SIP/2.0/WSS #{uri_virtual_ip}:#{virtual_port}"
-          rr_host = ::OverSIP.configuration[:sip][:record_route_hostname_tls_ipv6] || uri_virtual_ip
-          klass.record_route = "<sip:#{rr_host}:#{virtual_port};transport=wss;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
-          klass.outbound_record_route_fragment = "@#{rr_host}:#{virtual_port};transport=wss;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
-          klass.outbound_path_fragment = "@#{rr_host}:#{virtual_port};transport=wss;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid};ob>"
-
+          if ::OverSIP.configuration[:sip][:record_route_hostname_tls_ipv6]
+            used_uri_host = ::OverSIP.configuration[:sip][:record_route_hostname_tls_ipv6]
+          elsif ::OverSIP.configuration[:websocket][:advertised_ipv6]
+            used_uri_host = "[#{::OverSIP.configuration[:websocket][:advertised_ipv6]}]"
+          else
+            used_uri_host = uri_virtual_ip
+          end
+          klass.via_core = "SIP/2.0/WSS #{used_uri_host}:#{virtual_port}"
+          klass.record_route = "<sip:#{used_uri_host}:#{virtual_port};transport=wss;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
+          klass.outbound_record_route_fragment = "@#{used_uri_host}:#{virtual_port};transport=wss;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
+          klass.outbound_path_fragment = "@#{used_uri_host}:#{virtual_port};transport=wss;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid};ob>"
+          
           if enabled
             ::EM.start_server(ip, port, klass) do |conn|
               conn.post_connection

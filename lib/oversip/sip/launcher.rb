@@ -54,10 +54,15 @@ module OverSIP::SIP
       case
 
         when klass == ::OverSIP::SIP::IPv4UdpServer
-          klass.via_core = "SIP/2.0/UDP #{uri_ip}:#{port}"
-          klass.record_route = "<sip:#{uri_ip}:#{port};transport=udp;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
-          klass.outbound_record_route_fragment = "@#{uri_ip}:#{port};transport=udp;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
-          klass.outbound_path_fragment = "@#{uri_ip}:#{port};transport=udp;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid};ob>"
+          if ::OverSIP.configuration[:sip][:advertised_ipv4]
+            used_uri_host = ::OverSIP.configuration[:sip][:advertised_ipv4]
+          else
+            used_uri_host = uri_ip
+          end
+          klass.via_core = "SIP/2.0/UDP #{used_uri_host}:#{port}"
+          klass.record_route = "<sip:#{used_uri_host}:#{port};transport=udp;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
+          klass.outbound_record_route_fragment = "@#{used_uri_host}:#{port};transport=udp;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
+          klass.outbound_path_fragment = "@#{used_uri_host}:#{port};transport=udp;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid};ob>"
 
           if enabled
             ::EM::open_datagram_socket(ip, port, klass) do |conn|
@@ -66,10 +71,15 @@ module OverSIP::SIP
           end
 
         when klass == ::OverSIP::SIP::IPv6UdpServer
-          klass.via_core = "SIP/2.0/UDP #{uri_ip}:#{port}"
-          klass.record_route = "<sip:#{uri_ip}:#{port};transport=udp;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
-          klass.outbound_record_route_fragment = "@#{uri_ip}:#{port};transport=udp;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
-          klass.outbound_path_fragment = "@#{uri_ip}:#{port};transport=udp;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid};ob>"
+          if ::OverSIP.configuration[:sip][:advertised_ipv6]
+            used_uri_host = "[#{::OverSIP.configuration[:sip][:advertised_ipv6]}]"
+          else
+            used_uri_host = uri_ip
+          end
+          klass.via_core = "SIP/2.0/UDP #{used_uri_host}:#{port}"
+          klass.record_route = "<sip:#{used_uri_host}:#{port};transport=udp;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
+          klass.outbound_record_route_fragment = "@#{used_uri_host}:#{port};transport=udp;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
+          klass.outbound_path_fragment = "@#{used_uri_host}:#{port};transport=udp;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid};ob>"
 
           if enabled
             ::EM::open_datagram_socket(ip, port, klass) do |conn|
@@ -78,10 +88,15 @@ module OverSIP::SIP
           end
 
         when klass == ::OverSIP::SIP::IPv4TcpServer
-          klass.via_core = "SIP/2.0/TCP #{uri_ip}:#{port}"
-          klass.record_route = "<sip:#{uri_ip}:#{port};transport=tcp;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
-          klass.outbound_record_route_fragment = "@#{uri_ip}:#{port};transport=tcp;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
-          klass.outbound_path_fragment = "@#{uri_ip}:#{port};transport=tcp;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid};ob>"
+          if ::OverSIP.configuration[:sip][:advertised_ipv4]
+            used_uri_host = ::OverSIP.configuration[:sip][:advertised_ipv4]
+          else
+            used_uri_host = uri_ip
+          end
+          klass.via_core = "SIP/2.0/TCP #{used_uri_host}:#{port}"
+          klass.record_route = "<sip:#{used_uri_host}:#{port};transport=tcp;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
+          klass.outbound_record_route_fragment = "@#{used_uri_host}:#{port};transport=tcp;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
+          klass.outbound_path_fragment = "@#{used_uri_host}:#{port};transport=tcp;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid};ob>"
 
           if enabled
             ::EM.start_server(ip, port, klass) do |conn|
@@ -91,10 +106,15 @@ module OverSIP::SIP
           end
 
         when klass == ::OverSIP::SIP::IPv6TcpServer
-          klass.via_core = "SIP/2.0/TCP #{uri_ip}:#{port}"
-          klass.record_route = "<sip:#{uri_ip}:#{port};transport=tcp;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
-          klass.outbound_record_route_fragment = "@#{uri_ip}:#{port};transport=tcp;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
-          klass.outbound_path_fragment = "@#{uri_ip}:#{port};transport=tcp;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid};ob>"
+          if ::OverSIP.configuration[:sip][:advertised_ipv6]
+            used_uri_host = "[#{::OverSIP.configuration[:sip][:advertised_ipv6]}]"
+          else
+            used_uri_host = uri_ip
+          end
+          klass.via_core = "SIP/2.0/TCP #{used_uri_host}:#{port}"
+          klass.record_route = "<sip:#{used_uri_host}:#{port};transport=tcp;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
+          klass.outbound_record_route_fragment = "@#{used_uri_host}:#{port};transport=tcp;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
+          klass.outbound_path_fragment = "@#{used_uri_host}:#{port};transport=tcp;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid};ob>"
 
           if enabled
             ::EM.start_server(ip, port, klass) do |conn|
@@ -104,11 +124,17 @@ module OverSIP::SIP
           end
 
         when klass == ::OverSIP::SIP::IPv4TlsServer
-          klass.via_core = "SIP/2.0/TLS #{uri_ip}:#{port}"
-          rr_host = ::OverSIP.configuration[:sip][:record_route_hostname_tls_ipv4] || uri_ip
-          klass.record_route = "<sip:#{rr_host}:#{port};transport=tls;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
-          klass.outbound_record_route_fragment = "@#{rr_host}:#{port};transport=tls;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
-          klass.outbound_path_fragment = "@#{rr_host}:#{port};transport=tls;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid};ob>"
+          if ::OverSIP.configuration[:sip][:record_route_hostname_tls_ipv4]
+            used_uri_host = ::OverSIP.configuration[:sip][:record_route_hostname_tls_ipv4]
+          elsif ::OverSIP.configuration[:sip][:advertised_ipv4]
+            used_uri_host = ::OverSIP.configuration[:sip][:advertised_ipv4]
+          else
+            used_uri_host = uri_ip
+          end
+          klass.via_core = "SIP/2.0/TLS #{used_uri_host}:#{port}"
+          klass.record_route = "<sip:#{used_uri_host}:#{port};transport=tls;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
+          klass.outbound_record_route_fragment = "@#{used_uri_host}:#{port};transport=tls;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
+          klass.outbound_path_fragment = "@#{used_uri_host}:#{port};transport=tls;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid};ob>"
 
           if enabled
             ::EM.start_server(ip, port, klass) do |conn|
@@ -118,11 +144,17 @@ module OverSIP::SIP
           end
 
         when klass == ::OverSIP::SIP::IPv6TlsServer
-          klass.via_core = "SIP/2.0/TLS #{uri_ip}:#{port}"
-          rr_host = ::OverSIP.configuration[:sip][:record_route_hostname_tls_ipv6] || uri_ip
-          klass.record_route = "<sip:#{rr_host}:#{port};transport=tls;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
-          klass.outbound_record_route_fragment = "@#{rr_host}:#{port};transport=tls;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
-          klass.outbound_path_fragment = "@#{rr_host}:#{port};transport=tls;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid};ob>"
+          if ::OverSIP.configuration[:sip][:record_route_hostname_tls_ipv6]
+            used_uri_host = ::OverSIP.configuration[:sip][:record_route_hostname_tls_ipv6]
+          elsif ::OverSIP.configuration[:sip][:advertised_ipv6]
+            used_uri_host = "[#{::OverSIP.configuration[:sip][:advertised_ipv6]}]"
+          else
+            used_uri_host = uri_ip
+          end
+          klass.via_core = "SIP/2.0/TLS #{used_uri_host}:#{port}"
+          klass.record_route = "<sip:#{used_uri_host}:#{port};transport=tls;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
+          klass.outbound_record_route_fragment = "@#{used_uri_host}:#{port};transport=tls;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
+          klass.outbound_path_fragment = "@#{used_uri_host}:#{port};transport=tls;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid};ob>"
 
           if enabled
             ::EM.start_server(ip, port, klass) do |conn|
@@ -132,12 +164,18 @@ module OverSIP::SIP
           end
 
         when klass == ::OverSIP::SIP::IPv4TlsTunnelServer
-          klass.via_core = "SIP/2.0/TLS #{uri_virtual_ip}:#{virtual_port}"
-          rr_host = ::OverSIP.configuration[:sip][:record_route_hostname_tls_ipv4] || uri_virtual_ip
-          klass.record_route = "<sip:#{rr_host}:#{virtual_port};transport=tls;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
-          klass.outbound_record_route_fragment = "@#{rr_host}:#{virtual_port};transport=tls;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
-          klass.outbound_path_fragment = "@#{rr_host}:#{virtual_port};transport=tls;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid};ob>"
-
+          if ::OverSIP.configuration[:sip][:record_route_hostname_tls_ipv4]
+            used_uri_host = ::OverSIP.configuration[:sip][:record_route_hostname_tls_ipv4]
+          elsif ::OverSIP.configuration[:sip][:advertised_ipv4]
+            used_uri_host = ::OverSIP.configuration[:sip][:advertised_ipv4]
+          else
+            used_uri_host = uri_virtual_ip
+          end
+          klass.via_core = "SIP/2.0/TLS #{used_uri_host}:#{virtual_port}"
+          klass.record_route = "<sip:#{used_uri_host}:#{virtual_port};transport=tls;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
+          klass.outbound_record_route_fragment = "@#{used_uri_host}:#{virtual_port};transport=tls;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
+          klass.outbound_path_fragment = "@#{used_uri_host}:#{virtual_port};transport=tls;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid};ob>"
+          
           if enabled
             ::EM.start_server(ip, port, klass) do |conn|
               conn.post_connection
@@ -146,12 +184,18 @@ module OverSIP::SIP
           end
 
         when klass == ::OverSIP::SIP::IPv6TlsTunnelServer
-          klass.via_core = "SIP/2.0/TLS #{uri_virtual_ip}:#{virtual_port}"
-          rr_host = ::OverSIP.configuration[:sip][:record_route_hostname_tls_ipv6] || uri_virtual_ip
-          klass.record_route = "<sip:#{rr_host}:#{virtual_port};transport=tls;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
-          klass.outbound_record_route_fragment = "@#{rr_host}:#{virtual_port};transport=tls;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
-          klass.outbound_path_fragment = "@#{rr_host}:#{virtual_port};transport=tls;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid};ob>"
-
+          if ::OverSIP.configuration[:sip][:record_route_hostname_tls_ipv6]
+            used_uri_host = ::OverSIP.configuration[:sip][:record_route_hostname_tls_ipv6]
+          elsif ::OverSIP.configuration[:sip][:advertised_ipv6]
+            used_uri_host = "[#{::OverSIP.configuration[:sip][:advertised_ipv6]}]"
+          else
+            used_uri_host = uri_virtual_ip
+          end
+          klass.via_core = "SIP/2.0/TLS #{used_uri_host}:#{virtual_port}"
+          klass.record_route = "<sip:#{used_uri_host}:#{virtual_port};transport=tls;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
+          klass.outbound_record_route_fragment = "@#{used_uri_host}:#{virtual_port};transport=tls;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid}>"
+          klass.outbound_path_fragment = "@#{used_uri_host}:#{virtual_port};transport=tls;lr;ovid=#{OverSIP::SIP::Tags.value_for_route_ovid};ob>"
+          
           if enabled
             ::EM.start_server(ip, port, klass) do |conn|
               conn.post_connection

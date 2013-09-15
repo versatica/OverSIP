@@ -32,8 +32,10 @@ module OverSIP
         :sip_tls                  => false,
         :enable_ipv4              => true,
         :listen_ipv4              => nil,
+        :advertised_ipv4          => nil,
         :enable_ipv6              => true,
         :listen_ipv6              => nil,
+        :advertised_ipv6          => nil,
         :listen_port              => 5060,
         :listen_port_tls          => 5061,
         :use_tls_tunnel           => false,
@@ -49,8 +51,10 @@ module OverSIP
         :sip_wss                  => false,
         :enable_ipv4              => true,
         :listen_ipv4              => nil,
+        :advertised_ipv4          => nil,
         :enable_ipv6              => true,
         :listen_ipv6              => nil,
+        :advertised_ipv6          => nil,
         :listen_port              => 10080,
         :listen_port_tls          => 10443,
         :use_tls_tunnel           => false,
@@ -85,8 +89,10 @@ module OverSIP
         :sip_tls                         => :boolean,
         :enable_ipv4                     => :boolean,
         :listen_ipv4                     => :ipv4,
+        :advertised_ipv4                 => :ipv4,
         :enable_ipv6                     => :boolean,
         :listen_ipv6                     => :ipv6,
+        :advertised_ipv6                 => :ipv6,
         :listen_port                     => :port,
         :listen_port_tls                 => :port,
         :use_tls_tunnel                  => :boolean,
@@ -102,8 +108,10 @@ module OverSIP
         :sip_wss                         => :boolean,
         :enable_ipv4                     => :boolean,
         :listen_ipv4                     => :ipv4,
+        :advertised_ipv4                 => :ipv4,
         :enable_ipv6                     => :boolean,
         :listen_ipv6                     => :ipv6,
+        :advertised_ipv6                 => :ipv6,
         :listen_port                     => :port,
         :listen_port_tls                 => :port,
         :use_tls_tunnel                  => :boolean,
@@ -280,10 +288,14 @@ module OverSIP
 
       unless @configuration[:sip][:enable_ipv4]
         @configuration[:sip][:listen_ipv4] = nil
+        @configuration[:sip][:advertised_ipv4] = nil
+        @configuration[:sip][:record_route_hostname_tls_ipv4] = nil
       end
 
       unless @configuration[:sip][:enable_ipv6]
         @configuration[:sip][:listen_ipv6] = nil
+        @configuration[:sip][:advertised_ipv6] = nil
+        @configuration[:sip][:record_route_hostname_tls_ipv6] = nil
       end
 
       if @configuration[:websocket][:sip_ws]
@@ -307,10 +319,12 @@ module OverSIP
 
       unless @configuration[:websocket][:enable_ipv4]
         @configuration[:websocket][:listen_ipv4] = nil
+        @configuration[:websocket][:advertised_ipv4] = nil
       end
 
       unless @configuration[:websocket][:enable_ipv6]
         @configuration[:websocket][:listen_ipv6] = nil
+        @configuration[:websocket][:advertised_ipv6] = nil
       end
 
       if ( @use_sip_udp_or_tcp or @use_sip_tls ) and @configuration[:sip][:listen_ipv4] == nil and @configuration[:sip][:enable_ipv4]
