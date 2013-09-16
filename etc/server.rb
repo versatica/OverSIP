@@ -195,20 +195,14 @@ def (OverSIP::SipEvents).on_request request
 
   when :REGISTER
 
-    if MyExampleApp.do_outbound_mangling
-      # Contact mangling for the case in which the registrar does not support Path.
-      ::OverSIP::Modules::OutboundMangling.add_outbound_to_contact request
-    end
-
     proxy = ::OverSIP::SIP::Proxy.new :proxy_out
 
-    proxy.on_success_response do |response|
-      if MyExampleApp.do_outbound_mangling
-        # Undo changes done to the Contact header provided by the client, so it receives
-        # the same value in the 200 response from the registrar.
-        ::OverSIP::Modules::OutboundMangling.remove_outbound_from_contact response
-      end
+    if MyExampleApp.do_outbound_mangling
+      # Contact mangling for the case in which the registrar does not support Path.
+      ::OverSIP::Modules::OutboundMangling.add_outbound_to_contact proxy
+    end
 
+    proxy.on_success_response do |response|
       if MyExampleApp.do_user_assertion
         # The registrar replies 200 after a REGISTER with credentials so let's assert
         # the current SIP user to this connection.
