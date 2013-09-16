@@ -1,3 +1,7 @@
+oversip (1.4.1) stable; urgency=low
+  * Package for OverSIP Ruby Gem 1.4.1.
+ -- Iñaki Baz Castillo <ibc@aliax.net>  Mon, 16 Sep 2013 16:35:00 +0100
+
 oversip (1.4.0) stable; urgency=low
   * Package for OverSIP Ruby Gem 1.4.0.
  -- Iñaki Baz Castillo <ibc@aliax.net>  Sun, 15 Sep 2013 16:10:00 +0100
