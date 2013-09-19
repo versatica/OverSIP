@@ -462,8 +462,11 @@ module OverSIP::Launcher
       end
     end
 
-    # Special treatment for VTALRM signal (TODO: since it occurs too much).
-    trap :VTALRM do
+    # Ruby 2.0 does not allow trapping VTALRM signal. For other cases ignore it.
+    begin
+      trap :VTALRM do
+      end
+    rescue ::ArgumentError
     end
 
     # Signal HUP reloads OverSIP system configuration.
