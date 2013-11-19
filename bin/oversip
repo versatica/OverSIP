@@ -49,7 +49,7 @@ module OverSIP
           options[:pid_file] = value
         end
 
-        opts.on("-p", "--process-name NAME", "Change the running process name, also affects to syslogger process and Posix Message Queue name (default 'oversip')") do |value|
+        opts.on("-p", "--process-name NAME", "Change the running process name (default 'oversip')") do |value|
           options[:process_name] = value
           $0 = options[:process_name]
           ::OverSIP::Logger.load_methods
@@ -73,23 +73,6 @@ module OverSIP
 
         opts.on("--no-color", "Don't colorize text printed in stdout") do |value|
           options[:colorize] = false
-        end
-
-        opts.on("--remove-mqueue MQUEUE", "Destroy the Posix Message Queue with the given name and exit") do |value|
-          require "posix_mq"
-
-          begin
-            ::POSIX_MQ.unlink value
-          rescue ::Errno::ENOENT
-          rescue ::Errno::EACCES => e
-            ::OverSIP::Launcher.fatal "cannot remove '#{value}' posix message queue due file permissions"
-            exit 1
-          rescue ::Errno::EINVAL => e
-            ::OverSIP::Launcher.fatal "cannot remove '#{value}' posix message queue, invalid name"
-            exit 1
-          ensure
-            exit
-          end
         end
 
         opts.separator "\nRuby options:"
@@ -148,7 +131,10 @@ module OverSIP
 
       # Ignore user/group if the launcher is not being running as root.
       unless ::Process.euid == 0
-        log_system_warn "ignoring user/group parameters when not running as root"
+        if options[:user] or options[:group]
+          log_system_warn "ignoring user/group parameters when not running as root"
+        end
+
         options.delete :user
         options.delete :group
       else
@@ -173,22 +159,19 @@ module OverSIP
       # or to the script filename otherwise.
       ::OverSIP.master_name = options[:process_name] || ::File.basename(__FILE__)
       $0 = ::OverSIP.master_name
-      log_system_info "master process name: #{::OverSIP.master_name}"
+      log_system_info "process name: #{::OverSIP.master_name}"
 
       ::OverSIP::Config.load options[:config_dir], options[:config_file]
       ::OverSIP::Config.print options[:colorize]
 
-      log_system_info "increasing rlimits for 'nofiles'"
+      ::OverSIP::Logger::load_methods
+
       begin
         ::Process.setrlimit Process::RLIMIT_NOFILE, 65536, 65536
       rescue => e
-        ::OverSIP::Launcher.fatal e
+        # ::OverSIP::Launcher.fatal e
+        log_system_error "error increasing rlimits for 'nofiles': #{e.message} (#{e.class})"
       end
-
-      log_system_info "creating Posix Message Queue for communicating master and syslogger processes"
-      ::OverSIP.syslogger_mq_name = "/#{OverSIP.master_name}_syslogger"
-      ::OverSIP::Logger.init_logger_mq options[:group]
-      ::OverSIP::Logger.load_methods
 
       ::OverSIP::Launcher.daemonize!(options)
       ::OverSIP::Launcher.run(options)

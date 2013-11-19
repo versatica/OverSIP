@@ -1,29 +1,44 @@
 # 
 # OverSIP
-# Copyright (c) 2012-2013 Iñaki Baz Castillo - Versatica <http://www.versatica.com>
+# Copyright (c) 2012-2014 Iñaki Baz Castillo <ibc@aliax.net>
 # MIT License
 #
 
 # Ruby built-in libraries.
 
+require "rbconfig"
 require "etc"
 require "fileutils"
 require "socket"
 require "timeout"
 require "yaml"
 require "tempfile"
+require "base64"
+require "digest/md5"
+require "digest/sha1"
+require "securerandom"
+require "fiber"
+require "openssl"
 
 
 # Ruby external gems.
 
 require "term/ansicolor"
-gem "posix_mq", ">= 2.0.0"
-require "posix_mq"
 require "syslog"
 # Load EventMachine-LE here to avoid som EM based gem in server.rb to be loaded first
 # (and load eventmachine instead of eventmachine-le).
 gem "eventmachine-le", ">= 1.1.4"
 require "eventmachine-le"
+gem "iobuffer", ">= 1.1.2"
+require "iobuffer"
+gem "em-udns", ">= 0.3.6"
+require "em-udns"
+gem "escape_utils", ">= 0.2.4"
+require "escape_utils"
+gem "posix-spawn", ">= 0.3.6"
+require "posix-spawn"
+gem "em-synchrony", ">=1.0.2"
+require "em-synchrony"
 
 
 # OverSIP files.
@@ -36,20 +51,58 @@ require "oversip/config_validators.rb"
 require "oversip/proxies_config.rb"
 require "oversip/errors.rb"
 require "oversip/launcher.rb"
-require "oversip/utils.so"
+require "oversip/utils.#{RbConfig::CONFIG["DLEXT"]}"
 require "oversip/utils.rb"
-require "oversip/posix_mq.rb"
 require "oversip/default_server.rb"
 require "oversip/system_callbacks.rb"
-require "oversip/ruby_ext/process.rb"  # Required here as the Posix message queue is created before loading master_process.rb.
 
+require "oversip/sip/sip.rb"
+require "oversip/sip/sip_parser.#{RbConfig::CONFIG["DLEXT"]}"
+require "oversip/sip/constants.rb"
+require "oversip/sip/core.rb"
+require "oversip/sip/message.rb"
+require "oversip/sip/request.rb"
+require "oversip/sip/response.rb"
+require "oversip/sip/uri.rb"
+require "oversip/sip/name_addr.rb"
+require "oversip/sip/message_processor.rb"
+require "oversip/sip/listeners.rb"
+require "oversip/sip/launcher.rb"
+require "oversip/sip/server_transaction.rb"
+require "oversip/sip/client_transaction.rb"
+require "oversip/sip/transport_manager.rb"
+require "oversip/sip/timers.rb"
+require "oversip/sip/tags.rb"
+require "oversip/sip/rfc3263.rb"
+require "oversip/sip/client.rb"
+require "oversip/sip/proxy.rb"
+require "oversip/sip/uac.rb"
+require "oversip/sip/uac_request.rb"
+
+require "oversip/websocket/websocket.rb"
+require "oversip/websocket/ws_http_parser.#{RbConfig::CONFIG["DLEXT"]}"
+require "oversip/websocket/constants.rb"
+require "oversip/websocket/http_request.rb"
+require "oversip/websocket/listeners.rb"
+require "oversip/websocket/launcher.rb"
+require "oversip/websocket/ws_framing_utils.#{RbConfig::CONFIG["DLEXT"]}"
+require "oversip/websocket/ws_framing.rb"
+require "oversip/websocket/ws_sip_app.rb"
+
+require "oversip/fiber_pool.rb"
+require "oversip/tls.rb"
+require "oversip/stun.#{RbConfig::CONFIG["DLEXT"]}"
+
+require "oversip/modules/user_assertion.rb"
+require "oversip/modules/outbound_mangling.rb"
+
+require "oversip/ruby_ext/eventmachine.rb"
 
 
 module OverSIP
 
   class << self
-    attr_accessor :pid_file, :master_name, :master_pid, :daemonized,
-                  :syslogger_pid, :syslogger_mq_name,
+    attr_accessor :pid_file, :master_name, :pid, :daemonized,
                   :configuration,
                   :proxies,
                   :tls_public_cert, :tls_private_cert,
@@ -58,17 +111,10 @@ module OverSIP
                   :status,  # :loading, :running, :terminating
                   :root_fiber
 
-    def master?
-      @master_pid == $$
-    end
-
     def daemonized?
       @daemonized
     end
 
-    def syslogger_ready?
-      @syslogger_pid and true
-    end
   end
 
   # Pre-declare internal modules.

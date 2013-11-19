@@ -17,7 +17,7 @@ RUN=no
 RUBY_GEM=oversip
 RUBY_EXE=ruby1.9.1
 
-# Process name, it affects to the process name, Posix Message Queue name and PID file.
+# Process name, it affects to the process name and PID file.
 # The configuration file under /etc/default/ to read will also be called $NAME.
 NAME=oversip
 
@@ -168,12 +168,6 @@ case "$1" in
 
     if [ $res -eq 0 ] ; then
       log_end_msg 0
-      # Posix MQueue for syslogging is created with owner root (to ensure
-      # rlimits and so) so it cannot be deleted by a non root user when
-      # stopping the server. This command removes the mqueue when performing
-      # the "stop" action.
-      set +e
-      $DAEMON --remove-mqueue "/${NAME}_syslogger"  2> /dev/null
       exit 0
     else
       log_failure_msg "error, failed to stop."

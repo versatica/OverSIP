@@ -3,25 +3,25 @@ require "rake/clean"
 
 
 OVERSIP_EXTENSIONS = [
-  { :dir => "ext/sip_parser", :so => "sip_parser.so", :dest => "lib/oversip/sip" },
-  { :dir => "ext/stun", :so => "stun.so", :dest => "lib/oversip" },
-  { :dir => "ext/utils", :so => "utils.so", :dest => "lib/oversip" },
-  { :dir => "ext/websocket_framing_utils", :so => "ws_framing_utils.so", :dest => "lib/oversip/websocket" },
-  { :dir => "ext/websocket_http_parser", :so => "ws_http_parser.so", :dest => "lib/oversip/websocket" },
+  { :dir => "ext/sip_parser", :lib => "sip_parser.#{RbConfig::CONFIG["DLEXT"]}", :dest => "lib/oversip/sip" },
+  { :dir => "ext/stun", :lib => "stun.#{RbConfig::CONFIG["DLEXT"]}", :dest => "lib/oversip" },
+  { :dir => "ext/utils", :lib => "utils.#{RbConfig::CONFIG["DLEXT"]}", :dest => "lib/oversip" },
+  { :dir => "ext/websocket_framing_utils", :lib => "ws_framing_utils.#{RbConfig::CONFIG["DLEXT"]}", :dest => "lib/oversip/websocket" },
+  { :dir => "ext/websocket_http_parser", :lib => "ws_http_parser.#{RbConfig::CONFIG["DLEXT"]}", :dest => "lib/oversip/websocket" },
 ]
 
 OVERSIP_EXTENSIONS.each do |ext|
-  file ext[:so] => Dir.glob(["#{ext[:dir]}/*{.c,.h}"]) do
+  file ext[:lib] => Dir.glob(["#{ext[:dir]}/*{.c,.h}"]) do
     Dir.chdir(ext[:dir]) do
       ruby "extconf.rb"
       sh "make"
     end
-    cp "#{ext[:dir]}/#{ext[:so]}", "#{ext[:dest]}/"
+    cp "#{ext[:dir]}/#{ext[:lib]}", "#{ext[:dest]}/"
   end
 
-  CLEAN.include("#{ext[:dir]}/*{.o,.log,.so,.a}")
+  CLEAN.include("#{ext[:dir]}/*{.o,.log,.so,.a,.bundle}")
   CLEAN.include("#{ext[:dir]}/Makefile")
-  CLEAN.include("#{ext[:dest]}/#{ext[:so]}")
+  CLEAN.include("#{ext[:dest]}/#{ext[:lib]}")
 end
 
 # Stud stuff.
@@ -37,8 +37,7 @@ CLEAN.include("thirdparty/stud/mkmf.log")
 CLEAN.include("bin/oversip_stud")
 
 
-OVERSIP_COMPILE_ITEMS = OVERSIP_EXTENSIONS.map {|e| e[:so]} << "bin/oversip_stud"
-
+OVERSIP_COMPILE_ITEMS = OVERSIP_EXTENSIONS.map {|e| e[:lib]} << "bin/oversip_stud"
 
 task :default => :compile
 

@@ -1,6 +1,5 @@
 require "test/unit"
 require "oversip"
-require "oversip/master_process"
 
 
 class OverSIPTest < Test::Unit::TestCase

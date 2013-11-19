@@ -101,7 +101,7 @@ VALUE Utf8Validator_validate(VALUE self, VALUE string)
   int i;
 
   REQUIRE_TYPE(string, T_STRING);
-  str = RSTRING_PTR(string);
+  str = (uint8_t *)RSTRING_PTR(string);
 
   DATA_GET(self, utf8_validator, validator);
 

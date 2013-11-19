@@ -3,6 +3,7 @@ require "./lib/oversip/version"
 ::Gem::Specification.new do |spec|
   spec.name = "oversip"
   spec.version = ::OverSIP::VERSION
+  spec.licenses = ["MIT"]
   spec.date = ::Time.now
   spec.authors = [::OverSIP::AUTHOR]
   spec.email = [::OverSIP::AUTHOR_EMAIL]
@@ -20,16 +21,14 @@ OverSIP is build on top of EventMachine-LE async library which follows the React
 _END_
 
   spec.required_ruby_version = ">= 1.9.2"
-  spec.add_dependency "eventmachine-le", ">= 1.1.6"
-  spec.add_dependency "iobuffer", ">= 1.1.2"
-  spec.add_dependency "posix_mq", ">= 2.0.0"
-  spec.add_dependency "em-posixmq", ">= 0.2.3"
-  spec.add_dependency "em-udns", ">= 0.3.6"
-  spec.add_dependency "escape_utils", ">= 0.2.4"
-  spec.add_dependency "term-ansicolor"
-  spec.add_dependency "posix-spawn", ">= 0.3.6"
-  spec.add_dependency "em-synchrony", ">=1.0.2"
-  spec.add_development_dependency "rake", "~> 0.9.2"
+  spec.add_dependency "eventmachine-le", "= 1.1.7"
+  spec.add_dependency "iobuffer", "= 1.1.2"
+  spec.add_dependency "em-udns", "= 0.3.6"
+  spec.add_dependency "escape_utils", "= 1.0.1"
+  spec.add_dependency "term-ansicolor", "= 1.3.0"
+  spec.add_dependency "posix-spawn", "= 0.3.9"
+  spec.add_dependency "em-synchrony", "= 1.0.3"
+  spec.add_development_dependency "rake", "~> 10.3", ">= 10.3.2"
 
   spec.files = ::Dir.glob %w{
     lib/oversip.rb

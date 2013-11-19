@@ -425,11 +425,12 @@
   }
 
   action uri_display_name {
-    if (parser->do_uri)
+    if (parser->do_uri) {
       if (!parser->uri_display_name_quoted)
         parser->uri.display_name(parser->parsed, parser->uri_owner, PTR_TO(mark), LEN(mark, fpc), parser->uri_scheme);
       else
         parser->uri.display_name(parser->parsed, parser->uri_owner, PTR_TO(mark)+1, LEN(mark, fpc)-2, parser->uri_scheme);
+    }
   }
 
   # This is for removing double quotes in display name.

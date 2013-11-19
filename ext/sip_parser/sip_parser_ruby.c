@@ -201,6 +201,8 @@ static void header(VALUE parsed, const char *hdr_field, size_t hdr_field_len, co
         case header_field_route:
           rb_ivar_set(parsed, id_hdr_route, array);
           break;
+        default:
+          break;
       }
   }
 }
@@ -567,6 +569,7 @@ static void uri_known_param(VALUE parsed, enum uri_owner owner, enum uri_param_n
         case transport_ws:   v = symbol_ws;    break;
         case transport_wss:  v = symbol_wss;   break;
         case transport_unknown:  v = my_rb_str_downcase(at, length);  break;
+        default:  break;
       }
       break;
     case uri_param_ovid:
@@ -581,6 +584,8 @@ static void uri_known_param(VALUE parsed, enum uri_owner owner, enum uri_param_n
         length--;
       p = id_uri_phone_context_param;
       v = my_rb_str_downcase(at, length);
+      break;
+    default:
       break;
   }
 
@@ -597,6 +602,7 @@ static void uri_has_param(VALUE parsed, enum uri_owner owner, enum uri_param_nam
   switch(param_name) {
     case uri_param_lr:  p = id_uri_lr_param;  break;
     case uri_param_ob:  p = id_uri_ob_param;  break;
+    default:  break;
   }
 
   rb_ivar_set(get_uri_object(parsed, owner), p, Qtrue);
@@ -638,6 +644,7 @@ static void header_core_value(VALUE parsed, enum header_field header_field, cons
 
   switch(header_field) {
     case header_field_via:   rb_ivar_set(parsed, id_via_core_value, v);  break;
+    default:  break;
   }
 }
 
@@ -671,6 +678,8 @@ static void header_param(VALUE parsed, enum header_field header_field, const cha
         v = Qnil;
       rb_hash_aset(header_params, my_rb_str_downcase(key, key_len), v);
       break; */
+    default:
+      break;
   }
 }
 
@@ -707,6 +716,7 @@ static void option_tag(VALUE parsed, enum header_field header_field, const char 
     case header_field_require:        id_option_tag_owner = id_require;        break;
     case header_field_proxy_require:  id_option_tag_owner = id_proxy_require;  break;
     case header_field_supported:      id_option_tag_owner = id_supported;      break;
+    default:  break;
   }
 
   if ((option_tag_owner = rb_ivar_get(parsed, id_option_tag_owner)) == Qnil) {

@@ -6,12 +6,15 @@
 /Gemfile.lock
 *.so
 *.o
+*.bundle
+.DS_Store
 Makefile
 mkmf.log
 bin/oversip_stud
 OLD
 TODO
 PENDING_CHANGELOG
+NO_GIT
 
 # Custom scripts or files
-bin/ov
+ov

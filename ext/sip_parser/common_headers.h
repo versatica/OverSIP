@@ -3,6 +3,7 @@
 
 #include "../common/c_util.h"
 #include "ruby.h"
+#include <ctype.h>  // toupper()
 
 
 /* There are 20 headers with sort representation. */

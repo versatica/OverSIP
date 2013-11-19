@@ -27,26 +27,36 @@ module OverSIP
       "emerg"  => 7
     }
 
-    def self.log string
-      level = string.getbyte 0
-      msg   = string[1..-1].gsub(/%/,"%%").gsub(/\x00/,"")
+    def self.log level_value, msg, log_id, user
+      user = user ? " [user] " : " "
 
-      case level
-      when 48  # "0" =>DEBUG
+      msg = case msg
+      when ::String
+        "<#{log_id}>#{user}#{msg}"
+      when ::Exception
+        "<#{log_id}>#{user}#{msg.message} (#{msg.class })\n#{(msg.backtrace || [])[0..3].join("\n")}"
+      else
+        "<#{log_id}>#{user}#{msg.inspect}"
+      end
+
+      msg = msg.gsub(/%/,"%%").gsub(/\x00/,"")
+
+      case level_value
+      when 0
         ::Syslog.debug sprintf("%7s %s", "DEBUG:", msg)
-      when 49  # "1" => INFO
+      when 1
         ::Syslog.info sprintf("%7s %s", "INFO:", msg)
-      when 50  # "2" => NOTICE
+      when 2
         ::Syslog.notice sprintf("%7s %s", "NOTICE:", msg)
-      when 51  # "3" => WARN
+      when 3
         ::Syslog.warning sprintf("%7s %s", "WARN:", msg)
-      when 52  # "4" => ERR
+      when 4
         ::Syslog.err sprintf("%7s %s", "ERROR:", msg)
-      when 53  # "5" => CRIT
+      when 5
         ::Syslog.crit sprintf("%7s %s", "CRIT:", msg)
-      when 54  # "6" => ALERT
+      when 6
         ::Syslog.alert sprintf("%7s %s", "ALERT:", msg)
-      when 55  # "7" => EMERG
+      when 7
         ::Syslog.emerg sprintf("%7s %s", "EMERG:", msg)
       else  # Shouldn't occur.
         ::Syslog.err sprintf("%7s %s", "UNKNOWN:", msg)

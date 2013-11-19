@@ -5,6 +5,8 @@
 #include <netinet/in.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <arpa/inet.h>  // inet_pton()
+
 
 enum enum_ip_type {
   ip_type_ipv4 = 1,

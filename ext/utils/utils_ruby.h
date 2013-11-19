@@ -10,6 +10,7 @@
 #include "ip_utils.h"
 #include "outbound_utils.h"
 #include "haproxy_protocol.h"
+#include <arpa/inet.h>  // inet_ntop()
 
 
 /* Export the Ruby C functions so other C libraries within OverSIP can use them. */

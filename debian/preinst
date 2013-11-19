@@ -7,7 +7,7 @@
 set -e
 
 
-OVERSIP_GEM_VERSION="1.4.1"
+OVERSIP_GEM_VERSION="2.0.0"
 
 
 install_gem() {

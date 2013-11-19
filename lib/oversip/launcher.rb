@@ -30,15 +30,15 @@ module OverSIP::Launcher
     if grandparent == $$
       # Master process will inmediatelly write in the ready_pipe its PID so we get
       # its PID.
-      master_pid = nil
+      pid = nil
       begin
         ::Timeout.timeout(READY_PIPE_TIMEOUT/2) do
-          master_pid = rd.gets("\n").to_i rescue nil
+          pid = rd.gets("\n").to_i rescue nil
         end
       rescue ::Timeout::Error
         fatal "master process didn't notify its PID within #{READY_PIPE_TIMEOUT/2} seconds"
       end
-      unless master_pid
+      unless pid
         fatal "master process failed to start"
       end
 
@@ -56,14 +56,14 @@ module OverSIP::Launcher
       rescue ::Timeout::Error
         log_system_crit "master process is not ready within #{READY_PIPE_TIMEOUT/2} seconds, killing it..."
         begin
-          ::Process.kill(:TERM, master_pid)
+          ::Process.kill(:TERM, pid)
           10.times do |i|
             sleep 0.05
-            ::Process.wait(master_pid, ::Process::WNOHANG) rescue nil
-            ::Process.kill(0, master_pid) rescue break
+            ::Process.wait(pid, ::Process::WNOHANG) rescue nil
+            ::Process.kill(0, pid) rescue break
           end
-          ::Process.kill(0, master_pid)
-          ::Process.kill(:KILL, master_pid) rescue nil
+          ::Process.kill(0, pid)
+          ::Process.kill(:KILL, pid) rescue nil
         rescue ::Errno::ESRCH
         end
         fatal "master process killed"
@@ -88,7 +88,7 @@ module OverSIP::Launcher
     configuration = ::OverSIP.configuration
 
     # Store the master process PID.
-    ::OverSIP.master_pid = $$
+    ::OverSIP.pid = $$
 
     begin
       # Inmediatelly write into the ready_pipe so grandparent process reads it
@@ -96,31 +96,13 @@ module OverSIP::Launcher
       ready_pipe = options.delete(:ready_pipe)
       ready_pipe.write($$.to_s + "\n") if ready_pipe
 
-      # I'm master process.
-      if (syslogger_pid = fork) != nil
-        ::OverSIP.syslogger_pid = syslogger_pid
-        ::OverSIP::Logger.load_methods
-
-        # Load all the libraries for the master process.
-        require "oversip/master_process.rb"
-
-        ::OverSIP::TLS.module_init
-        ::OverSIP::SIP.module_init
-        ::OverSIP::SIP::RFC3263.module_init
-        ::OverSIP::WebSocket.module_init
-        ::OverSIP::WebSocket::WsFraming.class_init
-        ::OverSIP::WebSocket::WsSipApp.class_init
-
-      # I'm the syslogger process.
-      else
-        # Close the pipe in the syslogger process.
-        ready_pipe.close rescue nil
-        ready_pipe = nil
-
-        require "oversip/syslogger_process.rb"
-        ::OverSIP::SysLoggerProcess.run options
-        exit
-      end
+      # Init modules.
+      ::OverSIP::TLS.module_init
+      ::OverSIP::SIP.module_init
+      ::OverSIP::SIP::RFC3263.module_init
+      ::OverSIP::WebSocket.module_init
+      ::OverSIP::WebSocket::WsFraming.class_init
+      ::OverSIP::WebSocket::WsSipApp.class_init
 
       @log_id = "launcher (master)"
 
@@ -152,7 +134,7 @@ module OverSIP::Launcher
         ::Fiber.new do
 
           # Run OverSIP::SystemEvents.on_initialize.
-          log_system_notice "calling OverSIP::SystemEvents.on_initialize() method..."
+          log_system_debug "calling OverSIP::SystemEvents.on_initialize() method..."
           begin
             ::OverSIP::SystemEvents.on_initialize
           rescue ::Exception => e
@@ -161,7 +143,7 @@ module OverSIP::Launcher
           end
 
           # Run all the OverSIP::SystemCallbacks.on_started_callbacks.
-          log_system_notice "executing OverSIP::SystemCallbacks.on_started_callbacks..."
+          log_system_debug "executing OverSIP::SystemCallbacks.on_started_callbacks..."
           ::OverSIP::SystemCallbacks.on_started_callbacks.each do |cb|
             begin
               cb.call
@@ -172,7 +154,7 @@ module OverSIP::Launcher
           end
 
           # Run OverSIP::SystemEvents.on_started within a fiber.
-          log_system_notice "calling OverSIP::SystemEvents.on_started() method..."
+          log_system_debug "calling OverSIP::SystemEvents.on_started() method..."
           begin
             ::OverSIP::SystemEvents.on_started
           rescue ::Exception => e
@@ -180,7 +162,6 @@ module OverSIP::Launcher
             fatal e
           end
 
-          log_system_notice "master process (PID #{$$}) ready"
           log_system_notice "#{::OverSIP::PROGRAM_NAME} #{::OverSIP::VERSION} running in background"
 
           # Write "ok" into the ready_pipe so grandparent process (launcher)
@@ -195,7 +176,8 @@ module OverSIP::Launcher
           $stdout.reopen("/dev/null")
           $stderr.reopen("/dev/null")
           ::OverSIP.daemonized = true
-          # So update the logger to write to syslog.
+
+          # So update the logger to stop writting into stdout.
           ::OverSIP::Logger.load_methods
 
           # Set the EventMachine error handler.
@@ -458,7 +440,7 @@ module OverSIP::Launcher
           log_system_notice "#{signal.to_s.upcase} signal received, ignored"
         end
       rescue ::ArgumentError
-        log_system_notice "cannot trap signal #{signal.to_s.upcase}, it could not exist in this system, ignoring it"
+        log_system_debug "cannot trap signal #{signal.to_s.upcase}, it could not exist in this system, ignoring it"
       end
     end
 
@@ -557,12 +539,6 @@ module OverSIP::Launcher
       kill_stud_processes
       ::File.delete ::OverSIP.configuration[:tls][:full_cert]  rescue nil
 
-      # Wait a bit so pending log messages in the Posix MQ can be queued.
-      sleep 0.1
-      ::OverSIP::Logger.close
-
-      kill_syslogger_process
-
       delete_pid_file
 
       # Exit by preventing any exception.
@@ -573,26 +549,9 @@ module OverSIP::Launcher
 
 
   def self.delete_pid_file
-    return false  unless ::OverSIP.master_pid
+    return false  unless ::OverSIP.pid
 
     ::File.delete(::OverSIP.pid_file) rescue nil
-  end
-
-
-  def self.kill_syslogger_process
-    return false  unless ::OverSIP.master_pid
-
-    begin
-      ::Process.kill(:TERM, ::OverSIP.syslogger_pid)
-      10.times do |i|
-        sleep 0.05
-        ::Process.wait(::OverSIP.syslogger_pid, ::Process::WNOHANG) rescue nil
-        ::Process.kill(0, ::OverSIP.syslogger_pid) rescue break
-      end
-      ::Process.kill(0, ::OverSIP.syslogger_pid)
-      ::Process.kill(:KILL, ::OverSIP.syslogger_pid) rescue nil
-    rescue ::Errno::ESRCH
-    end
   end
 
 
@@ -654,7 +613,7 @@ module OverSIP::Launcher
 
 
   def self.kill_stud_processes
-    return false  unless ::OverSIP.master_pid
+    return false  unless ::OverSIP.pid
     return false  unless ::OverSIP.stud_pids
 
     ::OverSIP.stud_pids.each do |pid|
