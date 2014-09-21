@@ -20,7 +20,7 @@ OverSIP is an async SIP proxy/server programmable in Ruby language. Some feature
 OverSIP is build on top of EventMachine-LE async library which follows the Reactor Design Pattern, allowing thousands of concurrent connections and requests in a never-blocking fashion.
 _END_
 
-  spec.required_ruby_version = ">= 1.9.2"
+  spec.required_ruby_version = ">= 1.9.3"
   spec.add_dependency "eventmachine-le", "= 1.1.7"
   spec.add_dependency "iobuffer", "= 1.1.2"
   spec.add_dependency "em-udns", "= 0.3.6"
