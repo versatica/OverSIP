@@ -2,9 +2,10 @@ CHANGELOG
 =========
 
 
-Version devel (not yet released)
+Version 2.0.0 (released in 2014-09-22)
 --------------------------------------
 
+- [(437abd4)](https://github.com/versatica/OverSIP/commit/437abd4c6e389c4add03395e6f33d456d2daa8a9) Remove Posix Message Queue dependency. OverSIP can now run in OSX.
 
 
 Version 1.4.0 (released in 2013-09-15)
