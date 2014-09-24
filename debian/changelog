@@ -1,6 +1,6 @@
 oversip (2.0.0) stable; urgency=low
   * Package for OverSIP Ruby Gem 2.0.0.
- -- Iñaki Baz Castillo <ibc@aliax.net>  Mon, 22 Sep 2014 01:05:00 +0100
+ -- Iñaki Baz Castillo <ibc@aliax.net>  Wed, 24 Sep 2014 23:00:00 +0100
 
 oversip (1.4.1) stable; urgency=low
   * Package for OverSIP Ruby Gem 1.4.1.

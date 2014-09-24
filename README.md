@@ -11,6 +11,7 @@
 
 OverSIP is a powerful and flexible SIP proxy & server by the authors of [draft-ietf-sipcore-sip-websocket](http://tools.ietf.org/html/draft-ietf-sipcore-sip-websocket) (*The WebSocket Protocol as a Transport for SIP*):
 
+* Works on Linux/BSD/OSX
 * Fully asynchronous event-based design, never block!
 * Enjoy coding your SIP logic in Ruby language, feel free to code whatever you need!
 * Fast: core and message parsers written in C language

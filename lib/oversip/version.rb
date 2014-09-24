@@ -14,7 +14,7 @@ module OverSIP
   VERSION << ".#{Version::DEVEL}"  if Version::DEVEL
   AUTHOR = "Inaki Baz Castillo"
   AUTHOR_EMAIL = "ibc@aliax.net"
-  HOMEPAGE = "http://www.oversip.net"
+  HOMEPAGE = "http://oversip.net"
   year = "2012-2014"
   DESCRIPTION = "#{PROGRAM_NAME} #{VERSION}\n#{HOMEPAGE}\n#{year}, #{AUTHOR} <#{AUTHOR_EMAIL}>"
 
