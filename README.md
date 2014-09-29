@@ -1,4 +1,4 @@
-<a href="http://www.oversip.net"><img src="http://www.oversip.net/images/oversip-banner.png"/></a>
+<p align="center"><a href="http://oversip.net"><img src="http://oversip.net/images/oversip-banner.png"/></a></p>
 
 [![Build Status](https://secure.travis-ci.org/versatica/OverSIP.png?branch=master)](http://travis-ci.org/versatica/OverSIP)
 
