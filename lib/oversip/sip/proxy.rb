@@ -187,7 +187,7 @@ module OverSIP::SIP
       add_rr_path = false
 
       # NOTE: As per RFC 6665 the proxy MUST add Record-Route to in-dialog NOTIFY's.
-      if (@request.initial? and @request.record_routing_aware?) or @request.sip_method == :NOTIFY
+      if (@request.initial? and @request.record_routing_aware?) or @request.sip_method == :NOTIFY or @conf[:record_route_all]
         do_record_routing = @conf[:do_record_routing]
 
         # Request has no previous RR/Path and current proxy performs record-routing.

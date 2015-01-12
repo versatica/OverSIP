@@ -11,6 +11,7 @@ module OverSIP
 
     @proxy_configuration = {
       :do_record_routing          => true,
+      :record_route_all           => false,
       :use_dns                    => true,
       :use_dns_cache              => true,
       :dns_cache_time             => 300,
@@ -30,6 +31,7 @@ module OverSIP
 
     PROXY_CONFIG_VALIDATIONS = {
       :do_record_routing          => :boolean,
+      :record_route_all           => :boolean,
       :use_dns                    => :boolean, 
       :use_dns_cache              => :boolean,
       :dns_cache_time             => [ :fixnum, [ :greater_equal_than, 300 ] ],
@@ -176,6 +178,9 @@ module OverSIP
 
         # Add a hash for the blacklist.
         @proxies[proxy][:blacklist] = {}
+        
+        # Only allow record routing for all requsts if record routing is enabled
+        @proxies[proxy][:record_route_all] = false  unless @proxies[proxy][:do_record_routing]
       end
     end
 
