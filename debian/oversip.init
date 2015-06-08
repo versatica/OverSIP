@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/sh
 
 ### BEGIN INIT INFO
 # Provides:          oversip
@@ -15,7 +15,7 @@ DESC=OverSIP
 HOMEDIR=/var/run/oversip
 RUN=no
 RUBY_GEM=oversip
-RUBY_EXE=ruby1.9.1
+RUBY_EXE=$(which ruby)
 
 # Process name, it affects to the process name and PID file.
 # The configuration file under /etc/default/ to read will also be called $NAME.
