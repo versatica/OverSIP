@@ -7,7 +7,7 @@
 set -e
 
 
-OVERSIP_GEM_VERSION="2.0.2"
+OVERSIP_GEM_VERSION="2.0.3"
 
 
 install_gem() {
@@ -16,7 +16,7 @@ install_gem() {
   #gem1.9.1 uninstall oversip -a -x -I
   #set -e
   echo "installing 'oversip' Ruby Gem version $OVERSIP_GEM_VERSION..."
-  gem1.9.1 install oversip --no-rdoc --no-ri -v $OVERSIP_GEM_VERSION
+  gem install oversip --no-rdoc --no-ri -v $OVERSIP_GEM_VERSION
 }
 
 case "$1" in

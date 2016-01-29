@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+Version 2.0.3 (released in 2016-01-29)
+--------------------------------------
+
+- Suitable for Debian Jessie and for Ruby >= 1.9.3 and Ruby 2.X.X.
+
 
 Version 2.0.0 (released in 2014-09-24)
 --------------------------------------
