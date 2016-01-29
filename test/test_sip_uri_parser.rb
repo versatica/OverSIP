@@ -1,6 +1,6 @@
 # coding: utf-8
 
-require "oversip_test_helper"
+require "./oversip_test_helper"
 
 
 class TestSipUriParser < OverSIPTest
