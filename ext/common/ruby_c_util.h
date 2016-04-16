@@ -15,7 +15,7 @@
 
 
 /*
- * my_rb_str_hex_unescape: Unexcapes hexadecimal encoded symbols (%NN).
+ * my_rb_str_hex_unescape: Unescapes hexadecimal encoded symbols (%NN).
  */
 static VALUE my_rb_str_hex_unescape(const char *str, size_t len)
 {
