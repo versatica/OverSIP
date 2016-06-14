@@ -94,7 +94,7 @@ module OverSIP
           require library
         end
 
-        opts.on("--no-daemonize", "Starts OverSIP without in the foreground (no fork)") do |value|
+        opts.on("--no-daemonize", "Starts OverSIP in the foreground (no fork)") do |value|
           options[:daemonize] = false
         end
 
