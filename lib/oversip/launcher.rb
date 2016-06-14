@@ -128,7 +128,7 @@ module OverSIP::Launcher
         # Create PID file.
         create_pid_file(options[:pid_file])
 
-        trap_signals
+        trap_signals(options[:daemonize])
 
         # Ensure the code in the next SystemEvents and SystemCallbacks are run serially.
         ::Fiber.new do
@@ -162,7 +162,7 @@ module OverSIP::Launcher
             fatal e
           end
 
-          log_system_notice "#{::OverSIP::PROGRAM_NAME} #{::OverSIP::VERSION} running in background"
+          log_system_notice "#{::OverSIP::PROGRAM_NAME} #{::OverSIP::VERSION} running in #{options[:daemonize] ? "background" : "foreground"}"
 
           # Write "ok" into the ready_pipe so grandparent process (launcher)
           # exits with status 0.
@@ -173,9 +173,11 @@ module OverSIP::Launcher
           end
 
           # Stop writting into standard output/error.
-          $stdout.reopen("/dev/null")
-          $stderr.reopen("/dev/null")
-          ::OverSIP.daemonized = true
+          if options[:daemonize]
+            $stdout.reopen("/dev/null")
+            $stderr.reopen("/dev/null")
+            ::OverSIP.daemonized = true
+          end
 
           # So update the logger to stop writting into stdout.
           ::OverSIP::Logger.load_methods
@@ -409,7 +411,7 @@ module OverSIP::Launcher
   end
 
 
-  def self.trap_signals
+  def self.trap_signals(background)
     # This should never occur (unless some not trapped signal is received
     # and causes Ruby to exit, or maybe the user called "exit()" within its
     # custom code).
@@ -425,6 +427,7 @@ module OverSIP::Launcher
 
     # Signals that cause OverSIP to terminate.
     exit_signals = [:TERM, :QUIT]
+    exit_signals << :INT unless background
     exit_signals.each do |signal|
       trap signal do
         log_system_notice "#{signal} signal received, exiting..."
@@ -433,7 +436,8 @@ module OverSIP::Launcher
     end
 
     # Signals that must be ignored.
-    ignore_signals = [:ALRM, :INT, :PIPE, :POLL, :PROF, :USR2, :WINCH]
+    ignore_signals = [:ALRM, :PIPE, :POLL, :PROF, :USR2, :WINCH]
+    ignore_signals << :INT if background
     ignore_signals.each do |signal|
       begin
         trap signal do
