@@ -32,7 +32,7 @@ module OverSIP
 
         if ::OverSIP.daemonized?
           method_str << "
-              ::OverSIP::Syslog.log #{level_value}, msg, log_id, false
+              ::OverSIP::Syslog.log #{level_value}, msg, log_id, !system
           "
         else
           if %w{debug info notice}.include? level_str
