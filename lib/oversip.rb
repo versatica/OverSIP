@@ -1,4 +1,4 @@
-# 
+#
 # OverSIP
 # Copyright (c) 2012-2014 Iñaki Baz Castillo <ibc@aliax.net>
 # MIT License
@@ -23,21 +23,22 @@ require "openssl"
 
 # Ruby external gems.
 
-require "term/ansicolor"
 require "syslog"
 # Load EventMachine-LE here to avoid som EM based gem in server.rb to be loaded first
 # (and load eventmachine instead of eventmachine-le).
-gem "eventmachine-le", ">= 1.1.4"
+gem "eventmachine-le", "= 1.1.7"
 require "eventmachine-le"
-gem "iobuffer", ">= 1.1.2"
+gem "iobuffer", "= 1.1.2"
 require "iobuffer"
-gem "em-udns", ">= 0.3.6"
+gem "em-udns", "= 0.3.6"
 require "em-udns"
-gem "escape_utils", ">= 0.2.4"
+gem "escape_utils", "= 1.0.1"
 require "escape_utils"
-gem "posix-spawn", ">= 0.3.6"
+gem "term-ansicolor", "= 1.3.0"
+require "term/ansicolor"
+gem "posix-spawn", "= 0.3.9"
 require "posix-spawn"
-gem "em-synchrony", ">=1.0.2"
+gem "em-synchrony", "= 1.0.3"
 require "em-synchrony"
 
 

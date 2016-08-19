@@ -12,7 +12,7 @@ case "$1" in
 
     # Remove the Ruby gem.
     echo "uninstalling 'oversip' Ruby Gem(s)..."
-    gem1.9.1 uninstall oversip -a -x -I
+    gem uninstall oversip -a -x -I
     ;;
 
 esac

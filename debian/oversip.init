@@ -10,7 +10,7 @@
 # Description:       Start/stop OverSIP
 ### END INIT INFO
 
-PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin:/var/lib/gems/1.9.1/bin
+PATH=/sbin:/bin:/usr/sbin:/usr/bin:/usr/local/sbin:/usr/local/bin:/var/lib/gems/2.1.0/bin:/var/lib/gems/1.9.1/bin
 DESC=OverSIP
 HOMEDIR=/var/run/oversip
 RUN=no
@@ -43,7 +43,7 @@ fi
 # Ensure Ruby executable is installed.
 which $RUBY_EXE >/dev/null
 if [ $? -ne 0 ] ; then
-  log_failure_msg "ruby1.9.1 is not installed, exiting."
+  log_failure_msg "ruby is not installed, exiting."
   log_end_msg 5
   exit 5
 fi

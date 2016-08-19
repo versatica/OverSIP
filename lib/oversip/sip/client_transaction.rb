@@ -115,6 +115,8 @@ module OverSIP::SIP
       @outgoing_request_str = @request.to_s
 
       @request.delete_header_top "Via"
+      # TODO: I think this should be removed
+      # https://github.com/versatica/OverSIP/issues/76
       if @out_rr == :rr
         @request.delete_header_top "Record-Route"
       end
@@ -441,6 +443,8 @@ module OverSIP::SIP
       @outgoing_request_str = @request.to_s
 
       @request.delete_header_top "Via"
+      # TODO: I think this should be removed
+      # https://github.com/versatica/OverSIP/issues/76
       case @out_rr
       when :rr
         @request.delete_header_top "Record-Route"

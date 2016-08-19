@@ -10,10 +10,8 @@
 .DS_Store
 Makefile
 mkmf.log
-bin/oversip_stud
-OLD
-TODO
-NO_GIT
-
-# Custom scripts or files
-ov
+/bin/oversip_stud
+/thirdparty/stud/stud/
+/OLD
+/TODO
+/NO_GIT
