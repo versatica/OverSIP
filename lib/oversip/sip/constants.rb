@@ -39,6 +39,7 @@ module OverSIP::SIP
     421 => "Extension Required",
     422 => "Session Interval Too Small",  # RFC 4028
     423 => "Interval Too Brief",
+    424 => "Bad Location Information",  # RFC 6442
     428 => "Use Identity Header",  # RFC 4474
     429 => "Provide Referrer Identity",  # RFC 3892
     430 => "Flow Failed",  # RFC 5626
