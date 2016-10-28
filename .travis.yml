@@ -2,9 +2,13 @@ language: ruby
 rvm:
   - 1.9.3
   - 2.0.0
-  - 2.1.0
+  - 2.1
+  - 2.2
+  - 2.3
+  - 2.4.0-preview2
 
 before_install:
+  - gem install bundler -v 1.12.6
   - sudo apt-get install libev-dev libssl-dev
 
 after_script:

@@ -17,15 +17,16 @@ OverSIP is an async SIP proxy/server programmable in Ruby language. Some feature
 - RFC 5626: OverSIP is a perfect Outbound Edge Proxy, including an integrated STUN server.
 - Fully programmable in Ruby language (make SIP easy).
 - Fast and efficient: OverSIP core is coded in C language.
-OverSIP is build on top of EventMachine-LE async library which follows the Reactor Design Pattern, allowing thousands of concurrent connections and requests in a never-blocking fashion.
+OverSIP is build on top of EventMachine async library which follows the Reactor Design Pattern, allowing thousands of concurrent connections and requests in a never-blocking fashion.
 _END_
 
   spec.required_ruby_version = ">= 1.9.3"
-  spec.add_dependency "eventmachine-le", "= 1.1.7"
+  spec.add_dependency "eventmachine", "~> 1.2.0", ">= 1.2.0.1"
   spec.add_dependency "iobuffer", "= 1.1.2"
   spec.add_dependency "em-udns", "= 0.3.6"
   spec.add_dependency "escape_utils", "= 1.0.1"
-  spec.add_dependency "term-ansicolor", "= 1.3.0"
+  spec.add_dependency "term-ansicolor", "= 1.3.2"
+  spec.add_dependency "tins", "= 1.6.0" # For term-ansicolor: Last version that supports Ruby 1.9
   spec.add_dependency "posix-spawn", "= 0.3.9"
   spec.add_dependency "em-synchrony", "= 1.0.3"
   spec.add_development_dependency "rake", "~> 10.3", ">= 10.3.2"
