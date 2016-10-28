@@ -13,7 +13,7 @@ module OverSIP::SIP
         :verify_peer => true,
         :cert_chain_file => ::OverSIP.tls_public_cert,
         :private_key_file => ::OverSIP.tls_private_cert,
-        :use_tls => true
+        :ssl_version => %w(tlsv1 tlsv1_1 tlsv1_2)
       })
 
       # If the remote client does never send us a TLS certificate

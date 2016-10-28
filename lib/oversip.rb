@@ -24,10 +24,8 @@ require "openssl"
 # Ruby external gems.
 
 require "syslog"
-# Load EventMachine-LE here to avoid som EM based gem in server.rb to be loaded first
-# (and load eventmachine instead of eventmachine-le).
-gem "eventmachine-le", "= 1.1.7"
-require "eventmachine-le"
+gem "eventmachine", "~> 1.2.0"
+require "eventmachine"
 gem "iobuffer", "= 1.1.2"
 require "iobuffer"
 gem "em-udns", "= 0.3.6"
