@@ -25,7 +25,8 @@ _END_
   spec.add_dependency "iobuffer", "= 1.1.2"
   spec.add_dependency "em-udns", "= 0.3.6"
   spec.add_dependency "escape_utils", "= 1.0.1"
-  spec.add_dependency "term-ansicolor", "= 1.3.0"
+  spec.add_dependency "term-ansicolor", "= 1.3.2"
+  spec.add_dependency "tins", "= 1.6.0" # For term-ansicolor: Last version that supports Ruby 1.9
   spec.add_dependency "posix-spawn", "= 0.3.9"
   spec.add_dependency "em-synchrony", "= 1.0.3"
   spec.add_development_dependency "rake", "~> 10.3", ">= 10.3.2"
