@@ -32,9 +32,6 @@ module OverSIP::SIP
       @state = :init
       @cvars = {}
 
-      # Set the socket sending error handling to report the error:
-      # :ERRORHANDLING_KILL, :ERRORHANDLING_IGNORE, :ERRORHANDLING_REPORT
-      self.send_error_handling = :ERRORHANDLING_REPORT
     end
 
     def receive_senderror error, data
