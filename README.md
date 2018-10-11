@@ -2,6 +2,11 @@
 
 [![Build Status](https://secure.travis-ci.org/versatica/OverSIP.png?branch=master)](http://travis-ci.org/versatica/OverSIP)
 
+## Notice
+
+This project is no longer maintained. If you wish to maintain it, contact the authors (see below).
+
+
 ## Website
 
 * [www.oversip.net](http://www.oversip.net)
