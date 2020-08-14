@@ -1,4 +1,4 @@
-<p align="center"><a href="http://oversip.net"><img src="http://oversip.net/images/oversip-banner.png"/></a></p>
+<p align="center"><a href="http://oversip.versatica.com"><img src="http://oversip.versatica.com/images/oversip-banner.png"/></a></p>
 
 [![Build Status](https://secure.travis-ci.org/versatica/OverSIP.png?branch=master)](http://travis-ci.org/versatica/OverSIP)
 
@@ -9,7 +9,7 @@ This project is no longer maintained. If you wish to maintain it, contact the au
 
 ## Website
 
-* [www.oversip.net](http://www.oversip.net)
+* [www.oversip.versatica.com](http://www.oversip.versatica.com)
 
 
 ## Overview
@@ -28,7 +28,7 @@ OverSIP is a powerful and flexible SIP proxy & server by the authors of [RFC 711
 
 ## Documentation
 
-* [www.oversip.net/documentation](http://www.oversip.net/documentation/)
+* [www.oversip.versatica.com/documentation](http://www.oversip.versatica.com/documentation/)
 
 
 ## Authors
@@ -45,4 +45,4 @@ OverSIP is a powerful and flexible SIP proxy & server by the authors of [RFC 711
 
 ## License
 
-OverSIP is released under the [MIT license](http://www.oversip.net/license).
+OverSIP is released under the [MIT license](http://www.oversip.versatica.com/license).
