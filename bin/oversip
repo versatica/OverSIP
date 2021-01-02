@@ -35,7 +35,8 @@ module OverSIP
 
       # Options by default.
       options = {
-        :colorize => true
+        :colorize => true,
+        :daemonize => true
       }
 
       OptionParser.new("", 28, "  ") do |opts|
@@ -91,6 +92,10 @@ module OverSIP
 
         opts.on("-r", "--require LIBRARY", "Load LIBRARY before running the programm (may be used more than once)") do |library|
           require library
+        end
+
+        opts.on("--no-daemonize", "Starts OverSIP in the foreground (no fork)") do |value|
+          options[:daemonize] = false
         end
 
         opts.separator "\nCommon options:"
@@ -173,7 +178,11 @@ module OverSIP
         log_system_error "error increasing rlimits for 'nofiles': #{e.message} (#{e.class})"
       end
 
-      ::OverSIP::Launcher.daemonize!(options)
+      # Only fork here if the user didn't ask not to
+      if options[:daemonize]
+        ::OverSIP::Launcher.daemonize!(options)
+      end
+
       ::OverSIP::Launcher.run(options)
 
     end  # def run

@@ -10,7 +10,8 @@ module OverSIP
 
       syslog_options = ::Syslog::LOG_PID | ::Syslog::LOG_NDELAY
       syslog_facility = ::OverSIP::Syslog::SYSLOG_FACILITY_MAPPING[::OverSIP.configuration[:core][:syslog_facility]] rescue ::Syslog::LOG_DAEMON
-      ::Syslog.open(::OverSIP.master_name, syslog_options, syslog_facility)
+
+      ::Syslog.open(::OverSIP.master_name, syslog_options, syslog_facility) if ::OverSIP.daemonized?
 
       begin
         @@threshold = ::OverSIP::Syslog::SYSLOG_SEVERITY_MAPPING[::OverSIP.configuration[:core][:syslog_level]]
@@ -22,16 +23,18 @@ module OverSIP
 
       ::OverSIP::Syslog::SYSLOG_SEVERITY_MAPPING.each do |level_str, level_value|
         method_str = "
-          def log_system_#{level_str}(msg)
+          def internal_log_#{level_str}(system, msg)
         "
 
         method_str << "
           return false if @@threshold > #{level_value}
-
-          ::OverSIP::Syslog.log #{level_value}, msg, log_id, false
         "
 
-        if not ::OverSIP.daemonized?
+        if ::OverSIP.daemonized?
+          method_str << "
+              ::OverSIP::Syslog.log #{level_value}, msg, log_id, !system
+          "
+        else
           if %w{debug info notice}.include? level_str
             method_str << "
               puts ::OverSIP::Logger.fg_system_msg2str('#{level_str}', msg, log_id)
@@ -43,17 +46,21 @@ module OverSIP
           end
         end
 
-        method_str << "end"
+        method_str << "
+          end
+        "
 
         self.module_eval method_str
 
 
         # User logs.
         method_str = "
-          def log_#{level_str}(msg)
-            return false if @@threshold > #{level_value}
+          def log_system_#{level_str}(msg)
+            internal_log_#{level_str}(true, msg)
+          end
 
-            ::OverSIP::Syslog.log #{level_value}, msg, log_id, true
+          def log_#{level_str}(msg)
+            internal_log_#{level_str}(false, msg)
           end
         "
 
